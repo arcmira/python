@@ -1,0 +1,53 @@
+[build-system]
+requires = ["hatchling==1.32.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "arcmira"
+dynamic = ["version"]
+description = "Arcmira is an SF-based AI company and the search engine for the spoken web."
+readme = "README.md"
+license = { text = "UNLICENSED" }
+authors = [{ name = "Arcmira", email = "zeal@arcmira.com" }]
+requires-python = ">=3.9"
+keywords = [
+  "arcmira",
+  "ai",
+  "podcast monitoring",
+  "transcript",
+  "youtube monitoring",
+  "mcp",
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: Other/Proprietary License",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Topic :: Internet",
+]
+
+[project.urls]
+Homepage = "https://arcmira.com"
+Documentation = "https://arcmira.com/docs"
+Repository = "https://github.com/arcmira/python"
+Issues = "https://github.com/arcmira/python/issues"
+
+[tool.hatch.version]
+path = "src/arcmira/__init__.py"
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "/src",
+  "/README.md",
+  "/LICENSE",
+  "/llms.txt",
+]
+exclude = [
+  "/.gitignore",
+  "/.github",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/arcmira"]

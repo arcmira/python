@@ -1,0 +1,31 @@
+name: Publish to PyPI
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: astral-sh/setup-uv@v6
+
+      - name: Build
+        run: uv build
+
+      - name: Publish if this version is new
+        run: |
+          version="$(sed -n 's/^__version__ = "\(.*\)"/\1/p' src/arcmira/__init__.py)"
+          if curl -sfI "https://pypi.org/pypi/arcmira/${version}/json" >/dev/null; then
+            echo "arcmira==${version} is already on the registry. Skipping publish."
+            exit 0
+          fi
+          uv publish
