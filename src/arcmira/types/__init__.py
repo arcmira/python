@@ -170,6 +170,7 @@ if typing.TYPE_CHECKING:
     from .health_response_status import HealthResponseStatus
     from .health_response_version import HealthResponseVersion
     from .me_response import MeResponse
+    from .me_response_credential_kind import MeResponseCredentialKind
     from .me_response_usage import MeResponseUsage
     from .me_settings_response import MeSettingsResponse
     from .mention import Mention
@@ -549,6 +550,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "HealthResponseStatus": ".health_response_status",
     "HealthResponseVersion": ".health_response_version",
     "MeResponse": ".me_response",
+    "MeResponseCredentialKind": ".me_response_credential_kind",
     "MeResponseUsage": ".me_response_usage",
     "MeSettingsResponse": ".me_settings_response",
     "Mention": ".mention",
@@ -942,6 +944,7 @@ __all__ = [
     "HealthResponseStatus",
     "HealthResponseVersion",
     "MeResponse",
+    "MeResponseCredentialKind",
     "MeResponseUsage",
     "MeSettingsResponse",
     "Mention",

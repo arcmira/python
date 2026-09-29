@@ -5,6 +5,7 @@ import typing
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 from .account_settings import AccountSettings
+from .me_response_credential_kind import MeResponseCredentialKind
 from .me_response_usage import MeResponseUsage
 
 
@@ -12,6 +13,31 @@ class MeResponse(UniversalBaseModel):
     user_id: typing.Optional[str] = pydantic.Field(default=None)
     """
     Id of the user the API key belongs to.
+    """
+
+    key_id: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    Id of the credential making this request: the account key id, or the OAuth token id. Never a secret. Null on a browser session.
+    """
+
+    key_label: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    The key name set in the dashboard, or the name of the connected OAuth client. Null when none is known.
+    """
+
+    credential_kind: MeResponseCredentialKind = pydantic.Field()
+    """
+    How the request authenticated: account_key is an arc_sk_ key, oauth is a token from a connected client, session is a signed-in browser.
+    """
+
+    email_masked: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    The account email with the local part masked after its first character, e.g. z***@example.com. Null when the account has none.
+    """
+
+    period_resets_at: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    ISO 8601 time the monthly row pool resets: 00:00 UTC on the first of next month. Null on the free plan, whose rows are a lifetime pool.
     """
 
     tier: str = pydantic.Field()

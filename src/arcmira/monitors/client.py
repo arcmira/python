@@ -69,6 +69,7 @@ class MonitorsClient:
         self,
         *,
         name: str,
+        idempotency_key: typing.Optional[str] = None,
         notify_emails: typing.Optional[typing.Sequence[str]] = OMIT,
         notify_frequency: typing.Optional[CreateMonitorsRequestNotifyFrequency] = OMIT,
         digest_day: typing.Optional[str] = OMIT,
@@ -84,12 +85,15 @@ class MonitorsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> MonitorMutationResponse:
         """
-        Creating with notifyWebhook: true and a webhookUrl enables HMAC-signed webhook delivery and returns the signing secret (monitor.webhookSecret) in this response. Returned only once. Store it securely; it cannot be retrieved later. To recover from a lost secret, rotate. All subsequent reads expose only webhookSecretSet and webhookSecretHint. Supports the Idempotency-Key header.
+        Creating with notifyWebhook: true and a webhookUrl enables HMAC-signed webhook delivery and returns the signing secret (monitor.webhookSecret) in this response. Returned only once. Store it securely; it cannot be retrieved later. To recover from a lost secret, rotate. All subsequent reads expose only webhookSecretSet and webhookSecretHint.
 
         Parameters
         ----------
         name : str
             Display name (1-100 characters). Required on create.
+
+        idempotency_key : typing.Optional[str]
+            A unique key you generate per logical request, such as a UUID. A retry with the same key and the same body within 24 hours returns the stored response with Idempotency-Replayed: true instead of running again. The same key with a different body answers 409 idempotency_conflict. Keys are scoped to the credential.
 
         notify_emails : typing.Optional[typing.Sequence[str]]
             Desired email recipients. External recipients must confirm before delivery. Free includes one additional recipient per monitor; paid plans allow up to 20 total. Default [].
@@ -148,6 +152,7 @@ class MonitorsClient:
         """
         _response = self._raw_client.create(
             name=name,
+            idempotency_key=idempotency_key,
             notify_emails=notify_emails,
             notify_frequency=notify_frequency,
             digest_day=digest_day,
@@ -199,6 +204,7 @@ class MonitorsClient:
         self,
         id: str,
         *,
+        idempotency_key: typing.Optional[str] = None,
         name: typing.Optional[str] = OMIT,
         notify_emails: typing.Optional[typing.Sequence[str]] = OMIT,
         notify_frequency: typing.Optional[UpdateMonitorsRequestNotifyFrequency] = OMIT,
@@ -215,12 +221,15 @@ class MonitorsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> MonitorMutationResponse:
         """
-        A PATCH that newly enables webhook signing (turns notifyWebhook on, or sets a webhookUrl where no secret existed before) returns the signing secret (monitor.webhookSecret) in this response. Returned only once. Store it securely; it cannot be retrieved later. To recover from a lost secret, rotate. Unrelated PATCHes expose only webhookSecretSet and webhookSecretHint. PATCHing notifyWebhook: true also re-enables a webhook that was auto-disabled after repeated failures and resets its failure counter. Supports the Idempotency-Key header.
+        A PATCH that newly enables webhook signing (turns notifyWebhook on, or sets a webhookUrl where no secret existed before) returns the signing secret (monitor.webhookSecret) in this response. Returned only once. Store it securely; it cannot be retrieved later. To recover from a lost secret, rotate. Unrelated PATCHes expose only webhookSecretSet and webhookSecretHint. PATCHing notifyWebhook: true also re-enables a webhook that was auto-disabled after repeated failures and resets its failure counter.
 
         Parameters
         ----------
         id : str
             Monitor id.
+
+        idempotency_key : typing.Optional[str]
+            A unique key you generate per logical request, such as a UUID. A retry with the same key and the same body within 24 hours returns the stored response with Idempotency-Replayed: true instead of running again. The same key with a different body answers 409 idempotency_conflict. Keys are scoped to the credential.
 
         name : typing.Optional[str]
             Display name (1-100 characters). Required on create.
@@ -282,6 +291,7 @@ class MonitorsClient:
         """
         _response = self._raw_client.update(
             id,
+            idempotency_key=idempotency_key,
             name=name,
             notify_emails=notify_emails,
             notify_frequency=notify_frequency,
@@ -300,15 +310,22 @@ class MonitorsClient:
         return _response.data
 
     def rotate_webhook_secret(
-        self, id: str, *, request_options: typing.Optional[RequestOptions] = None
+        self,
+        id: str,
+        *,
+        idempotency_key: typing.Optional[str] = None,
+        request_options: typing.Optional[RequestOptions] = None,
     ) -> WebhookSecretRotateResponse:
         """
-        Generates a new signing secret and returns it in this response. Returned only once. Store it securely; it cannot be retrieved later. To recover from a lost secret, rotate. Zero-downtime overlap: the previous secret remains valid until previousSecretExpiresAt (24 hours); during the window every delivery carries an additional X-Arcmira-Signature-Previous header computed with the old secret over the same {timestamp}.{payload} string, so you can verify with either secret while you roll. After the window the old secret is dropped and the extra header disappears. Rotating again during the window replaces the previous secret and resets the window. Requires a configured webhook (webhookUrl set); otherwise 409 with code webhook_not_configured. Auto-disable interplay: rotation resets webhook_failures but never re-enables a webhook that was auto-disabled after repeated failures; to resume delivery, also PATCH the monitor with notifyWebhook: true. Requires the monitors:write scope. Supports the Idempotency-Key header (replays return the stored response with Idempotency-Replayed: true).
+        Generates a new signing secret and returns it in this response. Returned only once. Store it securely; it cannot be retrieved later. To recover from a lost secret, rotate. Zero-downtime overlap: the previous secret remains valid until previousSecretExpiresAt (24 hours); during the window every delivery carries an additional X-Arcmira-Signature-Previous header computed with the old secret over the same {timestamp}.{payload} string, so you can verify with either secret while you roll. After the window the old secret is dropped and the extra header disappears. Rotating again during the window replaces the previous secret and resets the window. Requires a configured webhook (webhookUrl set); otherwise 409 with code webhook_not_configured. Auto-disable interplay: rotation resets webhook_failures but never re-enables a webhook that was auto-disabled after repeated failures; to resume delivery, also PATCH the monitor with notifyWebhook: true. Requires the monitors:write scope.
 
         Parameters
         ----------
         id : str
             Monitor id.
+
+        idempotency_key : typing.Optional[str]
+            A unique key you generate per logical request, such as a UUID. A retry with the same key and the same body within 24 hours returns the stored response with Idempotency-Replayed: true instead of running again. The same key with a different body answers 409 idempotency_conflict. Keys are scoped to the credential.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -329,7 +346,9 @@ class MonitorsClient:
             id="id",
         )
         """
-        _response = self._raw_client.rotate_webhook_secret(id, request_options=request_options)
+        _response = self._raw_client.rotate_webhook_secret(
+            id, idempotency_key=idempotency_key, request_options=request_options
+        )
         return _response.data
 
     @property
@@ -405,6 +424,7 @@ class AsyncMonitorsClient:
         self,
         *,
         name: str,
+        idempotency_key: typing.Optional[str] = None,
         notify_emails: typing.Optional[typing.Sequence[str]] = OMIT,
         notify_frequency: typing.Optional[CreateMonitorsRequestNotifyFrequency] = OMIT,
         digest_day: typing.Optional[str] = OMIT,
@@ -420,12 +440,15 @@ class AsyncMonitorsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> MonitorMutationResponse:
         """
-        Creating with notifyWebhook: true and a webhookUrl enables HMAC-signed webhook delivery and returns the signing secret (monitor.webhookSecret) in this response. Returned only once. Store it securely; it cannot be retrieved later. To recover from a lost secret, rotate. All subsequent reads expose only webhookSecretSet and webhookSecretHint. Supports the Idempotency-Key header.
+        Creating with notifyWebhook: true and a webhookUrl enables HMAC-signed webhook delivery and returns the signing secret (monitor.webhookSecret) in this response. Returned only once. Store it securely; it cannot be retrieved later. To recover from a lost secret, rotate. All subsequent reads expose only webhookSecretSet and webhookSecretHint.
 
         Parameters
         ----------
         name : str
             Display name (1-100 characters). Required on create.
+
+        idempotency_key : typing.Optional[str]
+            A unique key you generate per logical request, such as a UUID. A retry with the same key and the same body within 24 hours returns the stored response with Idempotency-Replayed: true instead of running again. The same key with a different body answers 409 idempotency_conflict. Keys are scoped to the credential.
 
         notify_emails : typing.Optional[typing.Sequence[str]]
             Desired email recipients. External recipients must confirm before delivery. Free includes one additional recipient per monitor; paid plans allow up to 20 total. Default [].
@@ -492,6 +515,7 @@ class AsyncMonitorsClient:
         """
         _response = await self._raw_client.create(
             name=name,
+            idempotency_key=idempotency_key,
             notify_emails=notify_emails,
             notify_frequency=notify_frequency,
             digest_day=digest_day,
@@ -553,6 +577,7 @@ class AsyncMonitorsClient:
         self,
         id: str,
         *,
+        idempotency_key: typing.Optional[str] = None,
         name: typing.Optional[str] = OMIT,
         notify_emails: typing.Optional[typing.Sequence[str]] = OMIT,
         notify_frequency: typing.Optional[UpdateMonitorsRequestNotifyFrequency] = OMIT,
@@ -569,12 +594,15 @@ class AsyncMonitorsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> MonitorMutationResponse:
         """
-        A PATCH that newly enables webhook signing (turns notifyWebhook on, or sets a webhookUrl where no secret existed before) returns the signing secret (monitor.webhookSecret) in this response. Returned only once. Store it securely; it cannot be retrieved later. To recover from a lost secret, rotate. Unrelated PATCHes expose only webhookSecretSet and webhookSecretHint. PATCHing notifyWebhook: true also re-enables a webhook that was auto-disabled after repeated failures and resets its failure counter. Supports the Idempotency-Key header.
+        A PATCH that newly enables webhook signing (turns notifyWebhook on, or sets a webhookUrl where no secret existed before) returns the signing secret (monitor.webhookSecret) in this response. Returned only once. Store it securely; it cannot be retrieved later. To recover from a lost secret, rotate. Unrelated PATCHes expose only webhookSecretSet and webhookSecretHint. PATCHing notifyWebhook: true also re-enables a webhook that was auto-disabled after repeated failures and resets its failure counter.
 
         Parameters
         ----------
         id : str
             Monitor id.
+
+        idempotency_key : typing.Optional[str]
+            A unique key you generate per logical request, such as a UUID. A retry with the same key and the same body within 24 hours returns the stored response with Idempotency-Replayed: true instead of running again. The same key with a different body answers 409 idempotency_conflict. Keys are scoped to the credential.
 
         name : typing.Optional[str]
             Display name (1-100 characters). Required on create.
@@ -644,6 +672,7 @@ class AsyncMonitorsClient:
         """
         _response = await self._raw_client.update(
             id,
+            idempotency_key=idempotency_key,
             name=name,
             notify_emails=notify_emails,
             notify_frequency=notify_frequency,
@@ -662,15 +691,22 @@ class AsyncMonitorsClient:
         return _response.data
 
     async def rotate_webhook_secret(
-        self, id: str, *, request_options: typing.Optional[RequestOptions] = None
+        self,
+        id: str,
+        *,
+        idempotency_key: typing.Optional[str] = None,
+        request_options: typing.Optional[RequestOptions] = None,
     ) -> WebhookSecretRotateResponse:
         """
-        Generates a new signing secret and returns it in this response. Returned only once. Store it securely; it cannot be retrieved later. To recover from a lost secret, rotate. Zero-downtime overlap: the previous secret remains valid until previousSecretExpiresAt (24 hours); during the window every delivery carries an additional X-Arcmira-Signature-Previous header computed with the old secret over the same {timestamp}.{payload} string, so you can verify with either secret while you roll. After the window the old secret is dropped and the extra header disappears. Rotating again during the window replaces the previous secret and resets the window. Requires a configured webhook (webhookUrl set); otherwise 409 with code webhook_not_configured. Auto-disable interplay: rotation resets webhook_failures but never re-enables a webhook that was auto-disabled after repeated failures; to resume delivery, also PATCH the monitor with notifyWebhook: true. Requires the monitors:write scope. Supports the Idempotency-Key header (replays return the stored response with Idempotency-Replayed: true).
+        Generates a new signing secret and returns it in this response. Returned only once. Store it securely; it cannot be retrieved later. To recover from a lost secret, rotate. Zero-downtime overlap: the previous secret remains valid until previousSecretExpiresAt (24 hours); during the window every delivery carries an additional X-Arcmira-Signature-Previous header computed with the old secret over the same {timestamp}.{payload} string, so you can verify with either secret while you roll. After the window the old secret is dropped and the extra header disappears. Rotating again during the window replaces the previous secret and resets the window. Requires a configured webhook (webhookUrl set); otherwise 409 with code webhook_not_configured. Auto-disable interplay: rotation resets webhook_failures but never re-enables a webhook that was auto-disabled after repeated failures; to resume delivery, also PATCH the monitor with notifyWebhook: true. Requires the monitors:write scope.
 
         Parameters
         ----------
         id : str
             Monitor id.
+
+        idempotency_key : typing.Optional[str]
+            A unique key you generate per logical request, such as a UUID. A retry with the same key and the same body within 24 hours returns the stored response with Idempotency-Replayed: true instead of running again. The same key with a different body answers 409 idempotency_conflict. Keys are scoped to the credential.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -699,7 +735,9 @@ class AsyncMonitorsClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.rotate_webhook_secret(id, request_options=request_options)
+        _response = await self._raw_client.rotate_webhook_secret(
+            id, idempotency_key=idempotency_key, request_options=request_options
+        )
         return _response.data
 
     @property

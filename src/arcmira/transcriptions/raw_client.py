@@ -148,15 +148,19 @@ class RawTranscriptionsClient:
     def submit(
         self,
         *,
+        idempotency_key: typing.Optional[str] = None,
         video_id: typing.Optional[str] = OMIT,
         url: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[TranscriptionSubmitResponse]:
         """
-        Paid tiers only. Rows are debited up front (75 rows per 15-minute block, minimum one) and the permanent per-video unlock is granted at submit time, so the transcript GET auto-unlocks when the pipeline finishes. If a PREMIUM transcript already exists the request short-circuits to `complete`; a video with only a preliminary analysis does NOT short-circuit: the premium generation actually runs. An unlock purchased earlier makes this request free (rows_charged 0). An in-flight request for the same video is returned as-is (`existing: true`). Supports the Idempotency-Key header. Responses include `etaSeconds` + `nextPollSeconds` and a Retry-After header while in flight; poll GET /v1/transcriptions/{id} on that cadence. User requests ride a reserved pipeline fast lane. Terminal pipeline failure auto-refunds the rows and revokes the unlock.
+        Paid tiers only. Rows are debited up front (75 rows per 15-minute block, minimum one) and the permanent per-video unlock is granted at submit time, so the transcript GET auto-unlocks when the pipeline finishes. If a PREMIUM transcript already exists the request short-circuits to `complete`; a video with only a preliminary analysis does NOT short-circuit: the premium generation actually runs. An unlock purchased earlier makes this request free (rows_charged 0). An in-flight request for the same video is returned as-is (`existing: true`). Responses include `etaSeconds` + `nextPollSeconds` and a Retry-After header while in flight; poll GET /v1/transcriptions/{id} on that cadence. User requests ride a reserved pipeline fast lane. Terminal pipeline failure auto-refunds the rows and revokes the unlock.
 
         Parameters
         ----------
+        idempotency_key : typing.Optional[str]
+            A unique key you generate per logical request, such as a UUID. A retry with the same key and the same body within 24 hours returns the stored response with Idempotency-Replayed: true instead of running again. The same key with a different body answers 409 idempotency_conflict. Keys are scoped to the credential.
+
         video_id : typing.Optional[str]
             YouTube video id (11 characters). Either videoId or url is required.
 
@@ -180,6 +184,7 @@ class RawTranscriptionsClient:
             },
             headers={
                 "content-type": "application/json",
+                "Idempotency-Key": str(idempotency_key) if idempotency_key is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -531,15 +536,19 @@ class AsyncRawTranscriptionsClient:
     async def submit(
         self,
         *,
+        idempotency_key: typing.Optional[str] = None,
         video_id: typing.Optional[str] = OMIT,
         url: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[TranscriptionSubmitResponse]:
         """
-        Paid tiers only. Rows are debited up front (75 rows per 15-minute block, minimum one) and the permanent per-video unlock is granted at submit time, so the transcript GET auto-unlocks when the pipeline finishes. If a PREMIUM transcript already exists the request short-circuits to `complete`; a video with only a preliminary analysis does NOT short-circuit: the premium generation actually runs. An unlock purchased earlier makes this request free (rows_charged 0). An in-flight request for the same video is returned as-is (`existing: true`). Supports the Idempotency-Key header. Responses include `etaSeconds` + `nextPollSeconds` and a Retry-After header while in flight; poll GET /v1/transcriptions/{id} on that cadence. User requests ride a reserved pipeline fast lane. Terminal pipeline failure auto-refunds the rows and revokes the unlock.
+        Paid tiers only. Rows are debited up front (75 rows per 15-minute block, minimum one) and the permanent per-video unlock is granted at submit time, so the transcript GET auto-unlocks when the pipeline finishes. If a PREMIUM transcript already exists the request short-circuits to `complete`; a video with only a preliminary analysis does NOT short-circuit: the premium generation actually runs. An unlock purchased earlier makes this request free (rows_charged 0). An in-flight request for the same video is returned as-is (`existing: true`). Responses include `etaSeconds` + `nextPollSeconds` and a Retry-After header while in flight; poll GET /v1/transcriptions/{id} on that cadence. User requests ride a reserved pipeline fast lane. Terminal pipeline failure auto-refunds the rows and revokes the unlock.
 
         Parameters
         ----------
+        idempotency_key : typing.Optional[str]
+            A unique key you generate per logical request, such as a UUID. A retry with the same key and the same body within 24 hours returns the stored response with Idempotency-Replayed: true instead of running again. The same key with a different body answers 409 idempotency_conflict. Keys are scoped to the credential.
+
         video_id : typing.Optional[str]
             YouTube video id (11 characters). Either videoId or url is required.
 
@@ -563,6 +572,7 @@ class AsyncRawTranscriptionsClient:
             },
             headers={
                 "content-type": "application/json",
+                "Idempotency-Key": str(idempotency_key) if idempotency_key is not None else None,
             },
             request_options=request_options,
             omit=OMIT,

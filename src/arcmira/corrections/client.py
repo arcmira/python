@@ -35,13 +35,14 @@ class CorrectionsClient:
         *,
         kind: SubmitCorrectionsRequestKind,
         payload: typing.Dict[str, typing.Any],
+        idempotency_key: typing.Optional[str] = None,
         seq: typing.Optional[int] = OMIT,
         revision: typing.Optional[str] = OMIT,
         anchor: typing.Optional[SubmitCorrectionsRequestAnchor] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> CorrectionAcceptedResponse:
         """
-        Unified corrections ingestion for all kinds: line_edit, speaker_reassign, speaker_identify, add_person, entity_tag, segment_rewrite. Corrections are free (0 rows) and land as pending-review rows attributed to your API key; speaker_identify/add_person also create a community-flagged appearance immediately. segment_rewrite is the structural primitive: it replaces an inclusive segment range with new segments (an empty replacements array deletes the range); timestamps can be pinned per replacement with optional start/end seconds, and unpinned times are repaired by char-proportional interpolation between pins. Anchored kinds (line_edit, speaker_reassign, entity_tag, segment_rewrite) must echo the `revision` from a Premium transcript read and an `anchor` ({ segmentIndex, contentHash: djb2 of the covered segment text }); `anchor.segmentIndex` is the line's `index` in that read. Error semantics for outbox-style clients: 409 = revision/anchor mismatch, the transcript changed underneath the correction (body { reason, currentRevision }); drop or re-anchor the event and continue, the sequence number is consumed. 412 = seq mismatch (body { expectedSeq }); refetch the transcript, rebase local counters, and resend. Supports the Idempotency-Key header (client event UUID): replays return the stored final response verbatim with Idempotency-Replayed: true.
+        Unified corrections ingestion for all kinds: line_edit, speaker_reassign, speaker_identify, add_person, entity_tag, segment_rewrite. Corrections are free (0 rows) and land as pending-review rows attributed to your API key; speaker_identify/add_person also create a community-flagged appearance immediately. segment_rewrite is the structural primitive: it replaces an inclusive segment range with new segments (an empty replacements array deletes the range); timestamps can be pinned per replacement with optional start/end seconds, and unpinned times are repaired by char-proportional interpolation between pins. Anchored kinds (line_edit, speaker_reassign, entity_tag, segment_rewrite) must echo the `revision` from a Premium transcript read and an `anchor` ({ segmentIndex, contentHash: djb2 of the covered segment text }); `anchor.segmentIndex` is the line's `index` in that read. Error semantics for outbox-style clients: 409 = revision/anchor mismatch, the transcript changed underneath the correction (body { reason, currentRevision }); drop or re-anchor the event and continue, the sequence number is consumed. 412 = seq mismatch (body { expectedSeq }); refetch the transcript, rebase local counters, and resend.
 
         Parameters
         ----------
@@ -52,6 +53,9 @@ class CorrectionsClient:
 
         payload : typing.Dict[str, typing.Any]
             Kind-specific payload. line_edit: { segmentIndex, originalText, correctedText }. speaker_reassign: { selection: { startIndex, startChar, endIndex, endChar }, target: { kind: existing|new|role, speakerId, label?, role? } }. speaker_identify: { speakerId, entityId }. add_person: { speakerId, name }. entity_tag: { segmentIndex, charStart, charEnd, entityId } or { segmentIndex, charStart, charEnd, proposedName, proposedType }. segment_rewrite: { startIndex, endIndex, replacements: [{ text, speaker?, start?, end? }] }. replaces the inclusive segment range with the replacements (max 50 source segments, 50 replacements, 2000 chars each); an empty array deletes the range. Timestamps: optional start/end pins (seconds, non-decreasing across the list) fix times explicitly; every unpinned time is interpolated char-proportionally between the surrounding pins (outer bounds default to the source time range). A replacement without speaker inherits from the source segment its repaired start time falls in; startIndex must equal anchor.segmentIndex and the anchor contentHash covers startIndex through endIndex.
+
+        idempotency_key : typing.Optional[str]
+            The client event id, such as a UUID. A retry with the same key returns the stored final response with Idempotency-Replayed: true. A 412 is never stored, so a rebased resend under the same key runs again.
 
         seq : typing.Optional[int]
             Per-video monotonic sequence number (strict FIFO per user+video). Optional for one-off submissions; required for outbox-style clients that depend on ordering. Any mismatch returns 412 with the expected value.
@@ -87,6 +91,7 @@ class CorrectionsClient:
             video_id,
             kind=kind,
             payload=payload,
+            idempotency_key=idempotency_key,
             seq=seq,
             revision=revision,
             anchor=anchor,
@@ -209,13 +214,14 @@ class AsyncCorrectionsClient:
         *,
         kind: SubmitCorrectionsRequestKind,
         payload: typing.Dict[str, typing.Any],
+        idempotency_key: typing.Optional[str] = None,
         seq: typing.Optional[int] = OMIT,
         revision: typing.Optional[str] = OMIT,
         anchor: typing.Optional[SubmitCorrectionsRequestAnchor] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> CorrectionAcceptedResponse:
         """
-        Unified corrections ingestion for all kinds: line_edit, speaker_reassign, speaker_identify, add_person, entity_tag, segment_rewrite. Corrections are free (0 rows) and land as pending-review rows attributed to your API key; speaker_identify/add_person also create a community-flagged appearance immediately. segment_rewrite is the structural primitive: it replaces an inclusive segment range with new segments (an empty replacements array deletes the range); timestamps can be pinned per replacement with optional start/end seconds, and unpinned times are repaired by char-proportional interpolation between pins. Anchored kinds (line_edit, speaker_reassign, entity_tag, segment_rewrite) must echo the `revision` from a Premium transcript read and an `anchor` ({ segmentIndex, contentHash: djb2 of the covered segment text }); `anchor.segmentIndex` is the line's `index` in that read. Error semantics for outbox-style clients: 409 = revision/anchor mismatch, the transcript changed underneath the correction (body { reason, currentRevision }); drop or re-anchor the event and continue, the sequence number is consumed. 412 = seq mismatch (body { expectedSeq }); refetch the transcript, rebase local counters, and resend. Supports the Idempotency-Key header (client event UUID): replays return the stored final response verbatim with Idempotency-Replayed: true.
+        Unified corrections ingestion for all kinds: line_edit, speaker_reassign, speaker_identify, add_person, entity_tag, segment_rewrite. Corrections are free (0 rows) and land as pending-review rows attributed to your API key; speaker_identify/add_person also create a community-flagged appearance immediately. segment_rewrite is the structural primitive: it replaces an inclusive segment range with new segments (an empty replacements array deletes the range); timestamps can be pinned per replacement with optional start/end seconds, and unpinned times are repaired by char-proportional interpolation between pins. Anchored kinds (line_edit, speaker_reassign, entity_tag, segment_rewrite) must echo the `revision` from a Premium transcript read and an `anchor` ({ segmentIndex, contentHash: djb2 of the covered segment text }); `anchor.segmentIndex` is the line's `index` in that read. Error semantics for outbox-style clients: 409 = revision/anchor mismatch, the transcript changed underneath the correction (body { reason, currentRevision }); drop or re-anchor the event and continue, the sequence number is consumed. 412 = seq mismatch (body { expectedSeq }); refetch the transcript, rebase local counters, and resend.
 
         Parameters
         ----------
@@ -226,6 +232,9 @@ class AsyncCorrectionsClient:
 
         payload : typing.Dict[str, typing.Any]
             Kind-specific payload. line_edit: { segmentIndex, originalText, correctedText }. speaker_reassign: { selection: { startIndex, startChar, endIndex, endChar }, target: { kind: existing|new|role, speakerId, label?, role? } }. speaker_identify: { speakerId, entityId }. add_person: { speakerId, name }. entity_tag: { segmentIndex, charStart, charEnd, entityId } or { segmentIndex, charStart, charEnd, proposedName, proposedType }. segment_rewrite: { startIndex, endIndex, replacements: [{ text, speaker?, start?, end? }] }. replaces the inclusive segment range with the replacements (max 50 source segments, 50 replacements, 2000 chars each); an empty array deletes the range. Timestamps: optional start/end pins (seconds, non-decreasing across the list) fix times explicitly; every unpinned time is interpolated char-proportionally between the surrounding pins (outer bounds default to the source time range). A replacement without speaker inherits from the source segment its repaired start time falls in; startIndex must equal anchor.segmentIndex and the anchor contentHash covers startIndex through endIndex.
+
+        idempotency_key : typing.Optional[str]
+            The client event id, such as a UUID. A retry with the same key returns the stored final response with Idempotency-Replayed: true. A 412 is never stored, so a rebased resend under the same key runs again.
 
         seq : typing.Optional[int]
             Per-video monotonic sequence number (strict FIFO per user+video). Optional for one-off submissions; required for outbox-style clients that depend on ordering. Any mismatch returns 412 with the expected value.
@@ -269,6 +278,7 @@ class AsyncCorrectionsClient:
             video_id,
             kind=kind,
             payload=payload,
+            idempotency_key=idempotency_key,
             seq=seq,
             revision=revision,
             anchor=anchor,

@@ -138,10 +138,15 @@ class RawTrackersClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def add(
-        self, id: str, *, tracker_ids: typing.Sequence[str], request_options: typing.Optional[RequestOptions] = None
+        self,
+        id: str,
+        *,
+        tracker_ids: typing.Sequence[str],
+        idempotency_key: typing.Optional[str] = None,
+        request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[MonitorAddTrackersResponse]:
         """
-        Attaches EXISTING trackers to the monitor by id ({ trackerIds: ["trk_..."] }). It does not create trackers: create them first via POST /v1/trackers, then attach. Attached trackers use the monitor's delivery settings. Supports the Idempotency-Key header.
+        Attaches EXISTING trackers to the monitor by id ({ trackerIds: ["trk_..."] }). It does not create trackers: create them first via POST /v1/trackers, then attach. Attached trackers use the monitor's delivery settings.
 
         Parameters
         ----------
@@ -150,6 +155,9 @@ class RawTrackersClient:
 
         tracker_ids : typing.Sequence[str]
             Ids of existing trackers ("trk_...") to attach to this monitor. Create trackers first via POST /v1/trackers.
+
+        idempotency_key : typing.Optional[str]
+            A unique key you generate per logical request, such as a UUID. A retry with the same key and the same body within 24 hours returns the stored response with Idempotency-Replayed: true instead of running again. The same key with a different body answers 409 idempotency_conflict. Keys are scoped to the credential.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -167,6 +175,7 @@ class RawTrackersClient:
             },
             headers={
                 "content-type": "application/json",
+                "Idempotency-Key": str(idempotency_key) if idempotency_key is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -380,10 +389,15 @@ class AsyncRawTrackersClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def add(
-        self, id: str, *, tracker_ids: typing.Sequence[str], request_options: typing.Optional[RequestOptions] = None
+        self,
+        id: str,
+        *,
+        tracker_ids: typing.Sequence[str],
+        idempotency_key: typing.Optional[str] = None,
+        request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[MonitorAddTrackersResponse]:
         """
-        Attaches EXISTING trackers to the monitor by id ({ trackerIds: ["trk_..."] }). It does not create trackers: create them first via POST /v1/trackers, then attach. Attached trackers use the monitor's delivery settings. Supports the Idempotency-Key header.
+        Attaches EXISTING trackers to the monitor by id ({ trackerIds: ["trk_..."] }). It does not create trackers: create them first via POST /v1/trackers, then attach. Attached trackers use the monitor's delivery settings.
 
         Parameters
         ----------
@@ -392,6 +406,9 @@ class AsyncRawTrackersClient:
 
         tracker_ids : typing.Sequence[str]
             Ids of existing trackers ("trk_...") to attach to this monitor. Create trackers first via POST /v1/trackers.
+
+        idempotency_key : typing.Optional[str]
+            A unique key you generate per logical request, such as a UUID. A retry with the same key and the same body within 24 hours returns the stored response with Idempotency-Replayed: true instead of running again. The same key with a different body answers 409 idempotency_conflict. Keys are scoped to the credential.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -409,6 +426,7 @@ class AsyncRawTrackersClient:
             },
             headers={
                 "content-type": "application/json",
+                "Idempotency-Key": str(idempotency_key) if idempotency_key is not None else None,
             },
             request_options=request_options,
             omit=OMIT,

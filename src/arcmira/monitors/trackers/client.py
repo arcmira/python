@@ -57,10 +57,15 @@ class TrackersClient:
         return _response.data
 
     def add(
-        self, id: str, *, tracker_ids: typing.Sequence[str], request_options: typing.Optional[RequestOptions] = None
+        self,
+        id: str,
+        *,
+        tracker_ids: typing.Sequence[str],
+        idempotency_key: typing.Optional[str] = None,
+        request_options: typing.Optional[RequestOptions] = None,
     ) -> MonitorAddTrackersResponse:
         """
-        Attaches EXISTING trackers to the monitor by id ({ trackerIds: ["trk_..."] }). It does not create trackers: create them first via POST /v1/trackers, then attach. Attached trackers use the monitor's delivery settings. Supports the Idempotency-Key header.
+        Attaches EXISTING trackers to the monitor by id ({ trackerIds: ["trk_..."] }). It does not create trackers: create them first via POST /v1/trackers, then attach. Attached trackers use the monitor's delivery settings.
 
         Parameters
         ----------
@@ -69,6 +74,9 @@ class TrackersClient:
 
         tracker_ids : typing.Sequence[str]
             Ids of existing trackers ("trk_...") to attach to this monitor. Create trackers first via POST /v1/trackers.
+
+        idempotency_key : typing.Optional[str]
+            A unique key you generate per logical request, such as a UUID. A retry with the same key and the same body within 24 hours returns the stored response with Idempotency-Replayed: true instead of running again. The same key with a different body answers 409 idempotency_conflict. Keys are scoped to the credential.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -90,7 +98,9 @@ class TrackersClient:
             tracker_ids=["trackerIds"],
         )
         """
-        _response = self._raw_client.add(id, tracker_ids=tracker_ids, request_options=request_options)
+        _response = self._raw_client.add(
+            id, tracker_ids=tracker_ids, idempotency_key=idempotency_key, request_options=request_options
+        )
         return _response.data
 
 
@@ -149,10 +159,15 @@ class AsyncTrackersClient:
         return _response.data
 
     async def add(
-        self, id: str, *, tracker_ids: typing.Sequence[str], request_options: typing.Optional[RequestOptions] = None
+        self,
+        id: str,
+        *,
+        tracker_ids: typing.Sequence[str],
+        idempotency_key: typing.Optional[str] = None,
+        request_options: typing.Optional[RequestOptions] = None,
     ) -> MonitorAddTrackersResponse:
         """
-        Attaches EXISTING trackers to the monitor by id ({ trackerIds: ["trk_..."] }). It does not create trackers: create them first via POST /v1/trackers, then attach. Attached trackers use the monitor's delivery settings. Supports the Idempotency-Key header.
+        Attaches EXISTING trackers to the monitor by id ({ trackerIds: ["trk_..."] }). It does not create trackers: create them first via POST /v1/trackers, then attach. Attached trackers use the monitor's delivery settings.
 
         Parameters
         ----------
@@ -161,6 +176,9 @@ class AsyncTrackersClient:
 
         tracker_ids : typing.Sequence[str]
             Ids of existing trackers ("trk_...") to attach to this monitor. Create trackers first via POST /v1/trackers.
+
+        idempotency_key : typing.Optional[str]
+            A unique key you generate per logical request, such as a UUID. A retry with the same key and the same body within 24 hours returns the stored response with Idempotency-Replayed: true instead of running again. The same key with a different body answers 409 idempotency_conflict. Keys are scoped to the credential.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -190,5 +208,7 @@ class AsyncTrackersClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.add(id, tracker_ids=tracker_ids, request_options=request_options)
+        _response = await self._raw_client.add(
+            id, tracker_ids=tracker_ids, idempotency_key=idempotency_key, request_options=request_options
+        )
         return _response.data

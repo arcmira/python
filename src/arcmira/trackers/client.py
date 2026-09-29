@@ -68,6 +68,7 @@ class TrackersClient:
         *,
         entity_name: str,
         entity_type: CreateTrackersRequestEntityType,
+        idempotency_key: typing.Optional[str] = None,
         display_name: typing.Optional[str] = OMIT,
         notify_email: typing.Optional[bool] = OMIT,
         notify_webhook: typing.Optional[bool] = OMIT,
@@ -80,7 +81,7 @@ class TrackersClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> TrackerMutationResponse:
         """
-        Creates a standalone tracker watching one entity (name + type, resolved with the same entity resolution Search uses). Attach it to a monitor afterwards via POST /v1/monitors/{id}/trackers. Creating a duplicate (same entity name + type) returns 409 with the existingId. Supports the Idempotency-Key header.
+        Creates a standalone tracker watching one entity (name + type, resolved with the same entity resolution Search uses). Attach it to a monitor afterwards via POST /v1/monitors/{id}/trackers. Creating a duplicate (same entity name + type) returns 409 with the existingId.
 
         Parameters
         ----------
@@ -89,6 +90,9 @@ class TrackersClient:
 
         entity_type : CreateTrackersRequestEntityType
             Entity type of the tracked entity. Required on create.
+
+        idempotency_key : typing.Optional[str]
+            A unique key you generate per logical request, such as a UUID. A retry with the same key and the same body within 24 hours returns the stored response with Idempotency-Replayed: true instead of running again. The same key with a different body answers 409 idempotency_conflict. Keys are scoped to the credential.
 
         display_name : typing.Optional[str]
             Optional label shown in alerts and the dashboard.
@@ -140,6 +144,7 @@ class TrackersClient:
         _response = self._raw_client.create(
             entity_name=entity_name,
             entity_type=entity_type,
+            idempotency_key=idempotency_key,
             display_name=display_name,
             notify_email=notify_email,
             notify_webhook=notify_webhook,
@@ -188,6 +193,7 @@ class TrackersClient:
         self,
         id: str,
         *,
+        idempotency_key: typing.Optional[str] = None,
         display_name: typing.Optional[str] = OMIT,
         notify_email: typing.Optional[bool] = OMIT,
         notify_webhook: typing.Optional[bool] = OMIT,
@@ -201,12 +207,15 @@ class TrackersClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> TrackerMutationResponse:
         """
-        Partial update: send only the fields to change. The tracked entity itself (entityName/entityType) is immutable; delete and recreate to watch a different entity. Supports the Idempotency-Key header.
+        Partial update: send only the fields to change. The tracked entity itself (entityName/entityType) is immutable; delete and recreate to watch a different entity.
 
         Parameters
         ----------
         id : str
             Tracker id, trk_ form.
+
+        idempotency_key : typing.Optional[str]
+            A unique key you generate per logical request, such as a UUID. A retry with the same key and the same body within 24 hours returns the stored response with Idempotency-Replayed: true instead of running again. The same key with a different body answers 409 idempotency_conflict. Keys are scoped to the credential.
 
         display_name : typing.Optional[str]
             Optional label shown in alerts and the dashboard.
@@ -259,6 +268,7 @@ class TrackersClient:
         """
         _response = self._raw_client.update(
             id,
+            idempotency_key=idempotency_key,
             display_name=display_name,
             notify_email=notify_email,
             notify_webhook=notify_webhook,
@@ -338,6 +348,7 @@ class AsyncTrackersClient:
         *,
         entity_name: str,
         entity_type: CreateTrackersRequestEntityType,
+        idempotency_key: typing.Optional[str] = None,
         display_name: typing.Optional[str] = OMIT,
         notify_email: typing.Optional[bool] = OMIT,
         notify_webhook: typing.Optional[bool] = OMIT,
@@ -350,7 +361,7 @@ class AsyncTrackersClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> TrackerMutationResponse:
         """
-        Creates a standalone tracker watching one entity (name + type, resolved with the same entity resolution Search uses). Attach it to a monitor afterwards via POST /v1/monitors/{id}/trackers. Creating a duplicate (same entity name + type) returns 409 with the existingId. Supports the Idempotency-Key header.
+        Creates a standalone tracker watching one entity (name + type, resolved with the same entity resolution Search uses). Attach it to a monitor afterwards via POST /v1/monitors/{id}/trackers. Creating a duplicate (same entity name + type) returns 409 with the existingId.
 
         Parameters
         ----------
@@ -359,6 +370,9 @@ class AsyncTrackersClient:
 
         entity_type : CreateTrackersRequestEntityType
             Entity type of the tracked entity. Required on create.
+
+        idempotency_key : typing.Optional[str]
+            A unique key you generate per logical request, such as a UUID. A retry with the same key and the same body within 24 hours returns the stored response with Idempotency-Replayed: true instead of running again. The same key with a different body answers 409 idempotency_conflict. Keys are scoped to the credential.
 
         display_name : typing.Optional[str]
             Optional label shown in alerts and the dashboard.
@@ -418,6 +432,7 @@ class AsyncTrackersClient:
         _response = await self._raw_client.create(
             entity_name=entity_name,
             entity_type=entity_type,
+            idempotency_key=idempotency_key,
             display_name=display_name,
             notify_email=notify_email,
             notify_webhook=notify_webhook,
@@ -474,6 +489,7 @@ class AsyncTrackersClient:
         self,
         id: str,
         *,
+        idempotency_key: typing.Optional[str] = None,
         display_name: typing.Optional[str] = OMIT,
         notify_email: typing.Optional[bool] = OMIT,
         notify_webhook: typing.Optional[bool] = OMIT,
@@ -487,12 +503,15 @@ class AsyncTrackersClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> TrackerMutationResponse:
         """
-        Partial update: send only the fields to change. The tracked entity itself (entityName/entityType) is immutable; delete and recreate to watch a different entity. Supports the Idempotency-Key header.
+        Partial update: send only the fields to change. The tracked entity itself (entityName/entityType) is immutable; delete and recreate to watch a different entity.
 
         Parameters
         ----------
         id : str
             Tracker id, trk_ form.
+
+        idempotency_key : typing.Optional[str]
+            A unique key you generate per logical request, such as a UUID. A retry with the same key and the same body within 24 hours returns the stored response with Idempotency-Replayed: true instead of running again. The same key with a different body answers 409 idempotency_conflict. Keys are scoped to the credential.
 
         display_name : typing.Optional[str]
             Optional label shown in alerts and the dashboard.
@@ -553,6 +572,7 @@ class AsyncTrackersClient:
         """
         _response = await self._raw_client.update(
             id,
+            idempotency_key=idempotency_key,
             display_name=display_name,
             notify_email=notify_email,
             notify_webhook=notify_webhook,

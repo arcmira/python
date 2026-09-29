@@ -63,12 +63,13 @@ class MergesClient:
         *,
         source_name: str,
         target_entity_id: int,
+        idempotency_key: typing.Optional[str] = None,
         replace_with: typing.Optional[str] = OMIT,
         revision: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> VideoMergeSubmittedResponse:
         """
-        Asserts that a name in this video refers to a specific entity, for misattributed name mentions in one video (e.g. a first-name-only mention resolved to the wrong entity). Optionally respells the transcript text via `replaceWith`. Pending review; applied optimistically for you. Mentions of the same name in other videos are untouched. Free (0 rows). Supports Idempotency-Key.
+        Asserts that a name in this video refers to a specific entity, for misattributed name mentions in one video (e.g. a first-name-only mention resolved to the wrong entity). Optionally respells the transcript text via `replaceWith`. Pending review; applied optimistically for you. Mentions of the same name in other videos are untouched. Free (0 rows).
 
         Parameters
         ----------
@@ -80,6 +81,9 @@ class MergesClient:
 
         target_entity_id : int
             The canonical entity these mentions actually refer to.
+
+        idempotency_key : typing.Optional[str]
+            A unique key you generate per logical request, such as a UUID. A retry with the same key and the same body within 24 hours returns the stored response with Idempotency-Replayed: true instead of running again. The same key with a different body answers 409 idempotency_conflict. Keys are scoped to the credential.
 
         replace_with : typing.Optional[str]
             Optional respelling applied to the transcript text (e.g. "Imad" → "Emad").
@@ -111,6 +115,7 @@ class MergesClient:
             video_id,
             source_name=source_name,
             target_entity_id=target_entity_id,
+            idempotency_key=idempotency_key,
             replace_with=replace_with,
             revision=revision,
             request_options=request_options,
@@ -213,12 +218,13 @@ class AsyncMergesClient:
         *,
         source_name: str,
         target_entity_id: int,
+        idempotency_key: typing.Optional[str] = None,
         replace_with: typing.Optional[str] = OMIT,
         revision: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> VideoMergeSubmittedResponse:
         """
-        Asserts that a name in this video refers to a specific entity, for misattributed name mentions in one video (e.g. a first-name-only mention resolved to the wrong entity). Optionally respells the transcript text via `replaceWith`. Pending review; applied optimistically for you. Mentions of the same name in other videos are untouched. Free (0 rows). Supports Idempotency-Key.
+        Asserts that a name in this video refers to a specific entity, for misattributed name mentions in one video (e.g. a first-name-only mention resolved to the wrong entity). Optionally respells the transcript text via `replaceWith`. Pending review; applied optimistically for you. Mentions of the same name in other videos are untouched. Free (0 rows).
 
         Parameters
         ----------
@@ -230,6 +236,9 @@ class AsyncMergesClient:
 
         target_entity_id : int
             The canonical entity these mentions actually refer to.
+
+        idempotency_key : typing.Optional[str]
+            A unique key you generate per logical request, such as a UUID. A retry with the same key and the same body within 24 hours returns the stored response with Idempotency-Replayed: true instead of running again. The same key with a different body answers 409 idempotency_conflict. Keys are scoped to the credential.
 
         replace_with : typing.Optional[str]
             Optional respelling applied to the transcript text (e.g. "Imad" → "Emad").
@@ -269,6 +278,7 @@ class AsyncMergesClient:
             video_id,
             source_name=source_name,
             target_entity_id=target_entity_id,
+            idempotency_key=idempotency_key,
             replace_with=replace_with,
             revision=revision,
             request_options=request_options,

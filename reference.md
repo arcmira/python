@@ -62,7 +62,7 @@ client.health.check()
 <dl>
 <dd>
 
-Returns the tier, scopes, rate limit, row usage, and account settings for the API key making the request. settings.transcripts is what a transcript request that names no parameter of its own receives: every key of the account resolves against it.
+Returns the credential making the request (key_id, key_label, credential_kind), the masked account email, the tier, scopes, rate limit, row usage with period_resets_at, and account settings. settings.transcripts is what a transcript request that names no parameter of its own receives: every key of the account resolves against it.
 </dd>
 </dl>
 </dd>
@@ -1140,7 +1140,7 @@ client.recommendations.list()
 <dl>
 <dd>
 
-Attach corrections to the exact query you ran: pass the feedback type, the query object you sent, and optional per-item corrections. Public submissions are recorded for human review (status "logged"); nothing is auto-applied. Read the review status back later via GET /v1/feedback/{feedback_id}. recommendations and channel_sponsors feedback types require a Pro+ plan; every other type needs read. monitor_alert feedback targets fired alert rows: query carries monitor_id and/or tracker_id and/or alert_id, corrections target the alert row id, and every referenced alert row must belong to the caller (otherwise 404 alert_not_found). missed_alert corrections are expectations with no row to target: omit the correction id and put { source_url, approximate_timestamp_seconds?, entity_id? } in suggested_change. delivery_issue corrections may carry { channel } in suggested_change. Supports the Idempotency-Key header.
+Attach corrections to the exact query you ran: pass the feedback type, the query object you sent, and optional per-item corrections. Public submissions are recorded for human review (status "logged"); nothing is auto-applied. Read the review status back later via GET /v1/feedback/{feedback_id}. recommendations and channel_sponsors feedback types require a Pro+ plan; every other type needs read. monitor_alert feedback targets fired alert rows: query carries monitor_id and/or tracker_id and/or alert_id, corrections target the alert row id, and every referenced alert row must belong to the caller (otherwise 404 alert_not_found). missed_alert corrections are expectations with no row to target: omit the correction id and put { source_url, approximate_timestamp_seconds?, entity_id? } in suggested_change. delivery_issue corrections may carry { channel } in suggested_change.
 </dd>
 </dl>
 </dd>
@@ -1175,6 +1175,14 @@ client.feedback.submit()
 
 <dl>
 <dd>
+
+<dl>
+<dd>
+
+**idempotency_key:** `typing.Optional[str]` — A unique key you generate per logical request, such as a UUID. A retry with the same key and the same body within 24 hours returns the stored response with Idempotency-Replayed: true instead of running again. The same key with a different body answers 409 idempotency_conflict. Keys are scoped to the credential.
+    
+</dd>
+</dl>
 
 <dl>
 <dd>
@@ -2115,7 +2123,7 @@ client.monitors.list()
 <dl>
 <dd>
 
-Creating with notifyWebhook: true and a webhookUrl enables HMAC-signed webhook delivery and returns the signing secret (monitor.webhookSecret) in this response. Returned only once. Store it securely; it cannot be retrieved later. To recover from a lost secret, rotate. All subsequent reads expose only webhookSecretSet and webhookSecretHint. Supports the Idempotency-Key header.
+Creating with notifyWebhook: true and a webhookUrl enables HMAC-signed webhook delivery and returns the signing secret (monitor.webhookSecret) in this response. Returned only once. Store it securely; it cannot be retrieved later. To recover from a lost secret, rotate. All subsequent reads expose only webhookSecretSet and webhookSecretHint.
 </dd>
 </dl>
 </dd>
@@ -2157,6 +2165,14 @@ client.monitors.create(
 <dd>
 
 **name:** `str` — Display name (1-100 characters). Required on create.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**idempotency_key:** `typing.Optional[str]` — A unique key you generate per logical request, such as a UUID. A retry with the same key and the same body within 24 hours returns the stored response with Idempotency-Replayed: true instead of running again. The same key with a different body answers 409 idempotency_conflict. Keys are scoped to the credential.
     
 </dd>
 </dl>
@@ -2357,7 +2373,7 @@ client.monitors.delete(
 <dl>
 <dd>
 
-A PATCH that newly enables webhook signing (turns notifyWebhook on, or sets a webhookUrl where no secret existed before) returns the signing secret (monitor.webhookSecret) in this response. Returned only once. Store it securely; it cannot be retrieved later. To recover from a lost secret, rotate. Unrelated PATCHes expose only webhookSecretSet and webhookSecretHint. PATCHing notifyWebhook: true also re-enables a webhook that was auto-disabled after repeated failures and resets its failure counter. Supports the Idempotency-Key header.
+A PATCH that newly enables webhook signing (turns notifyWebhook on, or sets a webhookUrl where no secret existed before) returns the signing secret (monitor.webhookSecret) in this response. Returned only once. Store it securely; it cannot be retrieved later. To recover from a lost secret, rotate. Unrelated PATCHes expose only webhookSecretSet and webhookSecretHint. PATCHing notifyWebhook: true also re-enables a webhook that was auto-disabled after repeated failures and resets its failure counter.
 </dd>
 </dl>
 </dd>
@@ -2399,6 +2415,14 @@ client.monitors.update(
 <dd>
 
 **id:** `str` — Monitor id.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**idempotency_key:** `typing.Optional[str]` — A unique key you generate per logical request, such as a UUID. A retry with the same key and the same body within 24 hours returns the stored response with Idempotency-Replayed: true instead of running again. The same key with a different body answers 409 idempotency_conflict. Keys are scoped to the credential.
     
 </dd>
 </dl>
@@ -2534,7 +2558,7 @@ client.monitors.update(
 <dl>
 <dd>
 
-Generates a new signing secret and returns it in this response. Returned only once. Store it securely; it cannot be retrieved later. To recover from a lost secret, rotate. Zero-downtime overlap: the previous secret remains valid until previousSecretExpiresAt (24 hours); during the window every delivery carries an additional X-Arcmira-Signature-Previous header computed with the old secret over the same {timestamp}.{payload} string, so you can verify with either secret while you roll. After the window the old secret is dropped and the extra header disappears. Rotating again during the window replaces the previous secret and resets the window. Requires a configured webhook (webhookUrl set); otherwise 409 with code webhook_not_configured. Auto-disable interplay: rotation resets webhook_failures but never re-enables a webhook that was auto-disabled after repeated failures; to resume delivery, also PATCH the monitor with notifyWebhook: true. Requires the monitors:write scope. Supports the Idempotency-Key header (replays return the stored response with Idempotency-Replayed: true).
+Generates a new signing secret and returns it in this response. Returned only once. Store it securely; it cannot be retrieved later. To recover from a lost secret, rotate. Zero-downtime overlap: the previous secret remains valid until previousSecretExpiresAt (24 hours); during the window every delivery carries an additional X-Arcmira-Signature-Previous header computed with the old secret over the same {timestamp}.{payload} string, so you can verify with either secret while you roll. After the window the old secret is dropped and the extra header disappears. Rotating again during the window replaces the previous secret and resets the window. Requires a configured webhook (webhookUrl set); otherwise 409 with code webhook_not_configured. Auto-disable interplay: rotation resets webhook_failures but never re-enables a webhook that was auto-disabled after repeated failures; to resume delivery, also PATCH the monitor with notifyWebhook: true. Requires the monitors:write scope.
 </dd>
 </dl>
 </dd>
@@ -2576,6 +2600,14 @@ client.monitors.rotate_webhook_secret(
 <dd>
 
 **id:** `str` — Monitor id.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**idempotency_key:** `typing.Optional[str]` — A unique key you generate per logical request, such as a UUID. A retry with the same key and the same body within 24 hours returns the stored response with Idempotency-Replayed: true instead of running again. The same key with a different body answers 409 idempotency_conflict. Keys are scoped to the credential.
     
 </dd>
 </dl>
@@ -2671,7 +2703,7 @@ client.trackers.list()
 <dl>
 <dd>
 
-Creates a standalone tracker watching one entity (name + type, resolved with the same entity resolution Search uses). Attach it to a monitor afterwards via POST /v1/monitors/{id}/trackers. Creating a duplicate (same entity name + type) returns 409 with the existingId. Supports the Idempotency-Key header.
+Creates a standalone tracker watching one entity (name + type, resolved with the same entity resolution Search uses). Attach it to a monitor afterwards via POST /v1/monitors/{id}/trackers. Creating a duplicate (same entity name + type) returns 409 with the existingId.
 </dd>
 </dl>
 </dd>
@@ -2722,6 +2754,14 @@ client.trackers.create(
 <dd>
 
 **entity_type:** `CreateTrackersRequestEntityType` — Entity type of the tracked entity. Required on create.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**idempotency_key:** `typing.Optional[str]` — A unique key you generate per logical request, such as a UUID. A retry with the same key and the same body within 24 hours returns the stored response with Idempotency-Replayed: true instead of running again. The same key with a different body answers 409 idempotency_conflict. Keys are scoped to the credential.
     
 </dd>
 </dl>
@@ -2898,7 +2938,7 @@ client.trackers.delete(
 <dl>
 <dd>
 
-Partial update: send only the fields to change. The tracked entity itself (entityName/entityType) is immutable; delete and recreate to watch a different entity. Supports the Idempotency-Key header.
+Partial update: send only the fields to change. The tracked entity itself (entityName/entityType) is immutable; delete and recreate to watch a different entity.
 </dd>
 </dl>
 </dd>
@@ -2940,6 +2980,14 @@ client.trackers.update(
 <dd>
 
 **id:** `str` — Tracker id, trk_ form.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**idempotency_key:** `typing.Optional[str]` — A unique key you generate per logical request, such as a UUID. A retry with the same key and the same body within 24 hours returns the stored response with Idempotency-Replayed: true instead of running again. The same key with a different body answers 409 idempotency_conflict. Keys are scoped to the credential.
     
 </dd>
 </dl>
@@ -3250,7 +3298,7 @@ client.transcriptions.list()
 <dl>
 <dd>
 
-Paid tiers only. Rows are debited up front (75 rows per 15-minute block, minimum one) and the permanent per-video unlock is granted at submit time, so the transcript GET auto-unlocks when the pipeline finishes. If a PREMIUM transcript already exists the request short-circuits to `complete`; a video with only a preliminary analysis does NOT short-circuit: the premium generation actually runs. An unlock purchased earlier makes this request free (rows_charged 0). An in-flight request for the same video is returned as-is (`existing: true`). Supports the Idempotency-Key header. Responses include `etaSeconds` + `nextPollSeconds` and a Retry-After header while in flight; poll GET /v1/transcriptions/{id} on that cadence. User requests ride a reserved pipeline fast lane. Terminal pipeline failure auto-refunds the rows and revokes the unlock.
+Paid tiers only. Rows are debited up front (75 rows per 15-minute block, minimum one) and the permanent per-video unlock is granted at submit time, so the transcript GET auto-unlocks when the pipeline finishes. If a PREMIUM transcript already exists the request short-circuits to `complete`; a video with only a preliminary analysis does NOT short-circuit: the premium generation actually runs. An unlock purchased earlier makes this request free (rows_charged 0). An in-flight request for the same video is returned as-is (`existing: true`). Responses include `etaSeconds` + `nextPollSeconds` and a Retry-After header while in flight; poll GET /v1/transcriptions/{id} on that cadence. User requests ride a reserved pipeline fast lane. Terminal pipeline failure auto-refunds the rows and revokes the unlock.
 </dd>
 </dl>
 </dd>
@@ -3285,6 +3333,14 @@ client.transcriptions.submit()
 
 <dl>
 <dd>
+
+<dl>
+<dd>
+
+**idempotency_key:** `typing.Optional[str]` — A unique key you generate per logical request, such as a UUID. A retry with the same key and the same body within 24 hours returns the stored response with Idempotency-Replayed: true instead of running again. The same key with a different body answers 409 idempotency_conflict. Keys are scoped to the credential.
+    
+</dd>
+</dl>
 
 <dl>
 <dd>
@@ -3403,7 +3459,7 @@ client.transcriptions.get(
 <dl>
 <dd>
 
-Unified corrections ingestion for all kinds: line_edit, speaker_reassign, speaker_identify, add_person, entity_tag, segment_rewrite. Corrections are free (0 rows) and land as pending-review rows attributed to your API key; speaker_identify/add_person also create a community-flagged appearance immediately. segment_rewrite is the structural primitive: it replaces an inclusive segment range with new segments (an empty replacements array deletes the range); timestamps can be pinned per replacement with optional start/end seconds, and unpinned times are repaired by char-proportional interpolation between pins. Anchored kinds (line_edit, speaker_reassign, entity_tag, segment_rewrite) must echo the `revision` from a Premium transcript read and an `anchor` ({ segmentIndex, contentHash: djb2 of the covered segment text }); `anchor.segmentIndex` is the line's `index` in that read. Error semantics for outbox-style clients: 409 = revision/anchor mismatch, the transcript changed underneath the correction (body { reason, currentRevision }); drop or re-anchor the event and continue, the sequence number is consumed. 412 = seq mismatch (body { expectedSeq }); refetch the transcript, rebase local counters, and resend. Supports the Idempotency-Key header (client event UUID): replays return the stored final response verbatim with Idempotency-Replayed: true.
+Unified corrections ingestion for all kinds: line_edit, speaker_reassign, speaker_identify, add_person, entity_tag, segment_rewrite. Corrections are free (0 rows) and land as pending-review rows attributed to your API key; speaker_identify/add_person also create a community-flagged appearance immediately. segment_rewrite is the structural primitive: it replaces an inclusive segment range with new segments (an empty replacements array deletes the range); timestamps can be pinned per replacement with optional start/end seconds, and unpinned times are repaired by char-proportional interpolation between pins. Anchored kinds (line_edit, speaker_reassign, entity_tag, segment_rewrite) must echo the `revision` from a Premium transcript read and an `anchor` ({ segmentIndex, contentHash: djb2 of the covered segment text }); `anchor.segmentIndex` is the line's `index` in that read. Error semantics for outbox-style clients: 409 = revision/anchor mismatch, the transcript changed underneath the correction (body { reason, currentRevision }); drop or re-anchor the event and continue, the sequence number is consumed. 412 = seq mismatch (body { expectedSeq }); refetch the transcript, rebase local counters, and resend.
 </dd>
 </dl>
 </dd>
@@ -3465,6 +3521,14 @@ client.corrections.submit(
 <dd>
 
 **payload:** `typing.Dict[str, typing.Any]` — Kind-specific payload. line_edit: { segmentIndex, originalText, correctedText }. speaker_reassign: { selection: { startIndex, startChar, endIndex, endChar }, target: { kind: existing|new|role, speakerId, label?, role? } }. speaker_identify: { speakerId, entityId }. add_person: { speakerId, name }. entity_tag: { segmentIndex, charStart, charEnd, entityId } or { segmentIndex, charStart, charEnd, proposedName, proposedType }. segment_rewrite: { startIndex, endIndex, replacements: [{ text, speaker?, start?, end? }] }. replaces the inclusive segment range with the replacements (max 50 source segments, 50 replacements, 2000 chars each); an empty array deletes the range. Timestamps: optional start/end pins (seconds, non-decreasing across the list) fix times explicitly; every unpinned time is interpolated char-proportionally between the surrounding pins (outer bounds default to the source time range). A replacement without speaker inherits from the source segment its repaired start time falls in; startIndex must equal anchor.segmentIndex and the anchor contentHash covers startIndex through endIndex.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**idempotency_key:** `typing.Optional[str]` — The client event id, such as a UUID. A retry with the same key returns the stored final response with Idempotency-Replayed: true. A 412 is never stored, so a rebased resend under the same key runs again.
     
 </dd>
 </dl>
@@ -4981,7 +5045,7 @@ client.monitors.trackers.list(
 <dl>
 <dd>
 
-Attaches EXISTING trackers to the monitor by id ({ trackerIds: ["trk_..."] }). It does not create trackers: create them first via POST /v1/trackers, then attach. Attached trackers use the monitor's delivery settings. Supports the Idempotency-Key header.
+Attaches EXISTING trackers to the monitor by id ({ trackerIds: ["trk_..."] }). It does not create trackers: create them first via POST /v1/trackers, then attach. Attached trackers use the monitor's delivery settings.
 </dd>
 </dl>
 </dd>
@@ -5034,6 +5098,14 @@ client.monitors.trackers.add(
 <dd>
 
 **tracker_ids:** `typing.List[str]` — Ids of existing trackers ("trk_...") to attach to this monitor. Create trackers first via POST /v1/trackers.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**idempotency_key:** `typing.Optional[str]` — A unique key you generate per logical request, such as a UUID. A retry with the same key and the same body within 24 hours returns the stored response with Idempotency-Replayed: true instead of running again. The same key with a different body answers 409 idempotency_conflict. Keys are scoped to the credential.
     
 </dd>
 </dl>
@@ -7864,7 +7936,7 @@ client.trackers.alerts.list(
 <dl>
 <dd>
 
-Purpose-built wrapper for the line_edit kind. The edit is pending review: visible to you immediately (returned in the transcript GET `edits[]`), applied for everyone once approved. Free (0 rows), attributed to your API key. Supports Idempotency-Key.
+Purpose-built wrapper for the line_edit kind. The edit is pending review: visible to you immediately (returned in the transcript GET `edits[]`), applied for everyone once approved. Free (0 rows), attributed to your API key.
 </dd>
 </dl>
 </dd>
@@ -7933,6 +8005,14 @@ client.transcripts.edits.submit(
 <dd>
 
 **corrected_text:** `str` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**idempotency_key:** `typing.Optional[str]` — A unique key you generate per logical request, such as a UUID. A retry with the same key and the same body within 24 hours returns the stored response with Idempotency-Replayed: true instead of running again. The same key with a different body answers 409 idempotency_conflict. Keys are scoped to the credential.
     
 </dd>
 </dl>
@@ -8041,7 +8121,7 @@ client.transcripts.edits.withdraw(
 <dl>
 <dd>
 
-Links a diarization speaker id to a person entity (or proposes a new person via `name`). Creates a community-attributed appearance immediately. It shows on the person page right away, flagged pending review; reviewers can revert it. Free (0 rows). Supports Idempotency-Key.
+Links a diarization speaker id to a person entity (or proposes a new person via `name`). Creates a community-attributed appearance immediately. It shows on the person page right away, flagged pending review; reviewers can revert it. Free (0 rows).
 </dd>
 </dl>
 </dd>
@@ -8092,6 +8172,14 @@ client.transcripts.speakers.identify(
 <dd>
 
 **speaker_id:** `int` — A speakers[].id from the Premium transcript read that revision names.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**idempotency_key:** `typing.Optional[str]` — A unique key you generate per logical request, such as a UUID. A retry with the same key and the same body within 24 hours returns the stored response with Idempotency-Replayed: true instead of running again. The same key with a different body answers 409 idempotency_conflict. Keys are scoped to the credential.
     
 </dd>
 </dl>
@@ -8289,7 +8377,7 @@ client.transcripts.merges.list(
 <dl>
 <dd>
 
-Asserts that a name in this video refers to a specific entity, for misattributed name mentions in one video (e.g. a first-name-only mention resolved to the wrong entity). Optionally respells the transcript text via `replaceWith`. Pending review; applied optimistically for you. Mentions of the same name in other videos are untouched. Free (0 rows). Supports Idempotency-Key.
+Asserts that a name in this video refers to a specific entity, for misattributed name mentions in one video (e.g. a first-name-only mention resolved to the wrong entity). Optionally respells the transcript text via `replaceWith`. Pending review; applied optimistically for you. Mentions of the same name in other videos are untouched. Free (0 rows).
 </dd>
 </dl>
 </dd>
@@ -8349,6 +8437,14 @@ client.transcripts.merges.submit(
 <dd>
 
 **target_entity_id:** `int` — The canonical entity these mentions actually refer to.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**idempotency_key:** `typing.Optional[str]` — A unique key you generate per logical request, such as a UUID. A retry with the same key and the same body within 24 hours returns the stored response with Idempotency-Replayed: true instead of running again. The same key with a different body answers 409 idempotency_conflict. Keys are scoped to the credential.
     
 </dd>
 </dl>

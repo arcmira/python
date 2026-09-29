@@ -32,13 +32,14 @@ class SpeakersClient:
         video_id: str,
         *,
         speaker_id: int,
+        idempotency_key: typing.Optional[str] = None,
         entity_id: typing.Optional[int] = OMIT,
         name: typing.Optional[str] = OMIT,
         revision: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SpeakerIdentificationSubmittedResponse:
         """
-        Links a diarization speaker id to a person entity (or proposes a new person via `name`). Creates a community-attributed appearance immediately. It shows on the person page right away, flagged pending review; reviewers can revert it. Free (0 rows). Supports Idempotency-Key.
+        Links a diarization speaker id to a person entity (or proposes a new person via `name`). Creates a community-attributed appearance immediately. It shows on the person page right away, flagged pending review; reviewers can revert it. Free (0 rows).
 
         Parameters
         ----------
@@ -47,6 +48,9 @@ class SpeakersClient:
 
         speaker_id : int
             A speakers[].id from the Premium transcript read that revision names.
+
+        idempotency_key : typing.Optional[str]
+            A unique key you generate per logical request, such as a UUID. A retry with the same key and the same body within 24 hours returns the stored response with Idempotency-Replayed: true instead of running again. The same key with a different body answers 409 idempotency_conflict. Keys are scoped to the credential.
 
         entity_id : typing.Optional[int]
             Existing person entity id. Either entityId or name is required.
@@ -80,6 +84,7 @@ class SpeakersClient:
         _response = self._raw_client.identify(
             video_id,
             speaker_id=speaker_id,
+            idempotency_key=idempotency_key,
             entity_id=entity_id,
             name=name,
             revision=revision,
@@ -145,13 +150,14 @@ class AsyncSpeakersClient:
         video_id: str,
         *,
         speaker_id: int,
+        idempotency_key: typing.Optional[str] = None,
         entity_id: typing.Optional[int] = OMIT,
         name: typing.Optional[str] = OMIT,
         revision: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SpeakerIdentificationSubmittedResponse:
         """
-        Links a diarization speaker id to a person entity (or proposes a new person via `name`). Creates a community-attributed appearance immediately. It shows on the person page right away, flagged pending review; reviewers can revert it. Free (0 rows). Supports Idempotency-Key.
+        Links a diarization speaker id to a person entity (or proposes a new person via `name`). Creates a community-attributed appearance immediately. It shows on the person page right away, flagged pending review; reviewers can revert it. Free (0 rows).
 
         Parameters
         ----------
@@ -160,6 +166,9 @@ class AsyncSpeakersClient:
 
         speaker_id : int
             A speakers[].id from the Premium transcript read that revision names.
+
+        idempotency_key : typing.Optional[str]
+            A unique key you generate per logical request, such as a UUID. A retry with the same key and the same body within 24 hours returns the stored response with Idempotency-Replayed: true instead of running again. The same key with a different body answers 409 idempotency_conflict. Keys are scoped to the credential.
 
         entity_id : typing.Optional[int]
             Existing person entity id. Either entityId or name is required.
@@ -201,6 +210,7 @@ class AsyncSpeakersClient:
         _response = await self._raw_client.identify(
             video_id,
             speaker_id=speaker_id,
+            idempotency_key=idempotency_key,
             entity_id=entity_id,
             name=name,
             revision=revision,

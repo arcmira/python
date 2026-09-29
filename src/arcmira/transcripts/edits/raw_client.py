@@ -37,11 +37,12 @@ class RawEditsClient:
         segment_index: int,
         original_text: str,
         corrected_text: str,
+        idempotency_key: typing.Optional[str] = None,
         revision: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[TranscriptEditSubmittedResponse]:
         """
-        Purpose-built wrapper for the line_edit kind. The edit is pending review: visible to you immediately (returned in the transcript GET `edits[]`), applied for everyone once approved. Free (0 rows), attributed to your API key. Supports Idempotency-Key.
+        Purpose-built wrapper for the line_edit kind. The edit is pending review: visible to you immediately (returned in the transcript GET `edits[]`), applied for everyone once approved. Free (0 rows), attributed to your API key.
 
         Parameters
         ----------
@@ -54,6 +55,9 @@ class RawEditsClient:
             The current segment text you are correcting (guards against applying to a changed segment).
 
         corrected_text : str
+
+        idempotency_key : typing.Optional[str]
+            A unique key you generate per logical request, such as a UUID. A retry with the same key and the same body within 24 hours returns the stored response with Idempotency-Replayed: true instead of running again. The same key with a different body answers 409 idempotency_conflict. Keys are scoped to the credential.
 
         revision : typing.Optional[str]
             The revision from the Premium transcript read.
@@ -77,6 +81,7 @@ class RawEditsClient:
             },
             headers={
                 "content-type": "application/json",
+                "Idempotency-Key": str(idempotency_key) if idempotency_key is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -299,11 +304,12 @@ class AsyncRawEditsClient:
         segment_index: int,
         original_text: str,
         corrected_text: str,
+        idempotency_key: typing.Optional[str] = None,
         revision: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[TranscriptEditSubmittedResponse]:
         """
-        Purpose-built wrapper for the line_edit kind. The edit is pending review: visible to you immediately (returned in the transcript GET `edits[]`), applied for everyone once approved. Free (0 rows), attributed to your API key. Supports Idempotency-Key.
+        Purpose-built wrapper for the line_edit kind. The edit is pending review: visible to you immediately (returned in the transcript GET `edits[]`), applied for everyone once approved. Free (0 rows), attributed to your API key.
 
         Parameters
         ----------
@@ -316,6 +322,9 @@ class AsyncRawEditsClient:
             The current segment text you are correcting (guards against applying to a changed segment).
 
         corrected_text : str
+
+        idempotency_key : typing.Optional[str]
+            A unique key you generate per logical request, such as a UUID. A retry with the same key and the same body within 24 hours returns the stored response with Idempotency-Replayed: true instead of running again. The same key with a different body answers 409 idempotency_conflict. Keys are scoped to the credential.
 
         revision : typing.Optional[str]
             The revision from the Premium transcript read.
@@ -339,6 +348,7 @@ class AsyncRawEditsClient:
             },
             headers={
                 "content-type": "application/json",
+                "Idempotency-Key": str(idempotency_key) if idempotency_key is not None else None,
             },
             request_options=request_options,
             omit=OMIT,

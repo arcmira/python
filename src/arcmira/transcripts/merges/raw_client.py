@@ -144,12 +144,13 @@ class RawMergesClient:
         *,
         source_name: str,
         target_entity_id: int,
+        idempotency_key: typing.Optional[str] = None,
         replace_with: typing.Optional[str] = OMIT,
         revision: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[VideoMergeSubmittedResponse]:
         """
-        Asserts that a name in this video refers to a specific entity, for misattributed name mentions in one video (e.g. a first-name-only mention resolved to the wrong entity). Optionally respells the transcript text via `replaceWith`. Pending review; applied optimistically for you. Mentions of the same name in other videos are untouched. Free (0 rows). Supports Idempotency-Key.
+        Asserts that a name in this video refers to a specific entity, for misattributed name mentions in one video (e.g. a first-name-only mention resolved to the wrong entity). Optionally respells the transcript text via `replaceWith`. Pending review; applied optimistically for you. Mentions of the same name in other videos are untouched. Free (0 rows).
 
         Parameters
         ----------
@@ -161,6 +162,9 @@ class RawMergesClient:
 
         target_entity_id : int
             The canonical entity these mentions actually refer to.
+
+        idempotency_key : typing.Optional[str]
+            A unique key you generate per logical request, such as a UUID. A retry with the same key and the same body within 24 hours returns the stored response with Idempotency-Replayed: true instead of running again. The same key with a different body answers 409 idempotency_conflict. Keys are scoped to the credential.
 
         replace_with : typing.Optional[str]
             Optional respelling applied to the transcript text (e.g. "Imad" → "Emad").
@@ -186,6 +190,7 @@ class RawMergesClient:
             },
             headers={
                 "content-type": "application/json",
+                "Idempotency-Key": str(idempotency_key) if idempotency_key is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -514,12 +519,13 @@ class AsyncRawMergesClient:
         *,
         source_name: str,
         target_entity_id: int,
+        idempotency_key: typing.Optional[str] = None,
         replace_with: typing.Optional[str] = OMIT,
         revision: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[VideoMergeSubmittedResponse]:
         """
-        Asserts that a name in this video refers to a specific entity, for misattributed name mentions in one video (e.g. a first-name-only mention resolved to the wrong entity). Optionally respells the transcript text via `replaceWith`. Pending review; applied optimistically for you. Mentions of the same name in other videos are untouched. Free (0 rows). Supports Idempotency-Key.
+        Asserts that a name in this video refers to a specific entity, for misattributed name mentions in one video (e.g. a first-name-only mention resolved to the wrong entity). Optionally respells the transcript text via `replaceWith`. Pending review; applied optimistically for you. Mentions of the same name in other videos are untouched. Free (0 rows).
 
         Parameters
         ----------
@@ -531,6 +537,9 @@ class AsyncRawMergesClient:
 
         target_entity_id : int
             The canonical entity these mentions actually refer to.
+
+        idempotency_key : typing.Optional[str]
+            A unique key you generate per logical request, such as a UUID. A retry with the same key and the same body within 24 hours returns the stored response with Idempotency-Replayed: true instead of running again. The same key with a different body answers 409 idempotency_conflict. Keys are scoped to the credential.
 
         replace_with : typing.Optional[str]
             Optional respelling applied to the transcript text (e.g. "Imad" → "Emad").
@@ -556,6 +565,7 @@ class AsyncRawMergesClient:
             },
             headers={
                 "content-type": "application/json",
+                "Idempotency-Key": str(idempotency_key) if idempotency_key is not None else None,
             },
             request_options=request_options,
             omit=OMIT,

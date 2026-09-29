@@ -22,7 +22,7 @@ class ChannelSponsorsResponseAccess(UniversalBaseModel):
 
     code: str = pydantic.Field()
     """
-    The specific condition, stable and snake_case; doc_url anchors on it. Gate codes: invalid_api_key, api_not_enabled, trial_exhausted, usage_limit_exceeded, insufficient_scope, feature_not_available, premium_transcript_requested, filter_requires_paid, freshness_requires_paid, recommendations_not_enabled, pagination_gated, job_requires_account, transcript_requires_account, rate_limited. Lookup codes: entity_not_found, channel_not_found, invalid_query, transcript_unavailable, transcript_fetching. Routes add their own, named in the operation description. New codes may appear inside an existing type, so switch on type and gate first.
+    The specific condition, stable and snake_case; doc_url anchors on it. x-arcmira-codes on this schema lists every code with its type, gate and meaning. The list is open: new codes may appear inside an existing type, so switch on type and gate first.
     """
 
     reason: typing.Optional[ChannelSponsorsResponseAccessReason] = pydantic.Field(default=None)
