@@ -6,6 +6,9 @@ import typing
 
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.request_options import RequestOptions
+from ..types.transcript_request import TranscriptRequest
+from ..types.transcript_request_list_response import TranscriptRequestListResponse
+from ..types.transcript_request_submit_response import TranscriptRequestSubmitResponse
 from ..types.transcript_response import TranscriptResponse
 from ..types.transcript_search_response import TranscriptSearchResponse
 from ..types.video_captions_response import VideoCaptionsResponse
@@ -17,6 +20,8 @@ if typing.TYPE_CHECKING:
     from .edits.client import AsyncEditsClient, EditsClient
     from .merges.client import AsyncMergesClient, MergesClient
     from .speakers.client import AsyncSpeakersClient, SpeakersClient
+# this is used as the default value for optional parameters
+OMIT = typing.cast(typing.Any, ...)
 
 
 class TranscriptsClient:
@@ -207,6 +212,112 @@ class TranscriptsClient:
         )
         """
         _response = self._raw_client.captions(video_id, request_options=request_options)
+        return _response.data
+
+    def list_requests(
+        self, *, video_id: typing.Optional[str] = None, request_options: typing.Optional[RequestOptions] = None
+    ) -> TranscriptRequestListResponse:
+        """
+        Your most recent transcription requests (newest first; 20 without a filter, 5 when filtered to one video). Each entry has the same shape as the status poll plus a `title` field (the video title, null when unknown). Up to 5 in-flight rows are reconciled against live pipeline state per list call, and in-flight entries carry `etaSeconds` + `nextPollSeconds`.
+
+        Parameters
+        ----------
+        video_id : typing.Optional[str]
+            Filter to your requests for one video.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        TranscriptRequestListResponse
+            Success
+
+        Examples
+        --------
+        from arcmira import Arcmira
+
+        client = Arcmira(
+            api_key="YOUR_API_KEY",
+        )
+        client.transcripts.list_requests()
+        """
+        _response = self._raw_client.list_requests(video_id=video_id, request_options=request_options)
+        return _response.data
+
+    def request(
+        self,
+        *,
+        idempotency_key: typing.Optional[str] = None,
+        video_id: typing.Optional[str] = OMIT,
+        url: typing.Optional[str] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> TranscriptRequestSubmitResponse:
+        """
+        Paid tiers only. Rows are debited up front (75 rows per 15-minute block, minimum one) and the permanent per-video unlock is granted at submit time, so the transcript GET auto-unlocks when the pipeline finishes. If a PREMIUM transcript already exists the request short-circuits to `complete`; a video with only a preliminary analysis does NOT short-circuit: the premium generation actually runs. An unlock purchased earlier makes this request free (rows_charged 0). An in-flight request for the same video is returned as-is (`existing: true`). Responses include `etaSeconds` + `nextPollSeconds` and a Retry-After header while in flight; poll GET /v1/transcriptions/{id} on that cadence. User requests ride a reserved pipeline fast lane. Terminal pipeline failure auto-refunds the rows and revokes the unlock.
+
+        Parameters
+        ----------
+        idempotency_key : typing.Optional[str]
+            A unique key you generate per logical request, such as a UUID. A retry with the same key and the same body within 24 hours returns the stored response with Idempotency-Replayed: true instead of running again. The same key with a different body answers 409 idempotency_conflict. Keys are scoped to the credential.
+
+        video_id : typing.Optional[str]
+            YouTube video id (11 characters). Either videoId or url is required.
+
+        url : typing.Optional[str]
+            A YouTube watch/short/live URL. Either videoId or url is required.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        TranscriptRequestSubmitResponse
+            An existing in-flight or already-satisfied request was returned (existing: true)
+
+        Examples
+        --------
+        from arcmira import Arcmira
+
+        client = Arcmira(
+            api_key="YOUR_API_KEY",
+        )
+        client.transcripts.request()
+        """
+        _response = self._raw_client.request(
+            idempotency_key=idempotency_key, video_id=video_id, url=url, request_options=request_options
+        )
+        return _response.data
+
+    def status(self, id: str, *, request_options: typing.Optional[RequestOptions] = None) -> TranscriptRequest:
+        """
+        Agent-friendly polling contract: while the request is in flight the response carries a Retry-After header (seconds) and body fields `etaSeconds` + `nextPollSeconds`. Sleep on Retry-After and re-poll. `status` walks queued → downloading → transcribing → analyzing → complete (user-facing `stage` folds downloading into transcribing). Terminal statuses (`complete`, `failed`, `refunded`) drop Retry-After. On `complete`, fetch the transcript via GET /v1/transcripts/{video_id}; the unlock was granted at submission. `refunded` means the pipeline failed and the rows were returned. A caller with no account holds no jobs: it is refused with 401 job_requires_account, whose unlock points at sign-up.
+
+        Parameters
+        ----------
+        id : str
+            Transcription request id, the UUID POST /v1/transcriptions returned.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        TranscriptRequest
+            Success
+
+        Examples
+        --------
+        from arcmira import Arcmira
+
+        client = Arcmira(
+            api_key="YOUR_API_KEY",
+        )
+        client.transcripts.status(
+            id="id",
+        )
+        """
+        _response = self._raw_client.status(id, request_options=request_options)
         return _response.data
 
     @property
@@ -446,6 +557,136 @@ class AsyncTranscriptsClient:
         asyncio.run(main())
         """
         _response = await self._raw_client.captions(video_id, request_options=request_options)
+        return _response.data
+
+    async def list_requests(
+        self, *, video_id: typing.Optional[str] = None, request_options: typing.Optional[RequestOptions] = None
+    ) -> TranscriptRequestListResponse:
+        """
+        Your most recent transcription requests (newest first; 20 without a filter, 5 when filtered to one video). Each entry has the same shape as the status poll plus a `title` field (the video title, null when unknown). Up to 5 in-flight rows are reconciled against live pipeline state per list call, and in-flight entries carry `etaSeconds` + `nextPollSeconds`.
+
+        Parameters
+        ----------
+        video_id : typing.Optional[str]
+            Filter to your requests for one video.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        TranscriptRequestListResponse
+            Success
+
+        Examples
+        --------
+        import asyncio
+
+        from arcmira import AsyncArcmira
+
+        client = AsyncArcmira(
+            api_key="YOUR_API_KEY",
+        )
+
+
+        async def main() -> None:
+            await client.transcripts.list_requests()
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.list_requests(video_id=video_id, request_options=request_options)
+        return _response.data
+
+    async def request(
+        self,
+        *,
+        idempotency_key: typing.Optional[str] = None,
+        video_id: typing.Optional[str] = OMIT,
+        url: typing.Optional[str] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> TranscriptRequestSubmitResponse:
+        """
+        Paid tiers only. Rows are debited up front (75 rows per 15-minute block, minimum one) and the permanent per-video unlock is granted at submit time, so the transcript GET auto-unlocks when the pipeline finishes. If a PREMIUM transcript already exists the request short-circuits to `complete`; a video with only a preliminary analysis does NOT short-circuit: the premium generation actually runs. An unlock purchased earlier makes this request free (rows_charged 0). An in-flight request for the same video is returned as-is (`existing: true`). Responses include `etaSeconds` + `nextPollSeconds` and a Retry-After header while in flight; poll GET /v1/transcriptions/{id} on that cadence. User requests ride a reserved pipeline fast lane. Terminal pipeline failure auto-refunds the rows and revokes the unlock.
+
+        Parameters
+        ----------
+        idempotency_key : typing.Optional[str]
+            A unique key you generate per logical request, such as a UUID. A retry with the same key and the same body within 24 hours returns the stored response with Idempotency-Replayed: true instead of running again. The same key with a different body answers 409 idempotency_conflict. Keys are scoped to the credential.
+
+        video_id : typing.Optional[str]
+            YouTube video id (11 characters). Either videoId or url is required.
+
+        url : typing.Optional[str]
+            A YouTube watch/short/live URL. Either videoId or url is required.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        TranscriptRequestSubmitResponse
+            An existing in-flight or already-satisfied request was returned (existing: true)
+
+        Examples
+        --------
+        import asyncio
+
+        from arcmira import AsyncArcmira
+
+        client = AsyncArcmira(
+            api_key="YOUR_API_KEY",
+        )
+
+
+        async def main() -> None:
+            await client.transcripts.request()
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.request(
+            idempotency_key=idempotency_key, video_id=video_id, url=url, request_options=request_options
+        )
+        return _response.data
+
+    async def status(self, id: str, *, request_options: typing.Optional[RequestOptions] = None) -> TranscriptRequest:
+        """
+        Agent-friendly polling contract: while the request is in flight the response carries a Retry-After header (seconds) and body fields `etaSeconds` + `nextPollSeconds`. Sleep on Retry-After and re-poll. `status` walks queued → downloading → transcribing → analyzing → complete (user-facing `stage` folds downloading into transcribing). Terminal statuses (`complete`, `failed`, `refunded`) drop Retry-After. On `complete`, fetch the transcript via GET /v1/transcripts/{video_id}; the unlock was granted at submission. `refunded` means the pipeline failed and the rows were returned. A caller with no account holds no jobs: it is refused with 401 job_requires_account, whose unlock points at sign-up.
+
+        Parameters
+        ----------
+        id : str
+            Transcription request id, the UUID POST /v1/transcriptions returned.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        TranscriptRequest
+            Success
+
+        Examples
+        --------
+        import asyncio
+
+        from arcmira import AsyncArcmira
+
+        client = AsyncArcmira(
+            api_key="YOUR_API_KEY",
+        )
+
+
+        async def main() -> None:
+            await client.transcripts.status(
+                id="id",
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.status(id, request_options=request_options)
         return _response.data
 
     @property

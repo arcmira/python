@@ -96,6 +96,18 @@ def _create_monitor(_m, _q, j):
     return FIXTURES["create_monitor"]["status"], b
 
 
+def _submit_transcription(_m, _q, j):
+    b = body("submit_transcription")
+    b["request"].update({"id": "2f2b4a3e-8d1c-4c8e-9a0f-1b2c3d4e5f60", "videoId": (j or {}).get("videoId", "")})
+    return FIXTURES["submit_transcription"]["status"], b
+
+
+def _transcription_status(m, _q, _j):
+    b = body("get_transcription")
+    b.update({"id": m.group(1), "status": "transcribing", "nextPollSeconds": 30})
+    return 200, b
+
+
 def _person_topics(m, _q, _j):
     return (404, not_found_body("entity_not_found", "Entity not found")) if m.group(1) == "nobody" else (200, body("list_person_topics"))
 
@@ -113,7 +125,8 @@ ROUTES: list[tuple[str, re.Pattern, Callable]] = [
     ("GET", re.compile(r"^/v1/channels/([^/]+)/videos$"), lambda m, q, j: (200, body("list_channel_videos"))),
     ("GET", re.compile(r"^/v1/channels/([^/]+)/coverage$"), lambda m, q, j: (200, body("get_channel_coverage"))),
     ("GET", re.compile(r"^/v1/transcripts/([^/]+)$"), _transcript),
-    ("GET", re.compile(r"^/v1/transcriptions/([^/]+)$"), lambda m, q, j: (200, body("get_transcription"))),
+    ("POST", re.compile(r"^/v1/transcriptions$"), _submit_transcription),
+    ("GET", re.compile(r"^/v1/transcriptions/([^/]+)$"), _transcription_status),
     ("POST", re.compile(r"^/v1/monitors$"), _create_monitor),
     ("GET", re.compile(r"^/v1/people/([^/]+)/topics$"), _person_topics),
 ]

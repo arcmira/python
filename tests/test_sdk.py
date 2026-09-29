@@ -81,3 +81,16 @@ def test_an_entity_page_list_404_carries_the_v1_envelope(client):
         client.people.related.topics("nobody")
     assert raised.value.body.error.type == "not_found"
     assert raised.value.body.error.code == "entity_not_found"
+
+
+def test_transcript_requests_live_on_transcripts(fake, client):
+    assert not hasattr(client, "transcriptions")
+    order = client.transcripts.request(video_id="dQw4w9WgXcQ", idempotency_key="order-1")
+    assert fake.last["method"] == "POST"
+    assert fake.last["path"] == "/v1/transcriptions"
+    assert fake.last["headers"]["idempotency-key"] == "order-1"
+    assert fake.last["body"] == {"videoId": "dQw4w9WgXcQ"}
+    assert order.request.id is not None
+    state = client.transcripts.status(order.request.id)
+    assert fake.last["path"] == f"/v1/transcriptions/{order.request.id}"
+    assert state.next_poll_seconds == 30

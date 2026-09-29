@@ -26,7 +26,6 @@ if typing.TYPE_CHECKING:
     from .team.client import AsyncTeamClient, TeamClient
     from .topics.client import AsyncTopicsClient, TopicsClient
     from .trackers.client import AsyncTrackersClient, TrackersClient
-    from .transcriptions.client import AsyncTranscriptionsClient, TranscriptionsClient
     from .transcripts.client import AsyncTranscriptsClient, TranscriptsClient
 
 
@@ -129,7 +128,6 @@ class Arcmira:
         self._monitors: typing.Optional[MonitorsClient] = None
         self._trackers: typing.Optional[TrackersClient] = None
         self._team: typing.Optional[TeamClient] = None
-        self._transcriptions: typing.Optional[TranscriptionsClient] = None
         self._corrections: typing.Optional[CorrectionsClient] = None
 
     @property
@@ -251,14 +249,6 @@ class Arcmira:
 
             self._team = TeamClient(client_wrapper=self._client_wrapper)
         return self._team
-
-    @property
-    def transcriptions(self):
-        if self._transcriptions is None:
-            from .transcriptions.client import TranscriptionsClient  # noqa: E402
-
-            self._transcriptions = TranscriptionsClient(client_wrapper=self._client_wrapper)
-        return self._transcriptions
 
     @property
     def corrections(self):
@@ -389,7 +379,6 @@ class AsyncArcmira:
         self._monitors: typing.Optional[AsyncMonitorsClient] = None
         self._trackers: typing.Optional[AsyncTrackersClient] = None
         self._team: typing.Optional[AsyncTeamClient] = None
-        self._transcriptions: typing.Optional[AsyncTranscriptionsClient] = None
         self._corrections: typing.Optional[AsyncCorrectionsClient] = None
 
     @property
@@ -511,14 +500,6 @@ class AsyncArcmira:
 
             self._team = AsyncTeamClient(client_wrapper=self._client_wrapper)
         return self._team
-
-    @property
-    def transcriptions(self):
-        if self._transcriptions is None:
-            from .transcriptions.client import AsyncTranscriptionsClient  # noqa: E402
-
-            self._transcriptions = AsyncTranscriptionsClient(client_wrapper=self._client_wrapper)
-        return self._transcriptions
 
     @property
     def corrections(self):

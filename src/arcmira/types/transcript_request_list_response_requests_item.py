@@ -3,14 +3,14 @@
 import typing
 
 import pydantic
-from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
-from .transcription_list_response_requests_item import TranscriptionListResponseRequestsItem
+from ..core.pydantic_utilities import IS_PYDANTIC_V2
+from .transcript_request import TranscriptRequest
 
 
-class TranscriptionListResponse(UniversalBaseModel):
-    requests: typing.List[TranscriptionListResponseRequestsItem] = pydantic.Field()
+class TranscriptRequestListResponseRequestsItem(TranscriptRequest):
+    title: typing.Optional[str] = pydantic.Field(default=None)
     """
-    Your most recent requests, newest first: 20 without a filter, 5 when filtered to one video.
+    Video title for display. Null when unknown.
     """
 
     if IS_PYDANTIC_V2:

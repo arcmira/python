@@ -4,7 +4,7 @@ The official `arcmira` package: a typed client for the [Arcmira API](https://arc
 
 - Sync and async clients (`Arcmira`, `AsyncArcmira`) on `httpx`, with `pydantic` models and `py.typed`.
 - Every list pages itself. Every error is a typed exception carrying the parsed API body.
-- Full API scope: search, transcripts, mentions, momentum, sponsors and recommendations, monitors, trackers, team, transcriptions, corrections and feedback.
+- Full API scope: search, transcripts, mentions, momentum, sponsors and recommendations, monitors, trackers, team, corrections and feedback. Transcripts covers reading them and ordering Premium ones.
 - Python 3.9 and later.
 
 ## Install
@@ -58,11 +58,19 @@ async def main():
 asyncio.run(main())
 ```
 
+Order a Premium transcript and poll it (paid plans; pass your own idempotency key so a retry cannot order twice):
+
+```python
+order = client.transcripts.request(video_id="dQw4w9WgXcQ", idempotency_key="order-dQw4w9WgXcQ-1")
+state = client.transcripts.status(order.request.id)
+print(state.status, state.next_poll_seconds)
+```
+
 Every method is listed with its parameters and return types in [reference.md](./reference.md). The same operations, with `curl` samples, are in the [API reference](https://arcmira.com/docs/api-reference).
 
 ### Field names
 
-Attributes are snake_case. Where the API sends camelCase (monitors, trackers, alerts and transcription rows) the model aliases it, so `monitor.notify_frequency` reads the wire's `notifyFrequency`.
+Attributes are snake_case. Where the API sends camelCase (monitors, trackers, alerts and transcript requests) the model aliases it, so `monitor.notify_frequency` reads the wire's `notifyFrequency`.
 
 ### Errors
 
