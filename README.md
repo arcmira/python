@@ -15,6 +15,6 @@ import arcmira
 - Agent index: https://arcmira.com/llms.txt (this repo also has `llms.txt`, which points there)
 - Source: https://github.com/arcmira/python
 
-The JS SDK, a fuller Python client, and MCP server will live in sibling repos under [github.com/arcmira](https://github.com/arcmira).
+The official MCP server is [arcmira/mcp](https://github.com/arcmira/mcp). What it does: https://arcmira.com/mcp. Setup for each host: https://arcmira.com/agent-setup.
 
 Copyright Arcmira. All rights reserved. See `LICENSE`.
