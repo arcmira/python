@@ -1,6 +1,6 @@
 """Official PyPI name for Arcmira. Exports public URLs. Not an SDK."""
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 homepage = "https://arcmira.com"
 docs = "https://arcmira.com/docs"
