@@ -1,4 +1,5 @@
 import asyncio
+import itertools
 import json
 import threading
 import unittest
@@ -16,6 +17,7 @@ REQUEST = FIXTURES['get_transcription']['body']
 def error(code, kind):
     return dict(type=kind, code=code, message=code, doc_url='https://arcmira.com/docs/errors', request_id='fixture-request')
 
+PAGE_CAP = 5
 CURSOR = 'signed+/opaque==&cursor'
 PENDING = dict(state='pending', quality='premium', premium_job=dict(job_id=REQUEST['id'], status='queued', next_poll_seconds=5), status_url='/v1/transcriptions/'+REQUEST['id'], next_poll_seconds=5)
 CALLS = []
@@ -74,7 +76,7 @@ class GeneratedClientTests(unittest.TestCase):
         cls.thread = threading.Thread(target=cls.server.serve_forever, daemon=True)
         cls.thread.start()
         cls.base = f'http://127.0.0.1:{cls.server.server_port}'
-        cls.client = Arcmira(api_key='local-test-key', base_url=cls.base, max_retries=0)
+        cls.client = Arcmira(api_key='local-test-key', base_url=cls.base, max_retries=0, timeout=5)
 
     @classmethod
     def tearDownClass(cls):
@@ -121,8 +123,9 @@ class GeneratedClientTests(unittest.TestCase):
 
     def test_request_and_episode_arrays_preserve_opaque_cursor(self):
         before = len(CALLS)
-        self.assertEqual([x.id for x in self.client.transcripts.list_requests(limit=1)], ['request-1','request-2'])
-        self.assertEqual([x.video_id for x in self.client.channels.videos.list(channel_id='UC-test', limit=1)], ['video-1','video-2'])
+        capped = lambda pager: list(itertools.islice(pager, PAGE_CAP))
+        self.assertEqual([x.id for x in capped(self.client.transcripts.list_requests(limit=1))], ['request-1','request-2'])
+        self.assertEqual([x.video_id for x in capped(self.client.channels.videos.list(channel_id='UC-test', limit=1))], ['video-1','video-2'])
         continued = [call for call in CALLS[before:] if 'cursor' in call[1]]
         self.assertEqual(len(continued), 2)
         for call in continued:
@@ -131,11 +134,14 @@ class GeneratedClientTests(unittest.TestCase):
 
     def test_async_pending_and_pagination(self):
         async def run():
-            client = AsyncArcmira(api_key='local-test-key', base_url=self.base, max_retries=0)
+            client = AsyncArcmira(api_key='local-test-key', base_url=self.base, max_retries=0, timeout=5)
             pending = await client.transcripts.with_raw_response.get(video_id='pending0000', quality='premium')
             self.assertEqual(pending.status_code, 202)
             self.assertIsInstance(pending.data, TranscriptResult_Pending)
-            rows = [row.id async for row in await client.transcripts.list_requests(limit=1)]
+            rows = []
+            async for row in await client.transcripts.list_requests(limit=1):
+                rows.append(row.id)
+                if len(rows) >= PAGE_CAP: break
             self.assertEqual(rows, ['request-1','request-2'])
         asyncio.run(run())
 
