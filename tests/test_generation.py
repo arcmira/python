@@ -27,4 +27,8 @@ class GenerationTests(unittest.TestCase):
         self.assertTrue(next(p for p in post['parameters'] if p['name']=='Idempotency-Key')['required'])
         self.assertIn('max_rows', post['requestBody']['content']['application/json']['schema']['required'])
 
+    def test_installed_api_error_matches_the_preserved_override(self):
+        self.assertEqual((ROOT / 'src/arcmira/core/api_error.py').read_text(), (ROOT / 'scripts/overrides/api_error.py').read_text())
+        self.assertIn('overrides/api_error.py', (ROOT / 'scripts/install-generated.py').read_text())
+
 if __name__ == '__main__': unittest.main()

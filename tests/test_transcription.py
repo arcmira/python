@@ -102,6 +102,8 @@ class GeneratedClientTests(unittest.TestCase):
             self.client.transcripts.get(video_id='refused0000', quality='premium')
         self.assertEqual(caught.exception.status_code, 403)
         self.assertEqual(caught.exception.body.quote, QUOTE)
+        self.assertEqual(str(caught.exception), '403 purchase_required: purchase_required')
+        self.assertNotIn('headers', str(caught.exception))
 
     def test_preparation_exact_intent_replay_and_required_key(self):
         intent = dict(video_id='dQw4w9WgXcQ', max_rows=300, max_on_demand_cents=0, idempotency_key='python-saved-intent')

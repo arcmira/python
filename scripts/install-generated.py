@@ -13,6 +13,10 @@ for path in source.rglob('*.py'):
     dest.parent.mkdir(parents=True, exist_ok=True)
     dest.write_text(path.read_text().rstrip() + '\n')
 (target / 'py.typed').touch()
+# Fern's ApiError.__str__ leads with headers; the override leads with status, code and message.
+generated_error = (target / 'core/api_error.py').read_text()
+assert 'class ApiError(Exception)' in generated_error
+(target / 'core/api_error.py').write_text((root / 'scripts/overrides/api_error.py').read_text())
 # The previous public pointer package exported these constants.
 init = target / '__init__.py'
 text = init.read_text()
