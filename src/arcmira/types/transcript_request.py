@@ -6,14 +6,14 @@ import pydantic
 import typing_extensions
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 from ..core.serialization import FieldMetadata
-from .transcription_request_charge import TranscriptionRequestCharge
-from .transcription_request_quote import TranscriptionRequestQuote
-from .transcription_request_stage import TranscriptionRequestStage
-from .transcription_request_state import TranscriptionRequestState
-from .transcription_request_status import TranscriptionRequestStatus
+from .transcript_request_charge import TranscriptRequestCharge
+from .transcript_request_quote import TranscriptRequestQuote
+from .transcript_request_stage import TranscriptRequestStage
+from .transcript_request_state import TranscriptRequestState
+from .transcript_request_status import TranscriptRequestStatus
 
 
-class TranscriptionRequest(UniversalBaseModel):
+class TranscriptRequest(UniversalBaseModel):
     id: typing.Optional[str] = pydantic.Field(default=None)
     """
     Transcription request id (UUID). Null only in the degenerate submit response for a video you already own that has no request history.
@@ -28,23 +28,23 @@ class TranscriptionRequest(UniversalBaseModel):
     YouTube video id (11 characters).
     """
 
-    status: TranscriptionRequestStatus = pydantic.Field()
+    status: TranscriptRequestStatus = pydantic.Field()
     """
     Request status. Values: queued (accepted; audio download not started), downloading (fetching the video audio), transcribing (premium speech-to-text is running), analyzing (entity/commercial analysis is running), complete (premium transcript is servable via GET /v1/transcripts/{video_id}), failed (rejected intent or legacy purchase requiring accounting review), refund_pending (refund transaction must still complete), refunded (terminal failure; the charged rows were returned and the unlock this submission bought was revoked).
     """
 
-    state: TranscriptionRequestState
-    charge: typing.Optional[TranscriptionRequestCharge] = pydantic.Field(default=None)
+    state: TranscriptRequestState
+    charge: typing.Optional[TranscriptRequestCharge] = pydantic.Field(default=None)
     """
     Accepted charge units. Present on durable purchases; absent only on legacy requests.
     """
 
-    stage: typing.Optional[TranscriptionRequestStage] = pydantic.Field(default=None)
+    stage: typing.Optional[TranscriptRequestStage] = pydantic.Field(default=None)
     """
     User-facing stage: downloading folds into transcribing. Values: queued (waiting to start), transcribing (downloading or transcribing), analyzing (analysis running). Null for terminal statuses.
     """
 
-    quote: TranscriptionRequestQuote = pydantic.Field()
+    quote: TranscriptRequestQuote = pydantic.Field()
     """
     What this request charged: rows and 15-minute blocks. rows is 0 when a prior unlock made the submission free.
     """

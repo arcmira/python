@@ -14,10 +14,7 @@ from ..types.entity_resolve_response import EntityResolveResponse
 from ..types.entity_search_response import EntitySearchResponse
 from .raw_client import AsyncRawEntitiesClient, RawEntitiesClient
 from .types.lookup_entities_request_type import LookupEntitiesRequestType
-from .types.momentum_entities_request_src import MomentumEntitiesRequestSrc
-from .types.resolve_entities_request_src import ResolveEntitiesRequestSrc
 from .types.resolve_entities_request_type import ResolveEntitiesRequestType
-from .types.search_entities_request_src import SearchEntitiesRequestSrc
 from .types.search_entities_request_type import SearchEntitiesRequestType
 
 if typing.TYPE_CHECKING:
@@ -50,7 +47,6 @@ class EntitiesClient:
         type: typing.Optional[SearchEntitiesRequestType] = None,
         has_recommendations_data: typing.Optional[bool] = None,
         limit: typing.Optional[int] = None,
-        src: typing.Optional[SearchEntitiesRequestSrc] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> EntitySearchResponse:
         """
@@ -65,9 +61,6 @@ class EntitiesClient:
         has_recommendations_data : typing.Optional[bool]
 
         limit : typing.Optional[int]
-
-        src : typing.Optional[SearchEntitiesRequestSrc]
-            The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -93,7 +86,6 @@ class EntitiesClient:
             type=type,
             has_recommendations_data=has_recommendations_data,
             limit=limit,
-            src=src,
             request_options=request_options,
         )
         return _response.data
@@ -105,7 +97,6 @@ class EntitiesClient:
         type: typing.Optional[ResolveEntitiesRequestType] = None,
         limit: typing.Optional[int] = None,
         context: typing.Optional[str] = None,
-        src: typing.Optional[ResolveEntitiesRequestSrc] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> EntityResolveResponse:
         """
@@ -124,9 +115,6 @@ class EntitiesClient:
 
         context : typing.Optional[str]
             What the user said about the name, in their words ("the startup bank", "Canada's prime minister", "on My First Million"). Ranks candidates by their description and by the episodes they share with what the context names; a clear winner comes back as suggested with reason context.
-
-        src : typing.Optional[ResolveEntitiesRequestSrc]
-            The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -148,7 +136,7 @@ class EntitiesClient:
         )
         """
         _response = self._raw_client.resolve(
-            q=q, type=type, limit=limit, context=context, src=src, request_options=request_options
+            q=q, type=type, limit=limit, context=context, request_options=request_options
         )
         return _response.data
 
@@ -253,13 +241,7 @@ class EntitiesClient:
         _response = self._raw_client.get(id, request_options=request_options)
         return _response.data
 
-    def momentum(
-        self,
-        id: str,
-        *,
-        src: typing.Optional[MomentumEntitiesRequestSrc] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> EntityMomentumResponse:
+    def momentum(self, id: str, *, request_options: typing.Optional[RequestOptions] = None) -> EntityMomentumResponse:
         """
         Mentions in the last 7 and 30 days against the prior 30, an absolute-delta verdict (accelerating, flat, fading, none), the newest media date, and the top shows in the window. It counts the shows we index, not the whole internet, and it is a count, not a score. On a Pro+ plan the card also carries paid_vs_organic; otherwise that field is absent and access names the gate. Bills one row. Every gate is a typed error whose error.unlock.url names the plan that lifts it; pass src=mcp-tool only from the Arcmira MCP server.
 
@@ -267,9 +249,6 @@ class EntitiesClient:
         ----------
         id : str
             Entity id, ent_{n} or the numeric id. Merged ids follow their redirect.
-
-        src : typing.Optional[MomentumEntitiesRequestSrc]
-            The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -290,7 +269,7 @@ class EntitiesClient:
             id="id",
         )
         """
-        _response = self._raw_client.momentum(id, src=src, request_options=request_options)
+        _response = self._raw_client.momentum(id, request_options=request_options)
         return _response.data
 
     @property
@@ -335,7 +314,6 @@ class AsyncEntitiesClient:
         type: typing.Optional[SearchEntitiesRequestType] = None,
         has_recommendations_data: typing.Optional[bool] = None,
         limit: typing.Optional[int] = None,
-        src: typing.Optional[SearchEntitiesRequestSrc] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> EntitySearchResponse:
         """
@@ -350,9 +328,6 @@ class AsyncEntitiesClient:
         has_recommendations_data : typing.Optional[bool]
 
         limit : typing.Optional[int]
-
-        src : typing.Optional[SearchEntitiesRequestSrc]
-            The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -386,7 +361,6 @@ class AsyncEntitiesClient:
             type=type,
             has_recommendations_data=has_recommendations_data,
             limit=limit,
-            src=src,
             request_options=request_options,
         )
         return _response.data
@@ -398,7 +372,6 @@ class AsyncEntitiesClient:
         type: typing.Optional[ResolveEntitiesRequestType] = None,
         limit: typing.Optional[int] = None,
         context: typing.Optional[str] = None,
-        src: typing.Optional[ResolveEntitiesRequestSrc] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> EntityResolveResponse:
         """
@@ -417,9 +390,6 @@ class AsyncEntitiesClient:
 
         context : typing.Optional[str]
             What the user said about the name, in their words ("the startup bank", "Canada's prime minister", "on My First Million"). Ranks candidates by their description and by the episodes they share with what the context names; a clear winner comes back as suggested with reason context.
-
-        src : typing.Optional[ResolveEntitiesRequestSrc]
-            The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -449,7 +419,7 @@ class AsyncEntitiesClient:
         asyncio.run(main())
         """
         _response = await self._raw_client.resolve(
-            q=q, type=type, limit=limit, context=context, src=src, request_options=request_options
+            q=q, type=type, limit=limit, context=context, request_options=request_options
         )
         return _response.data
 
@@ -579,11 +549,7 @@ class AsyncEntitiesClient:
         return _response.data
 
     async def momentum(
-        self,
-        id: str,
-        *,
-        src: typing.Optional[MomentumEntitiesRequestSrc] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> EntityMomentumResponse:
         """
         Mentions in the last 7 and 30 days against the prior 30, an absolute-delta verdict (accelerating, flat, fading, none), the newest media date, and the top shows in the window. It counts the shows we index, not the whole internet, and it is a count, not a score. On a Pro+ plan the card also carries paid_vs_organic; otherwise that field is absent and access names the gate. Bills one row. Every gate is a typed error whose error.unlock.url names the plan that lifts it; pass src=mcp-tool only from the Arcmira MCP server.
@@ -592,9 +558,6 @@ class AsyncEntitiesClient:
         ----------
         id : str
             Entity id, ent_{n} or the numeric id. Merged ids follow their redirect.
-
-        src : typing.Optional[MomentumEntitiesRequestSrc]
-            The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -623,7 +586,7 @@ class AsyncEntitiesClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.momentum(id, src=src, request_options=request_options)
+        _response = await self._raw_client.momentum(id, request_options=request_options)
         return _response.data
 
     @property

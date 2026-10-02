@@ -8,7 +8,6 @@ from ...core.request_options import RequestOptions
 from ...types.channel_videos_response import ChannelVideosResponse
 from ...types.channel_videos_response_episodes_item import ChannelVideosResponseEpisodesItem
 from .raw_client import AsyncRawVideosClient, RawVideosClient
-from .types.list_videos_request_src import ListVideosRequestSrc
 
 
 class VideosClient:
@@ -34,7 +33,6 @@ class VideosClient:
         cursor: typing.Optional[str] = None,
         published_after: typing.Optional[str] = None,
         published_before: typing.Optional[str] = None,
-        src: typing.Optional[ListVideosRequestSrc] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[ChannelVideosResponseEpisodesItem, ChannelVideosResponse]:
         """
@@ -56,9 +54,6 @@ class VideosClient:
 
         published_before : typing.Optional[str]
             ISO date. Only videos published before this day.
-
-        src : typing.Optional[ListVideosRequestSrc]
-            The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -90,7 +85,6 @@ class VideosClient:
             cursor=cursor,
             published_after=published_after,
             published_before=published_before,
-            src=src,
             request_options=request_options,
         )
 
@@ -118,7 +112,6 @@ class AsyncVideosClient:
         cursor: typing.Optional[str] = None,
         published_after: typing.Optional[str] = None,
         published_before: typing.Optional[str] = None,
-        src: typing.Optional[ListVideosRequestSrc] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[ChannelVideosResponseEpisodesItem, ChannelVideosResponse]:
         """
@@ -140,9 +133,6 @@ class AsyncVideosClient:
 
         published_before : typing.Optional[str]
             ISO date. Only videos published before this day.
-
-        src : typing.Optional[ListVideosRequestSrc]
-            The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -183,6 +173,5 @@ class AsyncVideosClient:
             cursor=cursor,
             published_after=published_after,
             published_before=published_before,
-            src=src,
             request_options=request_options,
         )

@@ -2,7 +2,7 @@
 
 import typing
 
-TranscriptionRequestStatus = typing.Union[
+TranscriptRequestStatus = typing.Union[
     typing.Literal[
         "queued", "downloading", "transcribing", "analyzing", "complete", "failed", "refund_pending", "refunded"
     ],

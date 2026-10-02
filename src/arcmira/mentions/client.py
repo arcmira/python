@@ -10,11 +10,9 @@ from ..types.mention_counts_response import MentionCountsResponse
 from ..types.mention_list_response import MentionListResponse
 from .raw_client import AsyncRawMentionsClient, RawMentionsClient
 from .types.count_mentions_request_mode import CountMentionsRequestMode
-from .types.count_mentions_request_src import CountMentionsRequestSrc
 from .types.list_mentions_request_details import ListMentionsRequestDetails
 from .types.list_mentions_request_entity_type import ListMentionsRequestEntityType
 from .types.list_mentions_request_sentiment import ListMentionsRequestSentiment
-from .types.list_mentions_request_src import ListMentionsRequestSrc
 
 
 class MentionsClient:
@@ -48,7 +46,6 @@ class MentionsClient:
         date_from: typing.Optional[str] = None,
         date_to: typing.Optional[str] = None,
         details: typing.Optional[ListMentionsRequestDetails] = None,
-        src: typing.Optional[ListMentionsRequestSrc] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[Mention, MentionListResponse]:
         """
@@ -82,9 +79,6 @@ class MentionsClient:
         date_to : typing.Optional[str]
 
         details : typing.Optional[ListMentionsRequestDetails]
-
-        src : typing.Optional[ListMentionsRequestSrc]
-            The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -122,7 +116,6 @@ class MentionsClient:
             date_from=date_from,
             date_to=date_to,
             details=details,
-            src=src,
             request_options=request_options,
         )
 
@@ -137,7 +130,6 @@ class MentionsClient:
         published_after: typing.Optional[str] = None,
         published_before: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
-        src: typing.Optional[CountMentionsRequestSrc] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> MentionCountsResponse:
         """
@@ -169,9 +161,6 @@ class MentionsClient:
         limit : typing.Optional[int]
             Rows in the ranked table, 1 to 40. Default 20.
 
-        src : typing.Optional[CountMentionsRequestSrc]
-            The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -198,7 +187,6 @@ class MentionsClient:
             published_after=published_after,
             published_before=published_before,
             limit=limit,
-            src=src,
             request_options=request_options,
         )
         return _response.data
@@ -235,7 +223,6 @@ class AsyncMentionsClient:
         date_from: typing.Optional[str] = None,
         date_to: typing.Optional[str] = None,
         details: typing.Optional[ListMentionsRequestDetails] = None,
-        src: typing.Optional[ListMentionsRequestSrc] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[Mention, MentionListResponse]:
         """
@@ -269,9 +256,6 @@ class AsyncMentionsClient:
         date_to : typing.Optional[str]
 
         details : typing.Optional[ListMentionsRequestDetails]
-
-        src : typing.Optional[ListMentionsRequestSrc]
-            The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -318,7 +302,6 @@ class AsyncMentionsClient:
             date_from=date_from,
             date_to=date_to,
             details=details,
-            src=src,
             request_options=request_options,
         )
 
@@ -333,7 +316,6 @@ class AsyncMentionsClient:
         published_after: typing.Optional[str] = None,
         published_before: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
-        src: typing.Optional[CountMentionsRequestSrc] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> MentionCountsResponse:
         """
@@ -364,9 +346,6 @@ class AsyncMentionsClient:
 
         limit : typing.Optional[int]
             Rows in the ranked table, 1 to 40. Default 20.
-
-        src : typing.Optional[CountMentionsRequestSrc]
-            The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -402,7 +381,6 @@ class AsyncMentionsClient:
             published_after=published_after,
             published_before=published_before,
             limit=limit,
-            src=src,
             request_options=request_options,
         )
         return _response.data

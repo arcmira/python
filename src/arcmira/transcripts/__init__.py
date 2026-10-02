@@ -6,24 +6,11 @@ import typing
 from importlib import import_module
 
 if typing.TYPE_CHECKING:
-    from .types import (
-        CaptionsTranscriptsRequestSrc,
-        GetTranscriptsRequestQuality,
-        GetTranscriptsRequestSrc,
-        ListRequestsTranscriptsRequestSrc,
-        SearchTranscriptsRequestSource,
-        SearchTranscriptsRequestSrc,
-        StatusTranscriptsRequestSrc,
-    )
+    from .types import GetTranscriptsRequestQuality, SearchTranscriptsRequestSource
     from . import edits, merges, speakers
 _dynamic_imports: typing.Dict[str, str] = {
-    "CaptionsTranscriptsRequestSrc": ".types",
     "GetTranscriptsRequestQuality": ".types",
-    "GetTranscriptsRequestSrc": ".types",
-    "ListRequestsTranscriptsRequestSrc": ".types",
     "SearchTranscriptsRequestSource": ".types",
-    "SearchTranscriptsRequestSrc": ".types",
-    "StatusTranscriptsRequestSrc": ".types",
     "edits": ".edits",
     "merges": ".merges",
     "speakers": ".speakers",
@@ -51,15 +38,4 @@ def __dir__():
     return sorted(lazy_attrs)
 
 
-__all__ = [
-    "CaptionsTranscriptsRequestSrc",
-    "GetTranscriptsRequestQuality",
-    "GetTranscriptsRequestSrc",
-    "ListRequestsTranscriptsRequestSrc",
-    "SearchTranscriptsRequestSource",
-    "SearchTranscriptsRequestSrc",
-    "StatusTranscriptsRequestSrc",
-    "edits",
-    "merges",
-    "speakers",
-]
+__all__ = ["GetTranscriptsRequestQuality", "SearchTranscriptsRequestSource", "edits", "merges", "speakers"]

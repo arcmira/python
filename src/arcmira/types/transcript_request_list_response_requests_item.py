@@ -4,10 +4,10 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2
-from .transcription_request import TranscriptionRequest
+from .transcript_request import TranscriptRequest
 
 
-class TranscriptionListResponseRequestsItem(TranscriptionRequest):
+class TranscriptRequestListResponseRequestsItem(TranscriptRequest):
     title: typing.Optional[str] = pydantic.Field(default=None)
     """
     Video title for display. Null when unknown.

@@ -302,7 +302,6 @@ if typing.TYPE_CHECKING:
     from .resolve_suggestion import ResolveSuggestion
     from .resolve_suggestion_match import ResolveSuggestionMatch
     from .resolve_suggestion_reason import ResolveSuggestionReason
-    from .search_request_type import SearchRequestType
     from .search_resolve_response import SearchResolveResponse
     from .search_resolve_response_entity import SearchResolveResponseEntity
     from .signup_sent_response import SignupSentResponse
@@ -361,6 +360,16 @@ if typing.TYPE_CHECKING:
     from .transcript_purchase_quote_charge import TranscriptPurchaseQuoteCharge
     from .transcript_purchase_quote_charge_unit import TranscriptPurchaseQuoteChargeUnit
     from .transcript_quote import TranscriptQuote
+    from .transcript_request import TranscriptRequest
+    from .transcript_request_charge import TranscriptRequestCharge
+    from .transcript_request_charge_unit import TranscriptRequestChargeUnit
+    from .transcript_request_list_response import TranscriptRequestListResponse
+    from .transcript_request_list_response_requests_item import TranscriptRequestListResponseRequestsItem
+    from .transcript_request_quote import TranscriptRequestQuote
+    from .transcript_request_stage import TranscriptRequestStage
+    from .transcript_request_state import TranscriptRequestState
+    from .transcript_request_status import TranscriptRequestStatus
+    from .transcript_request_submit_response import TranscriptRequestSubmitResponse
     from .transcript_response import TranscriptResponse
     from .transcript_response_access import TranscriptResponseAccess
     from .transcript_response_access_gate import TranscriptResponseAccessGate
@@ -390,16 +399,6 @@ if typing.TYPE_CHECKING:
     from .transcript_settings import TranscriptSettings
     from .transcript_settings_quality import TranscriptSettingsQuality
     from .transcript_video import TranscriptVideo
-    from .transcription_list_response import TranscriptionListResponse
-    from .transcription_list_response_requests_item import TranscriptionListResponseRequestsItem
-    from .transcription_request import TranscriptionRequest
-    from .transcription_request_charge import TranscriptionRequestCharge
-    from .transcription_request_charge_unit import TranscriptionRequestChargeUnit
-    from .transcription_request_quote import TranscriptionRequestQuote
-    from .transcription_request_stage import TranscriptionRequestStage
-    from .transcription_request_state import TranscriptionRequestState
-    from .transcription_request_status import TranscriptionRequestStatus
-    from .transcription_submit_response import TranscriptionSubmitResponse
     from .video_captions_response import VideoCaptionsResponse
     from .video_merge_list_response import VideoMergeListResponse
     from .video_merge_list_response_merges_item import VideoMergeListResponseMergesItem
@@ -705,7 +704,6 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ResolveSuggestion": ".resolve_suggestion",
     "ResolveSuggestionMatch": ".resolve_suggestion_match",
     "ResolveSuggestionReason": ".resolve_suggestion_reason",
-    "SearchRequestType": ".search_request_type",
     "SearchResolveResponse": ".search_resolve_response",
     "SearchResolveResponseEntity": ".search_resolve_response_entity",
     "SignupSentResponse": ".signup_sent_response",
@@ -758,6 +756,16 @@ _dynamic_imports: typing.Dict[str, str] = {
     "TranscriptPurchaseQuoteCharge": ".transcript_purchase_quote_charge",
     "TranscriptPurchaseQuoteChargeUnit": ".transcript_purchase_quote_charge_unit",
     "TranscriptQuote": ".transcript_quote",
+    "TranscriptRequest": ".transcript_request",
+    "TranscriptRequestCharge": ".transcript_request_charge",
+    "TranscriptRequestChargeUnit": ".transcript_request_charge_unit",
+    "TranscriptRequestListResponse": ".transcript_request_list_response",
+    "TranscriptRequestListResponseRequestsItem": ".transcript_request_list_response_requests_item",
+    "TranscriptRequestQuote": ".transcript_request_quote",
+    "TranscriptRequestStage": ".transcript_request_stage",
+    "TranscriptRequestState": ".transcript_request_state",
+    "TranscriptRequestStatus": ".transcript_request_status",
+    "TranscriptRequestSubmitResponse": ".transcript_request_submit_response",
     "TranscriptResponse": ".transcript_response",
     "TranscriptResponseAccess": ".transcript_response_access",
     "TranscriptResponseAccessGate": ".transcript_response_access_gate",
@@ -789,16 +797,6 @@ _dynamic_imports: typing.Dict[str, str] = {
     "TranscriptSettings": ".transcript_settings",
     "TranscriptSettingsQuality": ".transcript_settings_quality",
     "TranscriptVideo": ".transcript_video",
-    "TranscriptionListResponse": ".transcription_list_response",
-    "TranscriptionListResponseRequestsItem": ".transcription_list_response_requests_item",
-    "TranscriptionRequest": ".transcription_request",
-    "TranscriptionRequestCharge": ".transcription_request_charge",
-    "TranscriptionRequestChargeUnit": ".transcription_request_charge_unit",
-    "TranscriptionRequestQuote": ".transcription_request_quote",
-    "TranscriptionRequestStage": ".transcription_request_stage",
-    "TranscriptionRequestState": ".transcription_request_state",
-    "TranscriptionRequestStatus": ".transcription_request_status",
-    "TranscriptionSubmitResponse": ".transcription_submit_response",
     "VideoCaptionsResponse": ".video_captions_response",
     "VideoMergeListResponse": ".video_merge_list_response",
     "VideoMergeListResponseMergesItem": ".video_merge_list_response_merges_item",
@@ -1128,7 +1126,6 @@ __all__ = [
     "ResolveSuggestion",
     "ResolveSuggestionMatch",
     "ResolveSuggestionReason",
-    "SearchRequestType",
     "SearchResolveResponse",
     "SearchResolveResponseEntity",
     "SignupSentResponse",
@@ -1181,6 +1178,16 @@ __all__ = [
     "TranscriptPurchaseQuoteCharge",
     "TranscriptPurchaseQuoteChargeUnit",
     "TranscriptQuote",
+    "TranscriptRequest",
+    "TranscriptRequestCharge",
+    "TranscriptRequestChargeUnit",
+    "TranscriptRequestListResponse",
+    "TranscriptRequestListResponseRequestsItem",
+    "TranscriptRequestQuote",
+    "TranscriptRequestStage",
+    "TranscriptRequestState",
+    "TranscriptRequestStatus",
+    "TranscriptRequestSubmitResponse",
     "TranscriptResponse",
     "TranscriptResponseAccess",
     "TranscriptResponseAccessGate",
@@ -1212,16 +1219,6 @@ __all__ = [
     "TranscriptSettings",
     "TranscriptSettingsQuality",
     "TranscriptVideo",
-    "TranscriptionListResponse",
-    "TranscriptionListResponseRequestsItem",
-    "TranscriptionRequest",
-    "TranscriptionRequestCharge",
-    "TranscriptionRequestChargeUnit",
-    "TranscriptionRequestQuote",
-    "TranscriptionRequestStage",
-    "TranscriptionRequestState",
-    "TranscriptionRequestStatus",
-    "TranscriptionSubmitResponse",
     "VideoCaptionsResponse",
     "VideoMergeListResponse",
     "VideoMergeListResponseMergesItem",

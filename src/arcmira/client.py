@@ -8,11 +8,7 @@ import typing
 import httpx
 from .core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from .core.logging import LogConfig, Logger
-from .core.request_options import RequestOptions
 from .environment import ArcmiraEnvironment
-from .raw_client import AsyncRawArcmira, RawArcmira
-from .types.search_request_type import SearchRequestType
-from .types.search_resolve_response import SearchResolveResponse
 
 if typing.TYPE_CHECKING:
     from .channels.client import AsyncChannelsClient, ChannelsClient
@@ -22,7 +18,6 @@ if typing.TYPE_CHECKING:
     from .health.client import AsyncHealthClient, HealthClient
     from .me.client import AsyncMeClient, MeClient
     from .mentions.client import AsyncMentionsClient, MentionsClient
-    from .meta.client import AsyncMetaClient, MetaClient
     from .monitors.client import AsyncMonitorsClient, MonitorsClient
     from .organizations.client import AsyncOrganizationsClient, OrganizationsClient
     from .people.client import AsyncPeopleClient, PeopleClient
@@ -118,9 +113,7 @@ class Arcmira:
             max_stream_reconnection_attempts=max_stream_reconnection_attempts,
             logging=logging,
         )
-        self._raw_client = RawArcmira(client_wrapper=self._client_wrapper)
         self._health: typing.Optional[HealthClient] = None
-        self._meta: typing.Optional[MetaClient] = None
         self._me: typing.Optional[MeClient] = None
         self._entities: typing.Optional[EntitiesClient] = None
         self._mentions: typing.Optional[MentionsClient] = None
@@ -138,71 +131,12 @@ class Arcmira:
         self._corrections: typing.Optional[CorrectionsClient] = None
 
     @property
-    def with_raw_response(self) -> RawArcmira:
-        """
-        Retrieves a raw implementation of this client that returns raw responses.
-
-        Returns
-        -------
-        RawArcmira
-        """
-        return self._raw_client
-
-    def search(
-        self,
-        *,
-        q: str,
-        type: typing.Optional[SearchRequestType] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> SearchResolveResponse:
-        """
-        Single-result name resolver: exact, case-insensitive match with curated alias support. Returns at most one entity and does not paginate (single page; there is no cursor). When `type` is passed and the name resolves to an entity of a different type, the response is `{ found: false }`. For fuzzy multi-result discovery use /v1/entities/search instead.
-
-        Parameters
-        ----------
-        q : str
-            Entity name to resolve. Exact, case-insensitive match; curated merge-rule aliases (e.g. "Ford" resolving to Ford Motor Company) are honored.
-
-        type : typing.Optional[SearchRequestType]
-            Restrict the match to one entity type. When the name resolves to an entity of a different type, the response is { found: false }. organization also matches legacy company/brand rows.
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        SearchResolveResponse
-            Success
-
-        Examples
-        --------
-        from arcmira import Arcmira
-
-        client = Arcmira(
-            api_key="YOUR_API_KEY",
-        )
-        client.search(
-            q="q",
-        )
-        """
-        _response = self._raw_client.search(q=q, type=type, request_options=request_options)
-        return _response.data
-
-    @property
     def health(self):
         if self._health is None:
             from .health.client import HealthClient  # noqa: E402
 
             self._health = HealthClient(client_wrapper=self._client_wrapper)
         return self._health
-
-    @property
-    def meta(self):
-        if self._meta is None:
-            from .meta.client import MetaClient  # noqa: E402
-
-            self._meta = MetaClient(client_wrapper=self._client_wrapper)
-        return self._meta
 
     @property
     def me(self):
@@ -430,9 +364,7 @@ class AsyncArcmira:
             max_stream_reconnection_attempts=max_stream_reconnection_attempts,
             logging=logging,
         )
-        self._raw_client = AsyncRawArcmira(client_wrapper=self._client_wrapper)
         self._health: typing.Optional[AsyncHealthClient] = None
-        self._meta: typing.Optional[AsyncMetaClient] = None
         self._me: typing.Optional[AsyncMeClient] = None
         self._entities: typing.Optional[AsyncEntitiesClient] = None
         self._mentions: typing.Optional[AsyncMentionsClient] = None
@@ -450,79 +382,12 @@ class AsyncArcmira:
         self._corrections: typing.Optional[AsyncCorrectionsClient] = None
 
     @property
-    def with_raw_response(self) -> AsyncRawArcmira:
-        """
-        Retrieves a raw implementation of this client that returns raw responses.
-
-        Returns
-        -------
-        AsyncRawArcmira
-        """
-        return self._raw_client
-
-    async def search(
-        self,
-        *,
-        q: str,
-        type: typing.Optional[SearchRequestType] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> SearchResolveResponse:
-        """
-        Single-result name resolver: exact, case-insensitive match with curated alias support. Returns at most one entity and does not paginate (single page; there is no cursor). When `type` is passed and the name resolves to an entity of a different type, the response is `{ found: false }`. For fuzzy multi-result discovery use /v1/entities/search instead.
-
-        Parameters
-        ----------
-        q : str
-            Entity name to resolve. Exact, case-insensitive match; curated merge-rule aliases (e.g. "Ford" resolving to Ford Motor Company) are honored.
-
-        type : typing.Optional[SearchRequestType]
-            Restrict the match to one entity type. When the name resolves to an entity of a different type, the response is { found: false }. organization also matches legacy company/brand rows.
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        SearchResolveResponse
-            Success
-
-        Examples
-        --------
-        import asyncio
-
-        from arcmira import AsyncArcmira
-
-        client = AsyncArcmira(
-            api_key="YOUR_API_KEY",
-        )
-
-
-        async def main() -> None:
-            await client.search(
-                q="q",
-            )
-
-
-        asyncio.run(main())
-        """
-        _response = await self._raw_client.search(q=q, type=type, request_options=request_options)
-        return _response.data
-
-    @property
     def health(self):
         if self._health is None:
             from .health.client import AsyncHealthClient  # noqa: E402
 
             self._health = AsyncHealthClient(client_wrapper=self._client_wrapper)
         return self._health
-
-    @property
-    def meta(self):
-        if self._meta is None:
-            from .meta.client import AsyncMetaClient  # noqa: E402
-
-            self._meta = AsyncMetaClient(client_wrapper=self._client_wrapper)
-        return self._meta
 
     @property
     def me(self):

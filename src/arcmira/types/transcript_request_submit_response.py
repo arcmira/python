@@ -6,11 +6,11 @@ import pydantic
 import typing_extensions
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 from ..core.serialization import FieldMetadata
-from .transcription_request import TranscriptionRequest
+from .transcript_request import TranscriptRequest
 
 
-class TranscriptionSubmitResponse(UniversalBaseModel):
-    request: TranscriptionRequest
+class TranscriptRequestSubmitResponse(UniversalBaseModel):
+    request: TranscriptRequest
     existing: typing.Optional[bool] = pydantic.Field(default=None)
     """
     True when an in-flight (or already-satisfied) request for the same video was returned instead of creating a new one.

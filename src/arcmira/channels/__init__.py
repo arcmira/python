@@ -6,7 +6,6 @@ import typing
 from importlib import import_module
 
 if typing.TYPE_CHECKING:
-    from .types import CoverageChannelsRequestSrc
     from . import guests, related, sponsors, videos
     from .guests import ListGuestsRequestIsAppearance, ListGuestsRequestMode, ListGuestsRequestOrder
     from .related import (
@@ -26,19 +25,15 @@ if typing.TYPE_CHECKING:
         TopicsRelatedRequestMode,
         TopicsRelatedRequestOrder,
     )
-    from .sponsors import ListSponsorsRequestSrc, ListSponsorsRequestStatus
-    from .videos import ListVideosRequestSrc
+    from .sponsors import ListSponsorsRequestStatus
 _dynamic_imports: typing.Dict[str, str] = {
     "ChannelsRelatedRequestIsAppearance": ".related",
     "ChannelsRelatedRequestMode": ".related",
     "ChannelsRelatedRequestOrder": ".related",
-    "CoverageChannelsRequestSrc": ".types",
     "ListGuestsRequestIsAppearance": ".guests",
     "ListGuestsRequestMode": ".guests",
     "ListGuestsRequestOrder": ".guests",
-    "ListSponsorsRequestSrc": ".sponsors",
     "ListSponsorsRequestStatus": ".sponsors",
-    "ListVideosRequestSrc": ".videos",
     "OrganizationsRelatedRequestIsAppearance": ".related",
     "OrganizationsRelatedRequestMode": ".related",
     "OrganizationsRelatedRequestOrder": ".related",
@@ -83,13 +78,10 @@ __all__ = [
     "ChannelsRelatedRequestIsAppearance",
     "ChannelsRelatedRequestMode",
     "ChannelsRelatedRequestOrder",
-    "CoverageChannelsRequestSrc",
     "ListGuestsRequestIsAppearance",
     "ListGuestsRequestMode",
     "ListGuestsRequestOrder",
-    "ListSponsorsRequestSrc",
     "ListSponsorsRequestStatus",
-    "ListVideosRequestSrc",
     "OrganizationsRelatedRequestIsAppearance",
     "OrganizationsRelatedRequestMode",
     "OrganizationsRelatedRequestOrder",

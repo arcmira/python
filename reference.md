@@ -1,85 +1,4 @@
 # Reference
-<details><summary><code>client.<a href="src/arcmira/client.py">search</a>(...) -> SearchResolveResponse</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-Single-result name resolver: exact, case-insensitive match with curated alias support. Returns at most one entity and does not paginate (single page; there is no cursor). When `type` is passed and the name resolves to an entity of a different type, the response is `{ found: false }`. For fuzzy multi-result discovery use /v1/entities/search instead.
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```python
-from arcmira import Arcmira
-from arcmira.environment import ArcmiraEnvironment
-
-client = Arcmira(
-    api_key="<token>",
-    environment=ArcmiraEnvironment.DEFAULT,
-)
-
-client.search(
-    q="q",
-)
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**q:** `str` — Entity name to resolve. Exact, case-insensitive match; curated merge-rule aliases (e.g. "Ford" resolving to Ford Motor Company) are honored.
-
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**type:** `typing.Optional[SearchRequestType]` — Restrict the match to one entity type. When the name resolves to an entity of a different type, the response is { found: false }. organization also matches legacy company/brand rows.
-
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
-
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
 ## Health
 <details><summary><code>client.health.<a href="src/arcmira/health/client.py">check</a>() -> HealthResponse</code></summary>
 <dl>
@@ -114,219 +33,6 @@ client.health.check()
 
 <dl>
 <dd>
-
-<dl>
-<dd>
-
-**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
-
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-## Meta
-<details><summary><code>client.meta.<a href="src/arcmira/meta/client.py">get_openapi_document</a>() -> OpenApiDocument</code></summary>
-<dl>
-<dd>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```python
-from arcmira import Arcmira
-from arcmira.environment import ArcmiraEnvironment
-
-client = Arcmira(
-    api_key="<token>",
-    environment=ArcmiraEnvironment.DEFAULT,
-)
-
-client.meta.get_openapi_document()
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
-
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.meta.<a href="src/arcmira/meta/client.py">create_signup</a>(...) -> SignupSentResponse</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-Starts the signup that ends in an account key, with no key and no login. Sends a 6 digit code to the address, valid for 10 minutes and 5 attempts, and answers 202 with the verify call. Sends are capped at 3 per address per hour, 10 per IP per hour, and 25 per client fingerprint per day; past a cap the response is 429 signup_send_limited with retry_after_seconds and an unlock whose action is this call. An address that already has an account gets a code too; verifying it mints a key on that account. Send { "email": "agent@example.com" }, with an optional "src" naming the surface that sent you.
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```python
-from arcmira import Arcmira
-from arcmira.environment import ArcmiraEnvironment
-
-client = Arcmira(
-    api_key="<token>",
-    environment=ArcmiraEnvironment.DEFAULT,
-)
-
-client.meta.create_signup(
-    email="email",
-)
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**email:** `str` — The address the verification code is sent to. Case is folded; the same address in any casing is one account and one send budget.
-
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**src:** `typing.Optional[str]` — The agent surface that sent you, as a value from the ?src= registry. Also accepted as ?src= on the URL. The unlock in a refusal carries it back.
-
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
-
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.meta.<a href="src/arcmira/meta/client.py">verify_signup</a>(...) -> SignupVerifiedResponse</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-Consumes the code POST /v1/signups sent, creates the account when the address has none, and mints an arc_sk_ key on it: the read scope, the free tier's lifetime row pool, no expiry. A wrong, expired, or spent code is 400 signup_code_invalid on param code, naming the attempts left; its unlock action is a new send. Send { "email": "agent@example.com", "code": "482913" }.
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```python
-from arcmira import Arcmira
-from arcmira.environment import ArcmiraEnvironment
-
-client = Arcmira(
-    api_key="<token>",
-    environment=ArcmiraEnvironment.DEFAULT,
-)
-
-client.meta.verify_signup(
-    email="email",
-    code="code",
-)
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**email:** `str` — The address the code was sent to.
-
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**code:** `str` — The six digit code from the email. Ten minutes, five attempts, then a new send is required.
-
-</dd>
-</dl>
 
 <dl>
 <dd>
@@ -567,14 +273,6 @@ client.entities.search(
 <dl>
 <dd>
 
-**src:** `typing.Optional[SearchEntitiesRequestSrc]` — The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
-
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
 
 </dd>
@@ -665,14 +363,6 @@ client.entities.resolve(
 <dd>
 
 **context:** `typing.Optional[str]` — What the user said about the name, in their words ("the startup bank", "Canada's prime minister", "on My First Million"). Ranks candidates by their description and by the episodes they share with what the context names; a clear winner comes back as suggested with reason context.
-
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**src:** `typing.Optional[ResolveEntitiesRequestSrc]` — The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
 
 </dd>
 </dl>
@@ -986,14 +676,6 @@ client.entities.momentum(
 <dl>
 <dd>
 
-**src:** `typing.Optional[MomentumEntitiesRequestSrc]` — The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
-
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
 
 </dd>
@@ -1162,14 +844,6 @@ client.mentions.list()
 <dl>
 <dd>
 
-**src:** `typing.Optional[ListMentionsRequestSrc]` — The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
-
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
 
 </dd>
@@ -1290,14 +964,6 @@ client.mentions.count()
 <dd>
 
 **limit:** `typing.Optional[int]` — Rows in the ranked table, 1 to 40. Default 20.
-
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**src:** `typing.Optional[CountMentionsRequestSrc]` — The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
 
 </dd>
 </dl>
@@ -1458,14 +1124,6 @@ client.recommendations.list()
 <dd>
 
 **include_disputed:** `typing.Optional[bool]`
-
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**src:** `typing.Optional[ListRecommendationsRequestSrc]` — The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
 
 </dd>
 </dl>
@@ -1849,14 +1507,6 @@ client.transcripts.search(
 <dl>
 <dd>
 
-**src:** `typing.Optional[SearchTranscriptsRequestSrc]` — The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
-
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
 
 </dd>
@@ -1971,14 +1621,6 @@ client.transcripts.get(
 <dd>
 
 **refresh:** `typing.Optional[bool]` — Captions only; Premium with refresh=true returns invalid_query. Refetch the caption track from YouTube instead of serving the stored copy. Available only for videos outside our index; a pipeline-owned video refuses it with invalid_query.
-
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**src:** `typing.Optional[GetTranscriptsRequestSrc]` — The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
 
 </dd>
 </dl>
@@ -2132,14 +1774,6 @@ client.transcripts.captions(
 <dl>
 <dd>
 
-**src:** `typing.Optional[CaptionsTranscriptsRequestSrc]` — The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
-
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
 
 </dd>
@@ -2152,7 +1786,7 @@ client.transcripts.captions(
 </dl>
 </details>
 
-<details><summary><code>client.transcripts.<a href="src/arcmira/transcripts/client.py">list_requests</a>(...) -> TranscriptionListResponse</code></summary>
+<details><summary><code>client.transcripts.<a href="src/arcmira/transcripts/client.py">list_requests</a>(...) -> TranscriptRequestListResponse</code></summary>
 <dl>
 <dd>
 
@@ -2227,14 +1861,6 @@ client.transcripts.list_requests()
 <dl>
 <dd>
 
-**src:** `typing.Optional[ListRequestsTranscriptsRequestSrc]` — The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
-
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
 
 </dd>
@@ -2247,7 +1873,7 @@ client.transcripts.list_requests()
 </dl>
 </details>
 
-<details><summary><code>client.transcripts.<a href="src/arcmira/transcripts/client.py">request</a>(...) -> TranscriptionSubmitResponse</code></summary>
+<details><summary><code>client.transcripts.<a href="src/arcmira/transcripts/client.py">request</a>(...) -> TranscriptRequestSubmitResponse</code></summary>
 <dl>
 <dd>
 
@@ -2353,7 +1979,7 @@ client.transcripts.request(
 </dl>
 </details>
 
-<details><summary><code>client.transcripts.<a href="src/arcmira/transcripts/client.py">status</a>(...) -> TranscriptionRequest</code></summary>
+<details><summary><code>client.transcripts.<a href="src/arcmira/transcripts/client.py">status</a>(...) -> TranscriptRequest</code></summary>
 <dl>
 <dd>
 
@@ -2407,14 +2033,6 @@ client.transcripts.status(
 <dd>
 
 **id:** `str` — Transcription request id, the UUID POST /v1/transcriptions returned.
-
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**src:** `typing.Optional[StatusTranscriptsRequestSrc]` — The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
 
 </dd>
 </dl>
@@ -2489,14 +2107,6 @@ client.channels.coverage(
 <dd>
 
 **channel_id:** `str` — YouTube channel id, the UC... form.
-
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**src:** `typing.Optional[CoverageChannelsRequestSrc]` — The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
 
 </dd>
 </dl>
@@ -4377,14 +3987,6 @@ client.channels.sponsors.list(
 <dl>
 <dd>
 
-**src:** `typing.Optional[ListSponsorsRequestSrc]` — The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
-
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
 
 </dd>
@@ -4484,14 +4086,6 @@ client.channels.videos.list(
 <dd>
 
 **published_before:** `typing.Optional[str]` — ISO date. Only videos published before this day.
-
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**src:** `typing.Optional[ListVideosRequestSrc]` — The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
 
 </dd>
 </dl>
@@ -5477,14 +5071,6 @@ client.entities.mentions.list(
 <dl>
 <dd>
 
-**src:** `typing.Optional[ListMentionsRequestSrc]` — The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
-
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
 
 </dd>
@@ -5624,14 +5210,6 @@ client.entities.recommendations.list(
 <dd>
 
 **include_disputed:** `typing.Optional[bool]`
-
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**src:** `typing.Optional[ListRecommendationsRequestSrc]` — The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
 
 </dd>
 </dl>

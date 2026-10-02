@@ -9,7 +9,6 @@ from ..core.request_options import RequestOptions
 from ..types.channel_coverage_response import ChannelCoverageResponse
 from ..types.channel_page_response import ChannelPageResponse
 from .raw_client import AsyncRawChannelsClient, RawChannelsClient
-from .types.coverage_channels_request_src import CoverageChannelsRequestSrc
 
 if typing.TYPE_CHECKING:
     from .guests.client import AsyncGuestsClient, GuestsClient
@@ -39,11 +38,7 @@ class ChannelsClient:
         return self._raw_client
 
     def coverage(
-        self,
-        channel_id: str,
-        *,
-        src: typing.Optional[CoverageChannelsRequestSrc] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, channel_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> ChannelCoverageResponse:
         """
         How many videos of a YouTube channel are searchable, the newest publish date among them, and the split by transcript source class. Call it when a search or mention lookup came back empty, before telling anyone we do not cover a show, and cite indexed_through as the as-of date for mentions and search_indexed_through for transcript search. It cannot request indexing; channel backfill is not available yet. Free (0 rows). Every gate is a typed error whose error.unlock.url names the plan that lifts it; pass src=mcp-tool only from the Arcmira MCP server.
@@ -52,9 +47,6 @@ class ChannelsClient:
         ----------
         channel_id : str
             YouTube channel id, the UC... form.
-
-        src : typing.Optional[CoverageChannelsRequestSrc]
-            The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -75,7 +67,7 @@ class ChannelsClient:
             channel_id="channel_id",
         )
         """
-        _response = self._raw_client.coverage(channel_id, src=src, request_options=request_options)
+        _response = self._raw_client.coverage(channel_id, request_options=request_options)
         return _response.data
 
     def get(self, slug: str, *, request_options: typing.Optional[RequestOptions] = None) -> ChannelPageResponse:
@@ -163,11 +155,7 @@ class AsyncChannelsClient:
         return self._raw_client
 
     async def coverage(
-        self,
-        channel_id: str,
-        *,
-        src: typing.Optional[CoverageChannelsRequestSrc] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, channel_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> ChannelCoverageResponse:
         """
         How many videos of a YouTube channel are searchable, the newest publish date among them, and the split by transcript source class. Call it when a search or mention lookup came back empty, before telling anyone we do not cover a show, and cite indexed_through as the as-of date for mentions and search_indexed_through for transcript search. It cannot request indexing; channel backfill is not available yet. Free (0 rows). Every gate is a typed error whose error.unlock.url names the plan that lifts it; pass src=mcp-tool only from the Arcmira MCP server.
@@ -176,9 +164,6 @@ class AsyncChannelsClient:
         ----------
         channel_id : str
             YouTube channel id, the UC... form.
-
-        src : typing.Optional[CoverageChannelsRequestSrc]
-            The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -207,7 +192,7 @@ class AsyncChannelsClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.coverage(channel_id, src=src, request_options=request_options)
+        _response = await self._raw_client.coverage(channel_id, request_options=request_options)
         return _response.data
 
     async def get(self, slug: str, *, request_options: typing.Optional[RequestOptions] = None) -> ChannelPageResponse:

@@ -8,19 +8,15 @@ from importlib import import_module
 if typing.TYPE_CHECKING:
     from .types import (
         CountMentionsRequestMode,
-        CountMentionsRequestSrc,
         ListMentionsRequestDetails,
         ListMentionsRequestEntityType,
         ListMentionsRequestSentiment,
-        ListMentionsRequestSrc,
     )
 _dynamic_imports: typing.Dict[str, str] = {
     "CountMentionsRequestMode": ".types",
-    "CountMentionsRequestSrc": ".types",
     "ListMentionsRequestDetails": ".types",
     "ListMentionsRequestEntityType": ".types",
     "ListMentionsRequestSentiment": ".types",
-    "ListMentionsRequestSrc": ".types",
 }
 
 
@@ -47,9 +43,7 @@ def __dir__():
 
 __all__ = [
     "CountMentionsRequestMode",
-    "CountMentionsRequestSrc",
     "ListMentionsRequestDetails",
     "ListMentionsRequestEntityType",
     "ListMentionsRequestSentiment",
-    "ListMentionsRequestSrc",
 ]

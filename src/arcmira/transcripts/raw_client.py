@@ -23,20 +23,15 @@ from ..errors.unauthorized_error import UnauthorizedError
 from ..errors.unprocessable_entity_error import UnprocessableEntityError
 from ..types.error import Error
 from ..types.transcript_purchase_quote import TranscriptPurchaseQuote
+from ..types.transcript_request import TranscriptRequest
+from ..types.transcript_request_list_response import TranscriptRequestListResponse
+from ..types.transcript_request_list_response_requests_item import TranscriptRequestListResponseRequestsItem
+from ..types.transcript_request_submit_response import TranscriptRequestSubmitResponse
 from ..types.transcript_result import TranscriptResult
 from ..types.transcript_search_response import TranscriptSearchResponse
-from ..types.transcription_list_response import TranscriptionListResponse
-from ..types.transcription_list_response_requests_item import TranscriptionListResponseRequestsItem
-from ..types.transcription_request import TranscriptionRequest
-from ..types.transcription_submit_response import TranscriptionSubmitResponse
 from ..types.video_captions_response import VideoCaptionsResponse
-from .types.captions_transcripts_request_src import CaptionsTranscriptsRequestSrc
 from .types.get_transcripts_request_quality import GetTranscriptsRequestQuality
-from .types.get_transcripts_request_src import GetTranscriptsRequestSrc
-from .types.list_requests_transcripts_request_src import ListRequestsTranscriptsRequestSrc
 from .types.search_transcripts_request_source import SearchTranscriptsRequestSource
-from .types.search_transcripts_request_src import SearchTranscriptsRequestSrc
-from .types.status_transcripts_request_src import StatusTranscriptsRequestSrc
 from pydantic import ValidationError
 
 # this is used as the default value for optional parameters
@@ -61,7 +56,6 @@ class RawTranscriptsClient:
         published_before: typing.Optional[str] = None,
         source: typing.Optional[SearchTranscriptsRequestSource] = None,
         limit: typing.Optional[int] = None,
-        src: typing.Optional[SearchTranscriptsRequestSrc] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[TranscriptSearchResponse]:
         """
@@ -102,9 +96,6 @@ class RawTranscriptsClient:
         limit : typing.Optional[int]
             Chunks to return, 1 to 20. Default 5.
 
-        src : typing.Optional[SearchTranscriptsRequestSrc]
-            The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -128,7 +119,6 @@ class RawTranscriptsClient:
                 "published_before": published_before,
                 "source": source,
                 "limit": limit,
-                "src": src,
             },
             request_options=request_options,
         )
@@ -249,7 +239,6 @@ class RawTranscriptsClient:
         start: typing.Optional[float] = None,
         end: typing.Optional[float] = None,
         refresh: typing.Optional[bool] = None,
-        src: typing.Optional[GetTranscriptsRequestSrc] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[TranscriptResult]:
         """
@@ -278,9 +267,6 @@ class RawTranscriptsClient:
         refresh : typing.Optional[bool]
             Captions only; Premium with refresh=true returns invalid_query. Refetch the caption track from YouTube instead of serving the stored copy. Available only for videos outside our index; a pipeline-owned video refuses it with invalid_query.
 
-        src : typing.Optional[GetTranscriptsRequestSrc]
-            The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -299,7 +285,6 @@ class RawTranscriptsClient:
                 "start": start,
                 "end": end,
                 "refresh": refresh,
-                "src": src,
             },
             request_options=request_options,
         )
@@ -520,11 +505,7 @@ class RawTranscriptsClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def captions(
-        self,
-        video_id: str,
-        *,
-        src: typing.Optional[CaptionsTranscriptsRequestSrc] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, video_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> HttpResponse[VideoCaptionsResponse]:
         """
         Free (0 rows), any key. Returns the video metadata and every caption track YouTube lists for it, each as { code, name, generated }. Call it when GET /v1/transcripts/{video_id} answered transcript_unavailable without languages, or before asking for a specific track. Listing is served from a day-long cache; a cold listing answers 503 transcript_fetching with Retry-After while the fetch continues in the background.
@@ -533,9 +514,6 @@ class RawTranscriptsClient:
         ----------
         video_id : str
             YouTube video id, 11 characters.
-
-        src : typing.Optional[CaptionsTranscriptsRequestSrc]
-            The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -548,9 +526,6 @@ class RawTranscriptsClient:
         _response = self._client_wrapper.httpx_client.request(
             f"v1/videos/{encode_path_param(video_id)}/captions",
             method="GET",
-            params={
-                "src": src,
-            },
             request_options=request_options,
         )
         try:
@@ -655,9 +630,8 @@ class RawTranscriptsClient:
         video_id: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         cursor: typing.Optional[str] = None,
-        src: typing.Optional[ListRequestsTranscriptsRequestSrc] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> SyncPager[TranscriptionListResponseRequestsItem, TranscriptionListResponse]:
+    ) -> SyncPager[TranscriptRequestListResponseRequestsItem, TranscriptRequestListResponse]:
         """
         Your transcription requests in descending creation time and id order. limit defaults to 20 and accepts 1–100. Follow next_cursor with the same video_id, limit and credential; has_more is false and next_cursor is null on the last page. A traversal excludes requests inserted after its first page. Each entry has the same shape as the status poll plus a `title` field (the video title, null when unknown). The scheduled reconciler advances requests; reading this list never dispatches work or changes billing. In-flight entries carry `etaSeconds` + `nextPollSeconds`.
 
@@ -672,15 +646,12 @@ class RawTranscriptsClient:
         cursor : typing.Optional[str]
             Signed continuation from next_cursor. Keep the same filter, limit and credential.
 
-        src : typing.Optional[ListRequestsTranscriptsRequestSrc]
-            The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        SyncPager[TranscriptionListResponseRequestsItem, TranscriptionListResponse]
+        SyncPager[TranscriptRequestListResponseRequestsItem, TranscriptRequestListResponse]
             Success
         """
         _response = self._client_wrapper.httpx_client.request(
@@ -690,16 +661,15 @@ class RawTranscriptsClient:
                 "video_id": video_id,
                 "limit": limit,
                 "cursor": cursor,
-                "src": src,
             },
             request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
                 _parsed_response = typing.cast(
-                    TranscriptionListResponse,
+                    TranscriptRequestListResponse,
                     parse_obj_as(
-                        type_=TranscriptionListResponse,  # type: ignore
+                        type_=TranscriptRequestListResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -710,7 +680,6 @@ class RawTranscriptsClient:
                     video_id=video_id,
                     limit=limit,
                     cursor=_parsed_next,
-                    src=src,
                     request_options=request_options,
                 )
                 return SyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
@@ -798,7 +767,7 @@ class RawTranscriptsClient:
         video_id: typing.Optional[str] = OMIT,
         url: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> HttpResponse[TranscriptionSubmitResponse]:
+    ) -> HttpResponse[TranscriptRequestSubmitResponse]:
         """
         Explicit whole-video purchase. Requires Idempotency-Key and max_rows; max_on_demand_cents defaults to zero. Accepted price, mode, and debit identity persist across retries. Included rows or credits are reserved up front; monetary on-demand usage is reserved until Premium is ready. Existing owned unlocks cost zero. A terminal generation failure refunds the exact original debit and period before reporting refunded. A repeated key returns the same request; different intent with that key returns idempotency_conflict. Poll the returned request with Retry-After. Pending work returns 202 and an existing artifact returns 201.
 
@@ -824,7 +793,7 @@ class RawTranscriptsClient:
 
         Returns
         -------
-        HttpResponse[TranscriptionSubmitResponse]
+        HttpResponse[TranscriptRequestSubmitResponse]
             An existing in-flight or already-satisfied request was returned (existing: true)
         """
         _response = self._client_wrapper.httpx_client.request(
@@ -846,9 +815,9 @@ class RawTranscriptsClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    TranscriptionSubmitResponse,
+                    TranscriptRequestSubmitResponse,
                     parse_obj_as(
-                        type_=TranscriptionSubmitResponse,  # type: ignore
+                        type_=TranscriptRequestSubmitResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -962,12 +931,8 @@ class RawTranscriptsClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def status(
-        self,
-        id: str,
-        *,
-        src: typing.Optional[StatusTranscriptsRequestSrc] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> HttpResponse[TranscriptionRequest]:
+        self, id: str, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> HttpResponse[TranscriptRequest]:
         """
         Agent-friendly polling contract: while the request is in flight the response carries a Retry-After header (seconds) and body fields `etaSeconds` + `nextPollSeconds`. Sleep on Retry-After and re-poll. `status` walks queued → downloading → transcribing → analyzing → complete (user-facing `stage` folds downloading into transcribing). refund_pending retains Retry-After and nextPollSeconds until reversal completes; it has no completion ETA. Terminal statuses (`complete`, `failed`, `refunded`) drop Retry-After. On `complete`, fetch the transcript via GET /v1/transcripts/{video_id}; the successful purchase owns the permanent unlock. `refunded` means the pipeline failed and the rows were returned. A caller with no account holds no jobs: it is refused with 401 job_requires_account, whose unlock points at sign-up.
 
@@ -976,31 +941,25 @@ class RawTranscriptsClient:
         id : str
             Transcription request id, the UUID POST /v1/transcriptions returned.
 
-        src : typing.Optional[StatusTranscriptsRequestSrc]
-            The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        HttpResponse[TranscriptionRequest]
+        HttpResponse[TranscriptRequest]
             Success
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v1/transcriptions/{encode_path_param(id)}",
             method="GET",
-            params={
-                "src": src,
-            },
             request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    TranscriptionRequest,
+                    TranscriptRequest,
                     parse_obj_as(
-                        type_=TranscriptionRequest,  # type: ignore
+                        type_=TranscriptRequest,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -1099,7 +1058,6 @@ class AsyncRawTranscriptsClient:
         published_before: typing.Optional[str] = None,
         source: typing.Optional[SearchTranscriptsRequestSource] = None,
         limit: typing.Optional[int] = None,
-        src: typing.Optional[SearchTranscriptsRequestSrc] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[TranscriptSearchResponse]:
         """
@@ -1140,9 +1098,6 @@ class AsyncRawTranscriptsClient:
         limit : typing.Optional[int]
             Chunks to return, 1 to 20. Default 5.
 
-        src : typing.Optional[SearchTranscriptsRequestSrc]
-            The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -1166,7 +1121,6 @@ class AsyncRawTranscriptsClient:
                 "published_before": published_before,
                 "source": source,
                 "limit": limit,
-                "src": src,
             },
             request_options=request_options,
         )
@@ -1287,7 +1241,6 @@ class AsyncRawTranscriptsClient:
         start: typing.Optional[float] = None,
         end: typing.Optional[float] = None,
         refresh: typing.Optional[bool] = None,
-        src: typing.Optional[GetTranscriptsRequestSrc] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[TranscriptResult]:
         """
@@ -1316,9 +1269,6 @@ class AsyncRawTranscriptsClient:
         refresh : typing.Optional[bool]
             Captions only; Premium with refresh=true returns invalid_query. Refetch the caption track from YouTube instead of serving the stored copy. Available only for videos outside our index; a pipeline-owned video refuses it with invalid_query.
 
-        src : typing.Optional[GetTranscriptsRequestSrc]
-            The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -1337,7 +1287,6 @@ class AsyncRawTranscriptsClient:
                 "start": start,
                 "end": end,
                 "refresh": refresh,
-                "src": src,
             },
             request_options=request_options,
         )
@@ -1558,11 +1507,7 @@ class AsyncRawTranscriptsClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def captions(
-        self,
-        video_id: str,
-        *,
-        src: typing.Optional[CaptionsTranscriptsRequestSrc] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, video_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[VideoCaptionsResponse]:
         """
         Free (0 rows), any key. Returns the video metadata and every caption track YouTube lists for it, each as { code, name, generated }. Call it when GET /v1/transcripts/{video_id} answered transcript_unavailable without languages, or before asking for a specific track. Listing is served from a day-long cache; a cold listing answers 503 transcript_fetching with Retry-After while the fetch continues in the background.
@@ -1571,9 +1516,6 @@ class AsyncRawTranscriptsClient:
         ----------
         video_id : str
             YouTube video id, 11 characters.
-
-        src : typing.Optional[CaptionsTranscriptsRequestSrc]
-            The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1586,9 +1528,6 @@ class AsyncRawTranscriptsClient:
         _response = await self._client_wrapper.httpx_client.request(
             f"v1/videos/{encode_path_param(video_id)}/captions",
             method="GET",
-            params={
-                "src": src,
-            },
             request_options=request_options,
         )
         try:
@@ -1693,9 +1632,8 @@ class AsyncRawTranscriptsClient:
         video_id: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         cursor: typing.Optional[str] = None,
-        src: typing.Optional[ListRequestsTranscriptsRequestSrc] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncPager[TranscriptionListResponseRequestsItem, TranscriptionListResponse]:
+    ) -> AsyncPager[TranscriptRequestListResponseRequestsItem, TranscriptRequestListResponse]:
         """
         Your transcription requests in descending creation time and id order. limit defaults to 20 and accepts 1–100. Follow next_cursor with the same video_id, limit and credential; has_more is false and next_cursor is null on the last page. A traversal excludes requests inserted after its first page. Each entry has the same shape as the status poll plus a `title` field (the video title, null when unknown). The scheduled reconciler advances requests; reading this list never dispatches work or changes billing. In-flight entries carry `etaSeconds` + `nextPollSeconds`.
 
@@ -1710,15 +1648,12 @@ class AsyncRawTranscriptsClient:
         cursor : typing.Optional[str]
             Signed continuation from next_cursor. Keep the same filter, limit and credential.
 
-        src : typing.Optional[ListRequestsTranscriptsRequestSrc]
-            The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        AsyncPager[TranscriptionListResponseRequestsItem, TranscriptionListResponse]
+        AsyncPager[TranscriptRequestListResponseRequestsItem, TranscriptRequestListResponse]
             Success
         """
         _response = await self._client_wrapper.httpx_client.request(
@@ -1728,16 +1663,15 @@ class AsyncRawTranscriptsClient:
                 "video_id": video_id,
                 "limit": limit,
                 "cursor": cursor,
-                "src": src,
             },
             request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
                 _parsed_response = typing.cast(
-                    TranscriptionListResponse,
+                    TranscriptRequestListResponse,
                     parse_obj_as(
-                        type_=TranscriptionListResponse,  # type: ignore
+                        type_=TranscriptRequestListResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -1750,7 +1684,6 @@ class AsyncRawTranscriptsClient:
                         video_id=video_id,
                         limit=limit,
                         cursor=_parsed_next,
-                        src=src,
                         request_options=request_options,
                     )
 
@@ -1839,7 +1772,7 @@ class AsyncRawTranscriptsClient:
         video_id: typing.Optional[str] = OMIT,
         url: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncHttpResponse[TranscriptionSubmitResponse]:
+    ) -> AsyncHttpResponse[TranscriptRequestSubmitResponse]:
         """
         Explicit whole-video purchase. Requires Idempotency-Key and max_rows; max_on_demand_cents defaults to zero. Accepted price, mode, and debit identity persist across retries. Included rows or credits are reserved up front; monetary on-demand usage is reserved until Premium is ready. Existing owned unlocks cost zero. A terminal generation failure refunds the exact original debit and period before reporting refunded. A repeated key returns the same request; different intent with that key returns idempotency_conflict. Poll the returned request with Retry-After. Pending work returns 202 and an existing artifact returns 201.
 
@@ -1865,7 +1798,7 @@ class AsyncRawTranscriptsClient:
 
         Returns
         -------
-        AsyncHttpResponse[TranscriptionSubmitResponse]
+        AsyncHttpResponse[TranscriptRequestSubmitResponse]
             An existing in-flight or already-satisfied request was returned (existing: true)
         """
         _response = await self._client_wrapper.httpx_client.request(
@@ -1887,9 +1820,9 @@ class AsyncRawTranscriptsClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    TranscriptionSubmitResponse,
+                    TranscriptRequestSubmitResponse,
                     parse_obj_as(
-                        type_=TranscriptionSubmitResponse,  # type: ignore
+                        type_=TranscriptRequestSubmitResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -2003,12 +1936,8 @@ class AsyncRawTranscriptsClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def status(
-        self,
-        id: str,
-        *,
-        src: typing.Optional[StatusTranscriptsRequestSrc] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncHttpResponse[TranscriptionRequest]:
+        self, id: str, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> AsyncHttpResponse[TranscriptRequest]:
         """
         Agent-friendly polling contract: while the request is in flight the response carries a Retry-After header (seconds) and body fields `etaSeconds` + `nextPollSeconds`. Sleep on Retry-After and re-poll. `status` walks queued → downloading → transcribing → analyzing → complete (user-facing `stage` folds downloading into transcribing). refund_pending retains Retry-After and nextPollSeconds until reversal completes; it has no completion ETA. Terminal statuses (`complete`, `failed`, `refunded`) drop Retry-After. On `complete`, fetch the transcript via GET /v1/transcripts/{video_id}; the successful purchase owns the permanent unlock. `refunded` means the pipeline failed and the rows were returned. A caller with no account holds no jobs: it is refused with 401 job_requires_account, whose unlock points at sign-up.
 
@@ -2017,31 +1946,25 @@ class AsyncRawTranscriptsClient:
         id : str
             Transcription request id, the UUID POST /v1/transcriptions returned.
 
-        src : typing.Optional[StatusTranscriptsRequestSrc]
-            The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        AsyncHttpResponse[TranscriptionRequest]
+        AsyncHttpResponse[TranscriptRequest]
             Success
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v1/transcriptions/{encode_path_param(id)}",
             method="GET",
-            params={
-                "src": src,
-            },
             request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    TranscriptionRequest,
+                    TranscriptRequest,
                     parse_obj_as(
-                        type_=TranscriptionRequest,  # type: ignore
+                        type_=TranscriptRequest,  # type: ignore
                         object_=_response.json(),
                     ),
                 )

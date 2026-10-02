@@ -6,28 +6,16 @@ import typing
 from importlib import import_module
 
 if typing.TYPE_CHECKING:
-    from .types import (
-        LookupEntitiesRequestType,
-        MomentumEntitiesRequestSrc,
-        ResolveEntitiesRequestSrc,
-        ResolveEntitiesRequestType,
-        SearchEntitiesRequestSrc,
-        SearchEntitiesRequestType,
-    )
+    from .types import LookupEntitiesRequestType, ResolveEntitiesRequestType, SearchEntitiesRequestType
     from . import mentions, recommendations
-    from .mentions import ListMentionsRequestDetails, ListMentionsRequestSentiment, ListMentionsRequestSrc
-    from .recommendations import ListRecommendationsRequestMentionClass, ListRecommendationsRequestSrc
+    from .mentions import ListMentionsRequestDetails, ListMentionsRequestSentiment
+    from .recommendations import ListRecommendationsRequestMentionClass
 _dynamic_imports: typing.Dict[str, str] = {
     "ListMentionsRequestDetails": ".mentions",
     "ListMentionsRequestSentiment": ".mentions",
-    "ListMentionsRequestSrc": ".mentions",
     "ListRecommendationsRequestMentionClass": ".recommendations",
-    "ListRecommendationsRequestSrc": ".recommendations",
     "LookupEntitiesRequestType": ".types",
-    "MomentumEntitiesRequestSrc": ".types",
-    "ResolveEntitiesRequestSrc": ".types",
     "ResolveEntitiesRequestType": ".types",
-    "SearchEntitiesRequestSrc": ".types",
     "SearchEntitiesRequestType": ".types",
     "mentions": ".mentions",
     "recommendations": ".recommendations",
@@ -58,14 +46,9 @@ def __dir__():
 __all__ = [
     "ListMentionsRequestDetails",
     "ListMentionsRequestSentiment",
-    "ListMentionsRequestSrc",
     "ListRecommendationsRequestMentionClass",
-    "ListRecommendationsRequestSrc",
     "LookupEntitiesRequestType",
-    "MomentumEntitiesRequestSrc",
-    "ResolveEntitiesRequestSrc",
     "ResolveEntitiesRequestType",
-    "SearchEntitiesRequestSrc",
     "SearchEntitiesRequestType",
     "mentions",
     "recommendations",

@@ -20,7 +20,6 @@ from ..errors.unauthorized_error import UnauthorizedError
 from ..types.channel_coverage_response import ChannelCoverageResponse
 from ..types.channel_page_response import ChannelPageResponse
 from ..types.error import Error
-from .types.coverage_channels_request_src import CoverageChannelsRequestSrc
 from pydantic import ValidationError
 
 
@@ -29,11 +28,7 @@ class RawChannelsClient:
         self._client_wrapper = client_wrapper
 
     def coverage(
-        self,
-        channel_id: str,
-        *,
-        src: typing.Optional[CoverageChannelsRequestSrc] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, channel_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> HttpResponse[ChannelCoverageResponse]:
         """
         How many videos of a YouTube channel are searchable, the newest publish date among them, and the split by transcript source class. Call it when a search or mention lookup came back empty, before telling anyone we do not cover a show, and cite indexed_through as the as-of date for mentions and search_indexed_through for transcript search. It cannot request indexing; channel backfill is not available yet. Free (0 rows). Every gate is a typed error whose error.unlock.url names the plan that lifts it; pass src=mcp-tool only from the Arcmira MCP server.
@@ -42,9 +37,6 @@ class RawChannelsClient:
         ----------
         channel_id : str
             YouTube channel id, the UC... form.
-
-        src : typing.Optional[CoverageChannelsRequestSrc]
-            The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -57,9 +49,6 @@ class RawChannelsClient:
         _response = self._client_wrapper.httpx_client.request(
             f"v1/channels/{encode_path_param(channel_id)}/coverage",
             method="GET",
-            params={
-                "src": src,
-            },
             request_options=request_options,
         )
         try:
@@ -273,11 +262,7 @@ class AsyncRawChannelsClient:
         self._client_wrapper = client_wrapper
 
     async def coverage(
-        self,
-        channel_id: str,
-        *,
-        src: typing.Optional[CoverageChannelsRequestSrc] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, channel_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[ChannelCoverageResponse]:
         """
         How many videos of a YouTube channel are searchable, the newest publish date among them, and the split by transcript source class. Call it when a search or mention lookup came back empty, before telling anyone we do not cover a show, and cite indexed_through as the as-of date for mentions and search_indexed_through for transcript search. It cannot request indexing; channel backfill is not available yet. Free (0 rows). Every gate is a typed error whose error.unlock.url names the plan that lifts it; pass src=mcp-tool only from the Arcmira MCP server.
@@ -286,9 +271,6 @@ class AsyncRawChannelsClient:
         ----------
         channel_id : str
             YouTube channel id, the UC... form.
-
-        src : typing.Optional[CoverageChannelsRequestSrc]
-            The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -301,9 +283,6 @@ class AsyncRawChannelsClient:
         _response = await self._client_wrapper.httpx_client.request(
             f"v1/channels/{encode_path_param(channel_id)}/coverage",
             method="GET",
-            params={
-                "src": src,
-            },
             request_options=request_options,
         )
         try:

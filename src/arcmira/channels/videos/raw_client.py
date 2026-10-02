@@ -20,7 +20,6 @@ from ...errors.unauthorized_error import UnauthorizedError
 from ...types.channel_videos_response import ChannelVideosResponse
 from ...types.channel_videos_response_episodes_item import ChannelVideosResponseEpisodesItem
 from ...types.error import Error
-from .types.list_videos_request_src import ListVideosRequestSrc
 from pydantic import ValidationError
 
 
@@ -36,7 +35,6 @@ class RawVideosClient:
         cursor: typing.Optional[str] = None,
         published_after: typing.Optional[str] = None,
         published_before: typing.Optional[str] = None,
-        src: typing.Optional[ListVideosRequestSrc] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[ChannelVideosResponseEpisodesItem, ChannelVideosResponse]:
         """
@@ -59,9 +57,6 @@ class RawVideosClient:
         published_before : typing.Optional[str]
             ISO date. Only videos published before this day.
 
-        src : typing.Optional[ListVideosRequestSrc]
-            The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -78,7 +73,6 @@ class RawVideosClient:
                 "cursor": cursor,
                 "published_after": published_after,
                 "published_before": published_before,
-                "src": src,
             },
             request_options=request_options,
         )
@@ -100,7 +94,6 @@ class RawVideosClient:
                     cursor=_parsed_next,
                     published_after=published_after,
                     published_before=published_before,
-                    src=src,
                     request_options=request_options,
                 )
                 return SyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
@@ -203,7 +196,6 @@ class AsyncRawVideosClient:
         cursor: typing.Optional[str] = None,
         published_after: typing.Optional[str] = None,
         published_before: typing.Optional[str] = None,
-        src: typing.Optional[ListVideosRequestSrc] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[ChannelVideosResponseEpisodesItem, ChannelVideosResponse]:
         """
@@ -226,9 +218,6 @@ class AsyncRawVideosClient:
         published_before : typing.Optional[str]
             ISO date. Only videos published before this day.
 
-        src : typing.Optional[ListVideosRequestSrc]
-            The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -245,7 +234,6 @@ class AsyncRawVideosClient:
                 "cursor": cursor,
                 "published_after": published_after,
                 "published_before": published_before,
-                "src": src,
             },
             request_options=request_options,
         )
@@ -269,7 +257,6 @@ class AsyncRawVideosClient:
                         cursor=_parsed_next,
                         published_after=published_after,
                         published_before=published_before,
-                        src=src,
                         request_options=request_options,
                     )
 

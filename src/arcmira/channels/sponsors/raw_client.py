@@ -19,7 +19,6 @@ from ...errors.too_many_requests_error import TooManyRequestsError
 from ...errors.unauthorized_error import UnauthorizedError
 from ...types.channel_sponsors_response import ChannelSponsorsResponse
 from ...types.error import Error
-from .types.list_sponsors_request_src import ListSponsorsRequestSrc
 from .types.list_sponsors_request_status import ListSponsorsRequestStatus
 from pydantic import ValidationError
 
@@ -35,7 +34,6 @@ class RawSponsorsClient:
         min_ad_reads: typing.Optional[int] = None,
         status: typing.Optional[ListSponsorsRequestStatus] = None,
         limit: typing.Optional[int] = None,
-        src: typing.Optional[ListSponsorsRequestSrc] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[ChannelSponsorsResponse]:
         """
@@ -55,9 +53,6 @@ class RawSponsorsClient:
         limit : typing.Optional[int]
             Sponsors to return. Default 100. Pro+ only; other plans receive the free slice.
 
-        src : typing.Optional[ListSponsorsRequestSrc]
-            The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -73,7 +68,6 @@ class RawSponsorsClient:
                 "min_ad_reads": min_ad_reads,
                 "status": status,
                 "limit": limit,
-                "src": src,
             },
             request_options=request_options,
         )
@@ -185,7 +179,6 @@ class AsyncRawSponsorsClient:
         min_ad_reads: typing.Optional[int] = None,
         status: typing.Optional[ListSponsorsRequestStatus] = None,
         limit: typing.Optional[int] = None,
-        src: typing.Optional[ListSponsorsRequestSrc] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[ChannelSponsorsResponse]:
         """
@@ -205,9 +198,6 @@ class AsyncRawSponsorsClient:
         limit : typing.Optional[int]
             Sponsors to return. Default 100. Pro+ only; other plans receive the free slice.
 
-        src : typing.Optional[ListSponsorsRequestSrc]
-            The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -223,7 +213,6 @@ class AsyncRawSponsorsClient:
                 "min_ad_reads": min_ad_reads,
                 "status": status,
                 "limit": limit,
-                "src": src,
             },
             request_options=request_options,
         )

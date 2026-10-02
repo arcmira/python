@@ -4,22 +4,17 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
+from .transcript_request_charge_unit import TranscriptRequestChargeUnit
 
 
-class TranscriptionRequestQuote(UniversalBaseModel):
+class TranscriptRequestCharge(UniversalBaseModel):
     """
-    What this request charged: rows and 15-minute blocks. rows is 0 when a prior unlock made the submission free.
-    """
-
-    quarters: int = pydantic.Field()
-    """
-    Number of 15-minute blocks in the video, ceiling'd, minimum 1.
+    Accepted charge units. Present on durable purchases; absent only on legacy requests.
     """
 
-    rows: int = pydantic.Field()
-    """
-    Total unlock cost in rows: 75 rows per 15-minute block.
-    """
+    unit: TranscriptRequestChargeUnit
+    amount: float
+    credits_per_row: float
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

@@ -22,7 +22,6 @@ from ...types.mention import Mention
 from ...types.mention_list_response import MentionListResponse
 from .types.list_mentions_request_details import ListMentionsRequestDetails
 from .types.list_mentions_request_sentiment import ListMentionsRequestSentiment
-from .types.list_mentions_request_src import ListMentionsRequestSrc
 from pydantic import ValidationError
 
 
@@ -44,7 +43,6 @@ class RawMentionsClient:
         date_from: typing.Optional[str] = None,
         date_to: typing.Optional[str] = None,
         details: typing.Optional[ListMentionsRequestDetails] = None,
-        src: typing.Optional[ListMentionsRequestSrc] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[Mention, MentionListResponse]:
         """
@@ -76,9 +74,6 @@ class RawMentionsClient:
 
         details : typing.Optional[ListMentionsRequestDetails]
 
-        src : typing.Optional[ListMentionsRequestSrc]
-            The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -101,7 +96,6 @@ class RawMentionsClient:
                 "date_from": date_from,
                 "date_to": date_to,
                 "details": details,
-                "src": src,
             },
             request_options=request_options,
         )
@@ -129,7 +123,6 @@ class RawMentionsClient:
                     date_from=date_from,
                     date_to=date_to,
                     details=details,
-                    src=src,
                     request_options=request_options,
                 )
                 return SyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
@@ -238,7 +231,6 @@ class AsyncRawMentionsClient:
         date_from: typing.Optional[str] = None,
         date_to: typing.Optional[str] = None,
         details: typing.Optional[ListMentionsRequestDetails] = None,
-        src: typing.Optional[ListMentionsRequestSrc] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[Mention, MentionListResponse]:
         """
@@ -270,9 +262,6 @@ class AsyncRawMentionsClient:
 
         details : typing.Optional[ListMentionsRequestDetails]
 
-        src : typing.Optional[ListMentionsRequestSrc]
-            The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -295,7 +284,6 @@ class AsyncRawMentionsClient:
                 "date_from": date_from,
                 "date_to": date_to,
                 "details": details,
-                "src": src,
             },
             request_options=request_options,
         )
@@ -325,7 +313,6 @@ class AsyncRawMentionsClient:
                         date_from=date_from,
                         date_to=date_to,
                         details=details,
-                        src=src,
                         request_options=request_options,
                     )
 

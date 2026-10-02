@@ -10,7 +10,6 @@ from ...types.mention_list_response import MentionListResponse
 from .raw_client import AsyncRawMentionsClient, RawMentionsClient
 from .types.list_mentions_request_details import ListMentionsRequestDetails
 from .types.list_mentions_request_sentiment import ListMentionsRequestSentiment
-from .types.list_mentions_request_src import ListMentionsRequestSrc
 
 
 class MentionsClient:
@@ -42,7 +41,6 @@ class MentionsClient:
         date_from: typing.Optional[str] = None,
         date_to: typing.Optional[str] = None,
         details: typing.Optional[ListMentionsRequestDetails] = None,
-        src: typing.Optional[ListMentionsRequestSrc] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[Mention, MentionListResponse]:
         """
@@ -73,9 +71,6 @@ class MentionsClient:
         date_to : typing.Optional[str]
 
         details : typing.Optional[ListMentionsRequestDetails]
-
-        src : typing.Optional[ListMentionsRequestSrc]
-            The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -113,7 +108,6 @@ class MentionsClient:
             date_from=date_from,
             date_to=date_to,
             details=details,
-            src=src,
             request_options=request_options,
         )
 
@@ -147,7 +141,6 @@ class AsyncMentionsClient:
         date_from: typing.Optional[str] = None,
         date_to: typing.Optional[str] = None,
         details: typing.Optional[ListMentionsRequestDetails] = None,
-        src: typing.Optional[ListMentionsRequestSrc] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[Mention, MentionListResponse]:
         """
@@ -178,9 +171,6 @@ class AsyncMentionsClient:
         date_to : typing.Optional[str]
 
         details : typing.Optional[ListMentionsRequestDetails]
-
-        src : typing.Optional[ListMentionsRequestSrc]
-            The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -227,6 +217,5 @@ class AsyncMentionsClient:
             date_from=date_from,
             date_to=date_to,
             details=details,
-            src=src,
             request_options=request_options,
         )

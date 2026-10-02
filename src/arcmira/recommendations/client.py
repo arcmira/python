@@ -10,7 +10,6 @@ from ..types.recommendation_list_response import RecommendationListResponse
 from .raw_client import AsyncRawRecommendationsClient, RawRecommendationsClient
 from .types.list_recommendations_request_entity_type import ListRecommendationsRequestEntityType
 from .types.list_recommendations_request_mention_class import ListRecommendationsRequestMentionClass
-from .types.list_recommendations_request_src import ListRecommendationsRequestSrc
 
 
 class RecommendationsClient:
@@ -43,7 +42,6 @@ class RecommendationsClient:
         date_from: typing.Optional[str] = None,
         date_to: typing.Optional[str] = None,
         include_disputed: typing.Optional[bool] = None,
-        src: typing.Optional[ListRecommendationsRequestSrc] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[Recommendation, RecommendationListResponse]:
         """
@@ -75,9 +73,6 @@ class RecommendationsClient:
         date_to : typing.Optional[str]
 
         include_disputed : typing.Optional[bool]
-
-        src : typing.Optional[ListRecommendationsRequestSrc]
-            The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -114,7 +109,6 @@ class RecommendationsClient:
             date_from=date_from,
             date_to=date_to,
             include_disputed=include_disputed,
-            src=src,
             request_options=request_options,
         )
 
@@ -149,7 +143,6 @@ class AsyncRecommendationsClient:
         date_from: typing.Optional[str] = None,
         date_to: typing.Optional[str] = None,
         include_disputed: typing.Optional[bool] = None,
-        src: typing.Optional[ListRecommendationsRequestSrc] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[Recommendation, RecommendationListResponse]:
         """
@@ -181,9 +174,6 @@ class AsyncRecommendationsClient:
         date_to : typing.Optional[str]
 
         include_disputed : typing.Optional[bool]
-
-        src : typing.Optional[ListRecommendationsRequestSrc]
-            The surface making this call. The Arcmira MCP server sends mcp-tool so every unlock link in a gate attributes to the directory install. Omit from your own client.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -229,6 +219,5 @@ class AsyncRecommendationsClient:
             date_from=date_from,
             date_to=date_to,
             include_disputed=include_disputed,
-            src=src,
             request_options=request_options,
         )

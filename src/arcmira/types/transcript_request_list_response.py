@@ -4,11 +4,11 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
-from .transcription_list_response_requests_item import TranscriptionListResponseRequestsItem
+from .transcript_request_list_response_requests_item import TranscriptRequestListResponseRequestsItem
 
 
-class TranscriptionListResponse(UniversalBaseModel):
-    requests: typing.List[TranscriptionListResponseRequestsItem] = pydantic.Field()
+class TranscriptRequestListResponse(UniversalBaseModel):
+    requests: typing.List[TranscriptRequestListResponseRequestsItem] = pydantic.Field()
     """
     Your requests in descending creation time and id order, up to the requested limit.
     """
