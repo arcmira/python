@@ -2,7 +2,40 @@
 
 > Arcmira is an SF-based AI company and the search engine for the spoken web.
 
-This GitHub repo and the `arcmira` PyPI package reserve the public name. They are not an SDK. The live agent index is on the website. Fetch that, not a copy inside this package.
+This repo is the `arcmira` Python SDK for the Arcmira API: synchronous and asynchronous clients, typed responses and cursor pagination. The live agent index is on the website. Fetch that for product, API and citation rules, not a copy inside this package.
+
+## Install
+
+```sh
+pip install arcmira
+```
+
+Set `ARCMIRA_API_KEY` or pass `api_key` to the client.
+
+## Premium transcript quickstart
+
+```python
+from arcmira import Arcmira
+
+transcript = Arcmira().transcripts.prepare_and_wait("dQw4w9WgXcQ")
+print(transcript.lines)
+```
+
+`prepare_and_wait(video_id, *, max_on_demand_cents=0, timeout_seconds=300)` reads the Premium transcript. When the account does not own it, the call posts the purchase once, polls the job at the pace the API sets and returns the transcript. The default spends included credits only. Pass `max_on_demand_cents` only for an amount the user approved.
+
+## Clients
+
+- `Arcmira` is synchronous. `AsyncArcmira` has the same methods to await, for example `await client.transcripts.prepare_and_wait(video_id)`.
+- `client.transcripts.with_raw_response` returns the status code and headers beside the typed data.
+- Every Premium purchase answers one `Job`: `client.transcripts.request(video_id=...)` submits it and `client.transcripts.status(job_id)` polls it.
+
+## Pagination
+
+List methods such as `client.transcripts.list_requests(limit=10)` and `client.channels.videos.list(channel_id=..., limit=10)` return iterators that follow `next_cursor` for you. Cursors are opaque. Keep filters the same between pages. Async clients return async iterators after awaiting the first page.
+
+## Errors
+
+An API refusal raises a typed error derived from `arcmira.core.api_error.ApiError`. Its `body` holds the public error, quote and recovery URLs. `prepare_and_wait` also raises `PreparationTimeoutError` and `PreparationFailedError`, both carrying `.job`, and `PremiumUnavailableError` when the plan has no Premium. Captions are never returned as Premium.
 
 ## Canonical
 
@@ -16,6 +49,6 @@ This GitHub repo and the `arcmira` PyPI package reserve the public name. They ar
 - [Pricing](https://arcmira.com/pricing)
 - [Contact](mailto:hi@arcmira.com): hi@arcmira.com
 
-There is no SDK in this package. The MCP server ships from https://github.com/arcmira/mcp.
+The MCP server ships from https://github.com/arcmira/mcp.
 
-Copyright Arcmira. All rights reserved.
+Apache-2.0. See LICENSE.
