@@ -23,7 +23,7 @@ jobs:
 
       - name: Publish if this version is new
         run: |
-          version="$(sed -n 's/^__version__ = "\(.*\)"/\1/p' src/arcmira/__init__.py)"
+          version="$(cat VERSION)"
           if curl -sfI "https://pypi.org/pypi/arcmira/${version}/json" >/dev/null; then
             echo "arcmira==${version} is already on the registry. Skipping publish."
             exit 0

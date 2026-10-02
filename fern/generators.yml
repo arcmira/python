@@ -1,0 +1,14 @@
+api:
+  specs:
+    - openapi: ./openapi.sdk.json
+groups:
+  python:
+    generators:
+      - name: fernapi/fern-python-sdk
+        version: 5.31.0
+        output:
+          location: local-file-system
+          path: ../.generated/python
+        config:
+          client_class_name: Arcmira
+          package_name: arcmira
