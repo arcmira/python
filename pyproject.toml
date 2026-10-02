@@ -48,7 +48,9 @@ include = [
 exclude = [
   "/.gitignore",
   "/.github",
+  "**/* [0-9].py",
 ]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/arcmira"]
+exclude = ["**/* [0-9].py"]
