@@ -81,3 +81,7 @@ uv build
 The tests use a local HTTP server. They check both client variants, state discrimination, response status, quotes, refusals, exact replay input, and opaque pagination. No live API key or purchase is required.
 
 Version 0.3.0 replaces the earlier URL-only placeholder with a usable SDK. The public URL constants remain available.
+
+## License
+
+Apache-2.0. See [LICENSE](./LICENSE).
