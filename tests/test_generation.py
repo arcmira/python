@@ -34,5 +34,10 @@ class GenerationTests(unittest.TestCase):
         self.assertEqual((ROOT / 'src/arcmira/core/api_error.py').read_text(), (ROOT / 'scripts/overrides/api_error.py').read_text())
         self.assertIn('overrides/api_error.py', (ROOT / 'scripts/install-generated.py').read_text())
 
+    def test_installed_prepare_and_wait_matches_the_preserved_override(self):
+        self.assertEqual((ROOT / 'src/arcmira/transcripts/prepare.py').read_text(), (ROOT / 'scripts/overrides/prepare.py').read_text())
+        client = (ROOT / 'src/arcmira/transcripts/client.py').read_text()
+        self.assertIn('class TranscriptsClient(PrepareAndWait):', client)
+        self.assertIn('class AsyncTranscriptsClient(AsyncPrepareAndWait):', client)
 
 if __name__ == '__main__': unittest.main()
