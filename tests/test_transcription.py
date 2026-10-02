@@ -35,14 +35,16 @@ class Handler(BaseHTTPRequestHandler):
         url = urlparse(self.path)
         query = parse_qs(url.query)
         body = self.rfile.read(int(self.headers.get('Content-Length', 0))).decode()
-        CALLS.append((url.path, query, dict(self.headers), body))
+        CALLS.append((url.path, query, dict(self.headers), body, self.command))
         status, extra = 200, {}
         if url.path.endswith('/quote'):
             result = QUOTE
         elif url.path == '/v1/transcriptions' and self.command == 'POST':
             key = self.headers['Idempotency-Key']
             replay = key in RECEIPTS
-            if replay and RECEIPTS[key] != body:
+            if key is None:
+                status, result = 400, {'error': error('idempotency_key_required', 'invalid_request_error')}
+            elif replay and RECEIPTS[key] != body:
                 status, result = 409, {'error': error('idempotency_conflict', 'conflict_error')}
             else:
                 RECEIPTS[key] = body
@@ -103,6 +105,8 @@ class GeneratedClientTests(unittest.TestCase):
         intent = dict(video_id='dQw4w9WgXcQ', max_rows=300, max_on_demand_cents=0, idempotency_key='python-saved-intent')
         first = self.client.transcripts.with_raw_response.request(**intent)
         replay = self.client.transcripts.with_raw_response.request(**intent)
+        sent = [call[2]['Idempotency-Key'] for call in CALLS if call[0] == '/v1/transcriptions' and call[4] == 'POST' and 'Idempotency-Key' in call[2]]
+        self.assertEqual(sent[-2:], ['python-saved-intent', 'python-saved-intent'])
         self.assertEqual(first.status_code, 202)
         self.assertEqual(replay.status_code, 200)
         self.assertEqual(replay.data.request.id, first.data.request.id)
