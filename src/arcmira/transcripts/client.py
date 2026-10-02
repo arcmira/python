@@ -15,6 +15,7 @@ from ..types.transcript_request_submit_response import TranscriptRequestSubmitRe
 from ..types.transcript_result import TranscriptResult
 from ..types.transcript_search_response import TranscriptSearchResponse
 from ..types.video_captions_response import VideoCaptionsResponse
+from .prepare import AsyncPrepareAndWait, PrepareAndWait
 from .raw_client import AsyncRawTranscriptsClient, RawTranscriptsClient
 from .types.get_transcripts_request_quality import GetTranscriptsRequestQuality
 from .types.search_transcripts_request_source import SearchTranscriptsRequestSource
@@ -27,7 +28,7 @@ if typing.TYPE_CHECKING:
 OMIT = typing.cast(typing.Any, ...)
 
 
-class TranscriptsClient:
+class TranscriptsClient(PrepareAndWait):
     def __init__(self, *, client_wrapper: SyncClientWrapper):
         self._raw_client = RawTranscriptsClient(client_wrapper=client_wrapper)
         self._client_wrapper = client_wrapper
@@ -433,7 +434,7 @@ class TranscriptsClient:
         return self._merges
 
 
-class AsyncTranscriptsClient:
+class AsyncTranscriptsClient(AsyncPrepareAndWait):
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
         self._raw_client = AsyncRawTranscriptsClient(client_wrapper=client_wrapper)
         self._client_wrapper = client_wrapper

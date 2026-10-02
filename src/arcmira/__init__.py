@@ -1433,3 +1433,4 @@ __all__ = [
 ]
 
 from ._package import __version__, homepage, docs, api_base, openapi, llms_txt, docs_llms_txt
+from .transcripts.prepare import PreparationError, PreparationFailedError, PreparationTimeoutError, PremiumUnavailableError
