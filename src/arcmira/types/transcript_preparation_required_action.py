@@ -4,17 +4,18 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
-from .transcript_request_charge_unit import TranscriptRequestChargeUnit
+from .transcript_preparation_required_action_body import TranscriptPreparationRequiredActionBody
+from .transcript_preparation_required_action_method import TranscriptPreparationRequiredActionMethod
 
 
-class TranscriptRequestCharge(UniversalBaseModel):
+class TranscriptPreparationRequiredAction(UniversalBaseModel):
     """
-    Accepted charge units. Present on durable purchases; absent only on legacy requests.
+    The one request that prepares Premium from included credits and moves no money.
     """
 
-    unit: TranscriptRequestChargeUnit
-    amount: float
-    credits_per_row: float
+    method: TranscriptPreparationRequiredActionMethod
+    url: str
+    body: TranscriptPreparationRequiredActionBody
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

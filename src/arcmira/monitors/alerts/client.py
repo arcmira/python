@@ -24,17 +24,18 @@ class AlertsClient:
         return self._raw_client
 
     def list(
-        self, id: str, *, n: typing.Optional[int] = None, request_options: typing.Optional[RequestOptions] = None
+        self, id: str, *, limit: typing.Optional[int] = None, request_options: typing.Optional[RequestOptions] = None
     ) -> AlertListResponse:
         """
-        The newest n alert deliveries for the monitor, as a single page. This endpoint does not paginate: has_more is always false and next_cursor is always null. entity_id ("ent_{n}") and mention_id ("men_{n}") are public-ID forms that join directly against entity and mention rows; media_id and appearance_id are raw integer ids, matching the numeric ids used elsewhere in the API. Dispute a fired alert via POST /v1/feedback with type monitor_alert.
+        The newest limit alert deliveries for the monitor (default 25, at most 100), as a single page. has_more is true when older alerts exist past limit; this endpoint does not paginate, so next_cursor is always null and a larger limit reads further. entity_id ("ent_{n}") and mention_id ("men_{n}") are public-ID forms that join directly against entity and mention rows; media_id and appearance_id are raw integer ids, matching the numeric ids used elsewhere in the API. Dispute a fired alert via POST /v1/feedback with type monitor_alert.
 
         Parameters
         ----------
         id : str
             Monitor id.
 
-        n : typing.Optional[int]
+        limit : typing.Optional[int]
+            Alerts to return, newest first, 1 to 100. Default 25.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -55,7 +56,7 @@ class AlertsClient:
             id="id",
         )
         """
-        _response = self._raw_client.list(id, n=n, request_options=request_options)
+        _response = self._raw_client.list(id, limit=limit, request_options=request_options)
         return _response.data
 
 
@@ -75,17 +76,18 @@ class AsyncAlertsClient:
         return self._raw_client
 
     async def list(
-        self, id: str, *, n: typing.Optional[int] = None, request_options: typing.Optional[RequestOptions] = None
+        self, id: str, *, limit: typing.Optional[int] = None, request_options: typing.Optional[RequestOptions] = None
     ) -> AlertListResponse:
         """
-        The newest n alert deliveries for the monitor, as a single page. This endpoint does not paginate: has_more is always false and next_cursor is always null. entity_id ("ent_{n}") and mention_id ("men_{n}") are public-ID forms that join directly against entity and mention rows; media_id and appearance_id are raw integer ids, matching the numeric ids used elsewhere in the API. Dispute a fired alert via POST /v1/feedback with type monitor_alert.
+        The newest limit alert deliveries for the monitor (default 25, at most 100), as a single page. has_more is true when older alerts exist past limit; this endpoint does not paginate, so next_cursor is always null and a larger limit reads further. entity_id ("ent_{n}") and mention_id ("men_{n}") are public-ID forms that join directly against entity and mention rows; media_id and appearance_id are raw integer ids, matching the numeric ids used elsewhere in the API. Dispute a fired alert via POST /v1/feedback with type monitor_alert.
 
         Parameters
         ----------
         id : str
             Monitor id.
 
-        n : typing.Optional[int]
+        limit : typing.Optional[int]
+            Alerts to return, newest first, 1 to 100. Default 25.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -114,5 +116,5 @@ class AsyncAlertsClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.list(id, n=n, request_options=request_options)
+        _response = await self._raw_client.list(id, limit=limit, request_options=request_options)
         return _response.data

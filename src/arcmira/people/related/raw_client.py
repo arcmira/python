@@ -65,7 +65,7 @@ class RawRelatedClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[EntityTopicListResponseItemsItem, EntityTopicListResponse]:
         """
-        The topics that co-occur with this person in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, limit, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total, offset, limit and hasMore mirror the web shape.
+        The topics that co-occur with this person in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total counts every matching row and limit is the page size applied.
 
         Parameters
         ----------
@@ -75,7 +75,7 @@ class RawRelatedClient:
         limit : typing.Optional[int]
 
         cursor : typing.Optional[str]
-            Signed continuation from next_cursor. Bound to route, filters, limit, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
+            Signed continuation from next_cursor. Bound to route, filters, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
 
         q : typing.Optional[str]
             Substring filter over the row's text columns (e.g. video title, channel name, description).
@@ -244,7 +244,7 @@ class RawRelatedClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[EntityPeopleListResponseItemsItem, EntityPeopleListResponse]:
         """
-        The people that co-occur with this person in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, limit, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total, offset, limit and hasMore mirror the web shape.
+        The people that co-occur with this person in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total counts every matching row and limit is the page size applied.
 
         Parameters
         ----------
@@ -254,7 +254,7 @@ class RawRelatedClient:
         limit : typing.Optional[int]
 
         cursor : typing.Optional[str]
-            Signed continuation from next_cursor. Bound to route, filters, limit, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
+            Signed continuation from next_cursor. Bound to route, filters, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
 
         q : typing.Optional[str]
             Substring filter over the row's text columns (e.g. video title, channel name, description).
@@ -423,7 +423,7 @@ class RawRelatedClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[EntityOrganizationListResponseItemsItem, EntityOrganizationListResponse]:
         """
-        The organizations that co-occur with this person in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, limit, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total, offset, limit and hasMore mirror the web shape.
+        The organizations that co-occur with this person in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total counts every matching row and limit is the page size applied.
 
         Parameters
         ----------
@@ -433,7 +433,7 @@ class RawRelatedClient:
         limit : typing.Optional[int]
 
         cursor : typing.Optional[str]
-            Signed continuation from next_cursor. Bound to route, filters, limit, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
+            Signed continuation from next_cursor. Bound to route, filters, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
 
         q : typing.Optional[str]
             Substring filter over the row's text columns (e.g. video title, channel name, description).
@@ -602,7 +602,7 @@ class RawRelatedClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[EntityProductListResponseItemsItem, EntityProductListResponse]:
         """
-        The products that co-occur with this person in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, limit, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total, offset, limit and hasMore mirror the web shape.
+        The products that co-occur with this person in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total counts every matching row and limit is the page size applied.
 
         Parameters
         ----------
@@ -612,7 +612,7 @@ class RawRelatedClient:
         limit : typing.Optional[int]
 
         cursor : typing.Optional[str]
-            Signed continuation from next_cursor. Bound to route, filters, limit, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
+            Signed continuation from next_cursor. Bound to route, filters, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
 
         q : typing.Optional[str]
             Substring filter over the row's text columns (e.g. video title, channel name, description).
@@ -781,7 +781,7 @@ class RawRelatedClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[EntityChannelListResponseItemsItem, EntityChannelListResponse]:
         """
-        The channels that co-occur with this person in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, limit, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total, offset, limit and hasMore mirror the web shape.
+        The channels that co-occur with this person in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total counts every matching row and limit is the page size applied.
 
         Parameters
         ----------
@@ -791,7 +791,7 @@ class RawRelatedClient:
         limit : typing.Optional[int]
 
         cursor : typing.Optional[str]
-            Signed continuation from next_cursor. Bound to route, filters, limit, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
+            Signed continuation from next_cursor. Bound to route, filters, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
 
         q : typing.Optional[str]
             Substring filter over the row's text columns (e.g. video title, channel name, description).
@@ -965,7 +965,7 @@ class AsyncRawRelatedClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[EntityTopicListResponseItemsItem, EntityTopicListResponse]:
         """
-        The topics that co-occur with this person in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, limit, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total, offset, limit and hasMore mirror the web shape.
+        The topics that co-occur with this person in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total counts every matching row and limit is the page size applied.
 
         Parameters
         ----------
@@ -975,7 +975,7 @@ class AsyncRawRelatedClient:
         limit : typing.Optional[int]
 
         cursor : typing.Optional[str]
-            Signed continuation from next_cursor. Bound to route, filters, limit, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
+            Signed continuation from next_cursor. Bound to route, filters, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
 
         q : typing.Optional[str]
             Substring filter over the row's text columns (e.g. video title, channel name, description).
@@ -1147,7 +1147,7 @@ class AsyncRawRelatedClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[EntityPeopleListResponseItemsItem, EntityPeopleListResponse]:
         """
-        The people that co-occur with this person in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, limit, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total, offset, limit and hasMore mirror the web shape.
+        The people that co-occur with this person in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total counts every matching row and limit is the page size applied.
 
         Parameters
         ----------
@@ -1157,7 +1157,7 @@ class AsyncRawRelatedClient:
         limit : typing.Optional[int]
 
         cursor : typing.Optional[str]
-            Signed continuation from next_cursor. Bound to route, filters, limit, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
+            Signed continuation from next_cursor. Bound to route, filters, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
 
         q : typing.Optional[str]
             Substring filter over the row's text columns (e.g. video title, channel name, description).
@@ -1329,7 +1329,7 @@ class AsyncRawRelatedClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[EntityOrganizationListResponseItemsItem, EntityOrganizationListResponse]:
         """
-        The organizations that co-occur with this person in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, limit, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total, offset, limit and hasMore mirror the web shape.
+        The organizations that co-occur with this person in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total counts every matching row and limit is the page size applied.
 
         Parameters
         ----------
@@ -1339,7 +1339,7 @@ class AsyncRawRelatedClient:
         limit : typing.Optional[int]
 
         cursor : typing.Optional[str]
-            Signed continuation from next_cursor. Bound to route, filters, limit, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
+            Signed continuation from next_cursor. Bound to route, filters, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
 
         q : typing.Optional[str]
             Substring filter over the row's text columns (e.g. video title, channel name, description).
@@ -1511,7 +1511,7 @@ class AsyncRawRelatedClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[EntityProductListResponseItemsItem, EntityProductListResponse]:
         """
-        The products that co-occur with this person in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, limit, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total, offset, limit and hasMore mirror the web shape.
+        The products that co-occur with this person in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total counts every matching row and limit is the page size applied.
 
         Parameters
         ----------
@@ -1521,7 +1521,7 @@ class AsyncRawRelatedClient:
         limit : typing.Optional[int]
 
         cursor : typing.Optional[str]
-            Signed continuation from next_cursor. Bound to route, filters, limit, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
+            Signed continuation from next_cursor. Bound to route, filters, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
 
         q : typing.Optional[str]
             Substring filter over the row's text columns (e.g. video title, channel name, description).
@@ -1693,7 +1693,7 @@ class AsyncRawRelatedClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[EntityChannelListResponseItemsItem, EntityChannelListResponse]:
         """
-        The channels that co-occur with this person in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, limit, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total, offset, limit and hasMore mirror the web shape.
+        The channels that co-occur with this person in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total counts every matching row and limit is the page size applied.
 
         Parameters
         ----------
@@ -1703,7 +1703,7 @@ class AsyncRawRelatedClient:
         limit : typing.Optional[int]
 
         cursor : typing.Optional[str]
-            Signed continuation from next_cursor. Bound to route, filters, limit, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
+            Signed continuation from next_cursor. Bound to route, filters, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
 
         q : typing.Optional[str]
             Substring filter over the row's text columns (e.g. video title, channel name, description).

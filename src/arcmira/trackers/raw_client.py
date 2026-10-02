@@ -167,7 +167,7 @@ class RawTrackersClient:
             Entity type of the tracked entity. Required on create.
 
         idempotency_key : typing.Optional[str]
-            Use 8 to 128 letters, numbers, underscores or hyphens per intent. Keys are scoped to the account, credential and resource family. The same key and normalized method, path and body returns the committed response with Idempotency-Replayed: true. A changed intent within the same family returns 409 idempotency_conflict. Monitor and tracker families have independent namespaces. Secret recovery is limited as described by the operation.
+            One key per intent, 1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400 invalid_idempotency_key. Keys are scoped to the account, credential and resource family. The same key and normalized method, path and body returns the committed response with Idempotency-Replayed: true. A changed intent within the same family returns 409 idempotency_conflict. Monitor and tracker families have independent namespaces. Secret recovery is limited as described by the operation.
 
         display_name : typing.Optional[str]
             Optional label shown in alerts and the dashboard.
@@ -339,7 +339,7 @@ class RawTrackersClient:
             Tracker id, trk_ form.
 
         idempotency_key : typing.Optional[str]
-            Use 8 to 128 letters, numbers, underscores or hyphens per intent. Keys are scoped to the account, credential and resource family. The same key and normalized method, path and body returns the committed response with Idempotency-Replayed: true. A changed intent within the same family returns 409 idempotency_conflict. Monitor and tracker families have independent namespaces. Secret recovery is limited as described by the operation.
+            One key per intent, 1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400 invalid_idempotency_key. Keys are scoped to the account, credential and resource family. The same key and normalized method, path and body returns the committed response with Idempotency-Replayed: true. A changed intent within the same family returns 409 idempotency_conflict. Monitor and tracker families have independent namespaces. Secret recovery is limited as described by the operation.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -479,7 +479,7 @@ class RawTrackersClient:
             Tracker id, trk_ form.
 
         idempotency_key : typing.Optional[str]
-            Use 8 to 128 letters, numbers, underscores or hyphens per intent. Keys are scoped to the account, credential and resource family. The same key and normalized method, path and body returns the committed response with Idempotency-Replayed: true. A changed intent within the same family returns 409 idempotency_conflict. Monitor and tracker families have independent namespaces. Secret recovery is limited as described by the operation.
+            One key per intent, 1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400 invalid_idempotency_key. Keys are scoped to the account, credential and resource family. The same key and normalized method, path and body returns the committed response with Idempotency-Replayed: true. A changed intent within the same family returns 409 idempotency_conflict. Monitor and tracker families have independent namespaces. Secret recovery is limited as described by the operation.
 
         display_name : typing.Optional[str]
             Optional label shown in alerts and the dashboard.
@@ -777,7 +777,7 @@ class AsyncRawTrackersClient:
             Entity type of the tracked entity. Required on create.
 
         idempotency_key : typing.Optional[str]
-            Use 8 to 128 letters, numbers, underscores or hyphens per intent. Keys are scoped to the account, credential and resource family. The same key and normalized method, path and body returns the committed response with Idempotency-Replayed: true. A changed intent within the same family returns 409 idempotency_conflict. Monitor and tracker families have independent namespaces. Secret recovery is limited as described by the operation.
+            One key per intent, 1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400 invalid_idempotency_key. Keys are scoped to the account, credential and resource family. The same key and normalized method, path and body returns the committed response with Idempotency-Replayed: true. A changed intent within the same family returns 409 idempotency_conflict. Monitor and tracker families have independent namespaces. Secret recovery is limited as described by the operation.
 
         display_name : typing.Optional[str]
             Optional label shown in alerts and the dashboard.
@@ -949,7 +949,7 @@ class AsyncRawTrackersClient:
             Tracker id, trk_ form.
 
         idempotency_key : typing.Optional[str]
-            Use 8 to 128 letters, numbers, underscores or hyphens per intent. Keys are scoped to the account, credential and resource family. The same key and normalized method, path and body returns the committed response with Idempotency-Replayed: true. A changed intent within the same family returns 409 idempotency_conflict. Monitor and tracker families have independent namespaces. Secret recovery is limited as described by the operation.
+            One key per intent, 1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400 invalid_idempotency_key. Keys are scoped to the account, credential and resource family. The same key and normalized method, path and body returns the committed response with Idempotency-Replayed: true. A changed intent within the same family returns 409 idempotency_conflict. Monitor and tracker families have independent namespaces. Secret recovery is limited as described by the operation.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1089,7 +1089,7 @@ class AsyncRawTrackersClient:
             Tracker id, trk_ form.
 
         idempotency_key : typing.Optional[str]
-            Use 8 to 128 letters, numbers, underscores or hyphens per intent. Keys are scoped to the account, credential and resource family. The same key and normalized method, path and body returns the committed response with Idempotency-Replayed: true. A changed intent within the same family returns 409 idempotency_conflict. Monitor and tracker families have independent namespaces. Secret recovery is limited as described by the operation.
+            One key per intent, 1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400 invalid_idempotency_key. Keys are scoped to the account, credential and resource family. The same key and normalized method, path and body returns the committed response with Idempotency-Replayed: true. A changed intent within the same family returns 409 idempotency_conflict. Monitor and tracker families have independent namespaces. Secret recovery is limited as described by the operation.
 
         display_name : typing.Optional[str]
             Optional label shown in alerts and the dashboard.

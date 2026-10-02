@@ -31,7 +31,7 @@ def prepare(document, names):
     for path in ('/v1/openapi.json', '/v1/signups', '/v1/signups/verify', '/v1/search'):
         del doc['paths'][path]
     type_names = {
-        'TranscriptionRequest': 'TranscriptRequest',
+        'TranscriptionJob': 'TranscriptJob',
         'TranscriptionSubmitResponse': 'TranscriptRequestSubmitResponse',
         'TranscriptionListResponse': 'TranscriptRequestListResponse',
     }
@@ -48,6 +48,17 @@ def prepare(document, names):
         elif isinstance(value, list):
             for child in value: rename_refs(child)
     rename_refs(doc)
+    def collapse_job_refs(value):
+        # Fern inlines an allOf of the Job $ref plus a description; a bare $ref keeps one shared Job type.
+        if isinstance(value, dict):
+            parts = value.get('allOf')
+            if parts and sum('$ref' in part for part in parts) == 1 and all('$ref' in part or set(part) == {'description'} for part in parts) and any(part.get('$ref') == '#/components/schemas/TranscriptJob' for part in parts):
+                del value['allOf']
+                value['$ref'] = next(part['$ref'] for part in parts if '$ref' in part)
+            for child in value.values(): collapse_job_refs(child)
+        elif isinstance(value, list):
+            for child in value: collapse_job_refs(child)
+    collapse_job_refs(doc)
     # Fern 5.131.1 loses inherited example fields in this object intersection.
     suggestion = doc['components']['schemas']['ResolveSuggestion']
     members = [resolve(doc, part) for part in suggestion.pop('allOf')]
@@ -81,13 +92,17 @@ def prepare(document, names):
                 op['parameters'] = [p for p in op.get('parameters', []) if not (p.get('in') == 'query' and p['name'] in {'type', 'query'})]
                 body = op['requestBody']['content']['application/json']['schema']
                 body['required'] = sorted(set(body.get('required', [])) | {'type', 'query'})
+            if op.get('operationId') == 'submit_transcription':
+                # videoId is a one-release alias of video_id and collides with it after camelCase normalization.
+                op['requestBody']['content']['application/json']['schema']['properties'].pop('videoId')
             responses = []
             for code, response in op.get('responses', {}).items():
                 if code.startswith('2'):
                     response = resolve(doc, response)
                     schema = response.get('content', {}).get('application/json', {}).get('schema')
-                    if schema is not None and schema not in responses:
-                        responses.append(schema)
+                    for member in (schema or {}).get('oneOf', [schema] if schema is not None else []):
+                        if member not in responses:
+                            responses.append(member)
             if len(responses) > 1:
                 states = {}
                 for schema in responses:

@@ -3,29 +3,15 @@
 import typing
 
 import pydantic
-import typing_extensions
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
-from ..core.serialization import FieldMetadata
-from .transcript_request import TranscriptRequest
+from .transcript_job import TranscriptJob
 
 
 class TranscriptRequestSubmitResponse(UniversalBaseModel):
-    request: TranscriptRequest
-    existing: typing.Optional[bool] = pydantic.Field(default=None)
+    job: TranscriptJob
+    existing: bool = pydantic.Field()
     """
-    True when an in-flight (or already-satisfied) request for the same video was returned instead of creating a new one.
-    """
-
-    over_limit: typing_extensions.Annotated[
-        typing.Optional[bool],
-        FieldMetadata(alias="overLimit"),
-        pydantic.Field(
-            alias="overLimit",
-            description="Only present (true) when this purchase consumed the rest of the included row allocation.",
-        ),
-    ] = None
-    """
-    Only present (true) when this purchase consumed the rest of the included row allocation.
+    True when a request for this video already existed (in flight or ready) and was returned instead of creating a new one.
     """
 
     if IS_PYDANTIC_V2:

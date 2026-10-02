@@ -44,7 +44,7 @@ class RawRecommendationsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[Recommendation, RecommendationListResponse]:
         """
-        Cursor-paginated commercial mentions (ad reads, endorsements, neutral mentions) for one entity, newest media first. The signed continuation binds the route, filters, limit, caller and visibility; invalid or old cursors return invalid_cursor. A first-page ID fence excludes later insertions, including old-date backfills. Edits and deletions to existing rows remain live. Requires a Pro+ plan. Read timestamps from start_seconds / end_seconds (integer seconds); the MM:SS string fields are deprecated. Rows below min_confidence (default 0.7) and disputed rows (unless include_disputed=true) are excluded.
+        Cursor-paginated commercial mentions (ad reads, endorsements, neutral mentions) for one entity, newest media first. The signed continuation binds the route, filters, caller and visibility; invalid or old cursors return invalid_cursor. A first-page ID fence excludes later insertions, including old-date backfills. Edits and deletions to existing rows remain live. Requires a Pro+ plan. Read timestamps from start_seconds / end_seconds (integer seconds); the MM:SS string fields are deprecated. Rows below min_confidence (default 0.7) and disputed rows (unless include_disputed=true) are excluded.
 
         Parameters
         ----------
@@ -227,7 +227,7 @@ class AsyncRawRecommendationsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[Recommendation, RecommendationListResponse]:
         """
-        Cursor-paginated commercial mentions (ad reads, endorsements, neutral mentions) for one entity, newest media first. The signed continuation binds the route, filters, limit, caller and visibility; invalid or old cursors return invalid_cursor. A first-page ID fence excludes later insertions, including old-date backfills. Edits and deletions to existing rows remain live. Requires a Pro+ plan. Read timestamps from start_seconds / end_seconds (integer seconds); the MM:SS string fields are deprecated. Rows below min_confidence (default 0.7) and disputed rows (unless include_disputed=true) are excluded.
+        Cursor-paginated commercial mentions (ad reads, endorsements, neutral mentions) for one entity, newest media first. The signed continuation binds the route, filters, caller and visibility; invalid or old cursors return invalid_cursor. A first-page ID fence excludes later insertions, including old-date backfills. Edits and deletions to existing rows remain live. Requires a Pro+ plan. Read timestamps from start_seconds / end_seconds (integer seconds); the MM:SS string fields are deprecated. Rows below min_confidence (default 0.7) and disputed rows (unless include_disputed=true) are excluded.
 
         Parameters
         ----------

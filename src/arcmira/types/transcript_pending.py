@@ -4,15 +4,14 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
-from .transcript_pending_premium_job import TranscriptPendingPremiumJob
+from .transcript_job import TranscriptJob
 from .transcript_pending_quality import TranscriptPendingQuality
 
 
 class TranscriptPending(UniversalBaseModel):
     quality: TranscriptPendingQuality
-    premium_job: TranscriptPendingPremiumJob
-    status_url: str
-    next_poll_seconds: float
+    video_id: str
+    job: TranscriptJob
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

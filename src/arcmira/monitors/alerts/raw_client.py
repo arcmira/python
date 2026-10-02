@@ -26,17 +26,18 @@ class RawAlertsClient:
         self._client_wrapper = client_wrapper
 
     def list(
-        self, id: str, *, n: typing.Optional[int] = None, request_options: typing.Optional[RequestOptions] = None
+        self, id: str, *, limit: typing.Optional[int] = None, request_options: typing.Optional[RequestOptions] = None
     ) -> HttpResponse[AlertListResponse]:
         """
-        The newest n alert deliveries for the monitor, as a single page. This endpoint does not paginate: has_more is always false and next_cursor is always null. entity_id ("ent_{n}") and mention_id ("men_{n}") are public-ID forms that join directly against entity and mention rows; media_id and appearance_id are raw integer ids, matching the numeric ids used elsewhere in the API. Dispute a fired alert via POST /v1/feedback with type monitor_alert.
+        The newest limit alert deliveries for the monitor (default 25, at most 100), as a single page. has_more is true when older alerts exist past limit; this endpoint does not paginate, so next_cursor is always null and a larger limit reads further. entity_id ("ent_{n}") and mention_id ("men_{n}") are public-ID forms that join directly against entity and mention rows; media_id and appearance_id are raw integer ids, matching the numeric ids used elsewhere in the API. Dispute a fired alert via POST /v1/feedback with type monitor_alert.
 
         Parameters
         ----------
         id : str
             Monitor id.
 
-        n : typing.Optional[int]
+        limit : typing.Optional[int]
+            Alerts to return, newest first, 1 to 100. Default 25.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -50,7 +51,7 @@ class RawAlertsClient:
             f"v1/monitors/{encode_path_param(id)}/alerts",
             method="GET",
             params={
-                "n": n,
+                "limit": limit,
             },
             request_options=request_options,
         )
@@ -145,17 +146,18 @@ class AsyncRawAlertsClient:
         self._client_wrapper = client_wrapper
 
     async def list(
-        self, id: str, *, n: typing.Optional[int] = None, request_options: typing.Optional[RequestOptions] = None
+        self, id: str, *, limit: typing.Optional[int] = None, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[AlertListResponse]:
         """
-        The newest n alert deliveries for the monitor, as a single page. This endpoint does not paginate: has_more is always false and next_cursor is always null. entity_id ("ent_{n}") and mention_id ("men_{n}") are public-ID forms that join directly against entity and mention rows; media_id and appearance_id are raw integer ids, matching the numeric ids used elsewhere in the API. Dispute a fired alert via POST /v1/feedback with type monitor_alert.
+        The newest limit alert deliveries for the monitor (default 25, at most 100), as a single page. has_more is true when older alerts exist past limit; this endpoint does not paginate, so next_cursor is always null and a larger limit reads further. entity_id ("ent_{n}") and mention_id ("men_{n}") are public-ID forms that join directly against entity and mention rows; media_id and appearance_id are raw integer ids, matching the numeric ids used elsewhere in the API. Dispute a fired alert via POST /v1/feedback with type monitor_alert.
 
         Parameters
         ----------
         id : str
             Monitor id.
 
-        n : typing.Optional[int]
+        limit : typing.Optional[int]
+            Alerts to return, newest first, 1 to 100. Default 25.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -169,7 +171,7 @@ class AsyncRawAlertsClient:
             f"v1/monitors/{encode_path_param(id)}/alerts",
             method="GET",
             params={
-                "n": n,
+                "limit": limit,
             },
             request_options=request_options,
         )

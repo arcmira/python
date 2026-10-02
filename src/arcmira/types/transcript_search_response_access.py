@@ -55,6 +55,16 @@ class TranscriptSearchResponseAccess(UniversalBaseModel):
     Present on rate gates. Mirrors the Retry-After header.
     """
 
+    current_revision: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    On revision_mismatch and anchor_mismatch, the transcript revision to re-read before re-anchoring the correction.
+    """
+
+    expected_seq: typing.Optional[int] = pydantic.Field(default=None)
+    """
+    On sequence_mismatch (HTTP 412), the seq the server expects next for this video. Rebase local counters onto it and resend under the same key.
+    """
+
     doc_url: str
     request_id: str
 

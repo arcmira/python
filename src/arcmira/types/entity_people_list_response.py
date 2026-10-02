@@ -23,23 +23,9 @@ class EntityPeopleListResponse(UniversalBaseModel):
     Rows matching the filter across all pages.
     """
 
-    offset: int = pydantic.Field()
-    """
-    Row offset of this page, as the cursor encoded it. 0 on the first page.
-    """
-
     limit: int = pydantic.Field()
     """
     Page size applied, after the plan clamp.
-    """
-
-    has_more: typing_extensions.Annotated[
-        bool,
-        FieldMetadata(alias="hasMore"),
-        pydantic.Field(alias="hasMore", description="Same value as has_more, kept for readers of the web shape."),
-    ]
-    """
-    Same value as has_more, kept for readers of the web shape.
     """
 
     has_more: bool = pydantic.Field()

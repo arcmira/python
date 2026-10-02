@@ -19,7 +19,7 @@ def error(code, kind):
 
 PAGE_CAP = 5
 CURSOR = 'signed+/opaque==&cursor'
-PENDING = dict(state='pending', quality='premium', premium_job=dict(job_id=REQUEST['id'], status='queued', next_poll_seconds=5), status_url='/v1/transcriptions/'+REQUEST['id'], next_poll_seconds=5)
+PENDING = FIXTURES['pending_premium']['body']
 CALLS = []
 RECEIPTS = {}
 
@@ -44,14 +44,12 @@ class Handler(BaseHTTPRequestHandler):
         elif url.path == '/v1/transcriptions' and self.command == 'POST':
             key = self.headers['Idempotency-Key']
             replay = key in RECEIPTS
-            if key is None:
-                status, result = 400, {'error': error('idempotency_key_required', 'invalid_request_error')}
-            elif replay and RECEIPTS[key] != body:
+            if replay and RECEIPTS[key] != body:
                 status, result = 409, {'error': error('idempotency_conflict', 'conflict_error')}
             else:
                 RECEIPTS[key] = body
                 status = 200 if replay else 202
-                result = {'request': REQUEST, **({'existing': True} if replay else {})}
+                result = {'job': REQUEST, 'existing': replay}
                 if replay: extra['Idempotency-Replayed'] = 'true'
         elif url.path == '/v1/transcriptions':
             result = {'requests': [{**REQUEST, 'id': 'request-2' if 'cursor' in query else 'request-1'}], 'has_more': 'cursor' not in query, 'next_cursor': None if 'cursor' in query else CURSOR}
@@ -92,7 +90,7 @@ class GeneratedClientTests(unittest.TestCase):
         pending = self.client.transcripts.with_raw_response.get(video_id='pending0000', quality='premium')
         self.assertIsInstance(pending.data, TranscriptResult_Pending)
         self.assertEqual(pending.status_code, 202)
-        self.assertEqual(pending.data.status_url, PENDING['status_url'])
+        self.assertEqual(pending.data.job.status_url, PENDING['job']['status_url'])
         self.assertEqual(pending.headers['retry-after'], '5')
 
     def test_quote_and_refusal(self):
@@ -105,7 +103,7 @@ class GeneratedClientTests(unittest.TestCase):
         self.assertEqual(str(caught.exception), '403 purchase_required: purchase_required')
         self.assertNotIn('headers', str(caught.exception))
 
-    def test_preparation_exact_intent_replay_and_required_key(self):
+    def test_preparation_exact_intent_and_replay(self):
         intent = dict(video_id='dQw4w9WgXcQ', max_rows=300, max_on_demand_cents=0, idempotency_key='python-saved-intent')
         first = self.client.transcripts.with_raw_response.request(**intent)
         replay = self.client.transcripts.with_raw_response.request(**intent)
@@ -113,15 +111,13 @@ class GeneratedClientTests(unittest.TestCase):
         self.assertEqual(sent[-2:], ['python-saved-intent', 'python-saved-intent'])
         self.assertEqual(first.status_code, 202)
         self.assertEqual(replay.status_code, 200)
-        self.assertEqual(replay.data.request.id, first.data.request.id)
+        self.assertEqual(replay.data.job.id, first.data.job.id)
         self.assertTrue(replay.data.existing)
         self.assertEqual(replay.headers['idempotency-replayed'], 'true')
-        self.assertEqual(json.loads(CALLS[-1][3]), dict(videoId='dQw4w9WgXcQ', max_rows=300, max_on_demand_cents=0))
+        self.assertEqual(json.loads(CALLS[-1][3]), dict(video_id='dQw4w9WgXcQ', max_rows=300, max_on_demand_cents=0))
         with self.assertRaises(ApiError) as caught:
             self.client.transcripts.request(**{**intent, 'max_rows':600})
         self.assertEqual(caught.exception.status_code, 409)
-        with self.assertRaises(TypeError):
-            self.client.transcripts.request(video_id='dQw4w9WgXcQ', max_rows=300)
 
     def test_request_and_episode_arrays_preserve_opaque_cursor(self):
         before = len(CALLS)

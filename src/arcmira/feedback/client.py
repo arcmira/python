@@ -57,7 +57,7 @@ class FeedbackClient:
             The query object that produced the result you are reviewing, echoed back verbatim so reviewers can replay it. For monitor_alert feedback, carry monitor_id and/or tracker_id and/or alert_id.
 
         idempotency_key : typing.Optional[str]
-            Persist a unique key and the exact request before sending a logical mutation. A retry returns its stored response with Idempotency-Replayed: true. A changed intent under a finalized key returns 409 idempotency_conflict. Keys belong to the authenticated owner, credential and mutation domain. Current authorization still applies. Receipts have no general 24-hour expiry; signing-secret recovery alone expires after 24 hours or when the secret is displaced.
+            1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400 invalid_idempotency_key. Persist a unique key and the exact request before sending a logical mutation. A retry returns its stored response with Idempotency-Replayed: true. A changed intent under a finalized key returns 409 idempotency_conflict. Keys belong to the authenticated owner, credential and mutation domain. Current authorization still applies. Receipts have no general 24-hour expiry; signing-secret recovery alone expires after 24 hours or when the secret is displaced.
 
         endpoint : typing.Optional[str]
 
@@ -89,6 +89,7 @@ class FeedbackClient:
             api_key="YOUR_API_KEY",
         )
         client.feedback.submit(
+            idempotency_key="8b2f6c3e-4d1a-4e7b-9c05-2f6a1b7d3e90",
             type="recommendations",
             query={"key": "value"},
         )
@@ -184,7 +185,7 @@ class AsyncFeedbackClient:
             The query object that produced the result you are reviewing, echoed back verbatim so reviewers can replay it. For monitor_alert feedback, carry monitor_id and/or tracker_id and/or alert_id.
 
         idempotency_key : typing.Optional[str]
-            Persist a unique key and the exact request before sending a logical mutation. A retry returns its stored response with Idempotency-Replayed: true. A changed intent under a finalized key returns 409 idempotency_conflict. Keys belong to the authenticated owner, credential and mutation domain. Current authorization still applies. Receipts have no general 24-hour expiry; signing-secret recovery alone expires after 24 hours or when the secret is displaced.
+            1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400 invalid_idempotency_key. Persist a unique key and the exact request before sending a logical mutation. A retry returns its stored response with Idempotency-Replayed: true. A changed intent under a finalized key returns 409 idempotency_conflict. Keys belong to the authenticated owner, credential and mutation domain. Current authorization still applies. Receipts have no general 24-hour expiry; signing-secret recovery alone expires after 24 hours or when the secret is displaced.
 
         endpoint : typing.Optional[str]
 
@@ -221,6 +222,7 @@ class AsyncFeedbackClient:
 
         async def main() -> None:
             await client.feedback.submit(
+                idempotency_key="8b2f6c3e-4d1a-4e7b-9c05-2f6a1b7d3e90",
                 type="recommendations",
                 query={"key": "value"},
             )

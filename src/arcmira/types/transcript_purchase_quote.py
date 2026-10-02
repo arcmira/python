@@ -6,6 +6,7 @@ import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 from .transcript_purchase_quote_billing_scope import TranscriptPurchaseQuoteBillingScope
 from .transcript_purchase_quote_charge import TranscriptPurchaseQuoteCharge
+from .transcript_purchase_quote_upgrade import TranscriptPurchaseQuoteUpgrade
 from .transcript_quote import TranscriptQuote
 
 
@@ -15,6 +16,11 @@ class TranscriptPurchaseQuote(UniversalBaseModel):
     billing_scope: TranscriptPurchaseQuoteBillingScope
     owned: bool
     eligible: bool
+    upgrade: typing.Optional[TranscriptPurchaseQuoteUpgrade] = pydantic.Field(default=None)
+    """
+    Present when eligible is false: the plan checkout that can buy this transcript, as a button label and an absolute link.
+    """
+
     quote: TranscriptQuote
     charge: TranscriptPurchaseQuoteCharge
     credits_per_row: float

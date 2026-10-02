@@ -6,20 +6,8 @@ import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 
 
-class TranscriptRequestQuote(UniversalBaseModel):
-    """
-    What this request charged: rows and 15-minute blocks. rows is 0 when a prior unlock made the submission free.
-    """
-
-    quarters: int = pydantic.Field()
-    """
-    Number of 15-minute blocks in the video, ceiling'd, minimum 1.
-    """
-
-    rows: int = pydantic.Field()
-    """
-    Total unlock cost in rows: 75 rows per 15-minute block.
-    """
+class TranscriptPreparationRequiredActionBody(UniversalBaseModel):
+    video_id: str
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

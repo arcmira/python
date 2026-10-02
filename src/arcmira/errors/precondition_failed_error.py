@@ -3,9 +3,9 @@
 import typing
 
 from ..core.api_error import ApiError
-from ..types.correction_seq_mismatch_response import CorrectionSeqMismatchResponse
+from ..types.error import Error
 
 
 class PreconditionFailedError(ApiError):
-    def __init__(self, body: CorrectionSeqMismatchResponse, headers: typing.Optional[typing.Dict[str, str]] = None):
+    def __init__(self, body: Error, headers: typing.Optional[typing.Dict[str, str]] = None):
         super().__init__(status_code=412, headers=headers, body=body)

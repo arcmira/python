@@ -5,10 +5,10 @@ import typing
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 from .caption_track import CaptionTrack
+from .transcript_job import TranscriptJob
 from .transcript_response_access import TranscriptResponseAccess
 from .transcript_response_lines_item import TranscriptResponseLinesItem
 from .transcript_response_paragraphs_item import TranscriptResponseParagraphsItem
-from .transcript_response_premium_job import TranscriptResponsePremiumJob
 from .transcript_response_quality import TranscriptResponseQuality
 from .transcript_response_range import TranscriptResponseRange
 from .transcript_response_source import TranscriptResponseSource
@@ -73,11 +73,7 @@ class TranscriptResponse(UniversalBaseModel):
     When the transcript was produced.
     """
 
-    premium_job: typing.Optional[TranscriptResponsePremiumJob] = pydantic.Field(default=None)
-    """
-    Reserved for job metadata. Pending Premium retrieval uses its separate 202 response.
-    """
-
+    premium_job: typing.Optional[TranscriptJob] = None
     access: typing.Optional[TranscriptResponseAccess] = pydantic.Field(default=None)
     """
     The gate that reduced this response. Present only when something was withheld; carries the same code, gate, and unlock an outright refusal would.

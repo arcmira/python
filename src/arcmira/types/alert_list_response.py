@@ -15,7 +15,7 @@ class AlertListResponse(UniversalBaseModel):
 
     has_more: bool = pydantic.Field()
     """
-    CURRENTLY always false: this endpoint returns the newest n alerts as a single page and does not paginate.
+    True when older alerts exist past limit. The endpoint does not paginate: raise limit, up to 100, to read them.
     """
 
     next_cursor: typing.Optional[typing.Any] = pydantic.Field(default=None)

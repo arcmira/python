@@ -20,10 +20,9 @@ from ..errors.payment_required_error import PaymentRequiredError
 from ..errors.service_unavailable_error import ServiceUnavailableError
 from ..errors.too_many_requests_error import TooManyRequestsError
 from ..errors.unauthorized_error import UnauthorizedError
-from ..errors.unprocessable_entity_error import UnprocessableEntityError
 from ..types.error import Error
+from ..types.transcript_job import TranscriptJob
 from ..types.transcript_purchase_quote import TranscriptPurchaseQuote
-from ..types.transcript_request import TranscriptRequest
 from ..types.transcript_request_list_response import TranscriptRequestListResponse
 from ..types.transcript_request_list_response_requests_item import TranscriptRequestListResponseRequestsItem
 from ..types.transcript_request_submit_response import TranscriptRequestSubmitResponse
@@ -242,7 +241,7 @@ class RawTranscriptsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[TranscriptResult]:
         """
-        Caption retrieval costs one row per started 15 minutes. Premium retrieval is free and never buys, generates, or returns fallback captions. It returns owned ready content, 202 pending with a status URL, or 403 purchase_required with quote and prepare URLs. Purchase the full video explicitly through POST /v1/transcriptions. start/end only trim the returned content; language selects caption tracks, timestamps=false returns paragraphs. Premium responses retain revision and line indexes for corrections.
+        Caption retrieval costs one row per started 15 minutes. Premium retrieval is free and never buys, generates, or returns fallback captions. Branch on state: 200 ready is owned content; 202 pending carries the job, with Retry-After; 200 preparation_required carries the whole-video quote and the action to take, POST /v1/transcriptions with { video_id }, plus last_attempt when the previous purchase failed. Plans without Premium read captions with an access gate instead. start/end only trim the returned content; language selects caption tracks, timestamps=false returns paragraphs. Premium responses retain revision and line indexes for corrections.
 
         Parameters
         ----------
@@ -250,7 +249,7 @@ class RawTranscriptsClient:
             YouTube video id, 11 characters.
 
         quality : typing.Optional[GetTranscriptsRequestQuality]
-            captions reads creator or automatic captions at 1 row per started 15 minutes. premium is read-only: an owned transcript returns 200 at zero rows, an active purchase returns 202 with status_url and next_poll_seconds, and an unowned transcript returns 403 purchase_required with quote_url and prepare_url. It never purchases or substitutes captions. Quote and explicitly purchase the whole video before reading Premium. Default captions unless changed in account settings.
+            captions reads creator or automatic captions at 1 row per started 15 minutes. premium is read-only: an owned transcript returns 200 state ready at zero rows, an active purchase returns 202 state pending with its job, and an unowned transcript on a plan with Premium returns 200 state preparation_required with the quote and the POST /v1/transcriptions action. It never purchases or substitutes captions. Default captions unless changed in account settings.
 
         language : typing.Optional[str]
             Comma-separated caption language priority list, at most 5, tried in order (e.g. "de,en"). Use asr for the first automatic track and asr-<code> for a specific one. Default en. languages[] in the response lists every track the video offers.
@@ -273,7 +272,7 @@ class RawTranscriptsClient:
         Returns
         -------
         HttpResponse[TranscriptResult]
-            The transcript: video, quality, source, language, languages, lines or paragraphs, speakers and revision on Premium, rows_billed, as_of, note.
+            state ready: the transcript (video, quality, source, language, languages, lines or paragraphs, speakers and revision on Premium, rows_billed, as_of, note). state preparation_required: Premium is not owned yet; the quote and the POST that prepares it.
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v1/transcripts/{encode_path_param(video_id)}",
@@ -399,7 +398,7 @@ class RawTranscriptsClient:
         self, video_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> HttpResponse[TranscriptPurchaseQuote]:
         """
-        Optional free quote. It does not reserve funds or start generation. max_rows authorizes rows, while max_on_demand_cents separately authorizes new money and defaults to zero on purchase. The accepted purchase stores its pricing mode.
+        Optional free quote. It does not reserve funds or start generation. max_rows authorizes rows, while max_on_demand_cents separately authorizes new money and defaults to zero on purchase. The accepted purchase stores its pricing mode. A video with no known duration, or one past the 12 hour cap, answers 400 invalid_query with param video_id.
 
         Parameters
         ----------
@@ -633,7 +632,7 @@ class RawTranscriptsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[TranscriptRequestListResponseRequestsItem, TranscriptRequestListResponse]:
         """
-        Your transcription requests in descending creation time and id order. limit defaults to 20 and accepts 1–100. Follow next_cursor with the same video_id, limit and credential; has_more is false and next_cursor is null on the last page. A traversal excludes requests inserted after its first page. Each entry has the same shape as the status poll plus a `title` field (the video title, null when unknown). The scheduled reconciler advances requests; reading this list never dispatches work or changes billing. In-flight entries carry `etaSeconds` + `nextPollSeconds`.
+        Your transcription requests in descending creation time and id order. limit defaults to 20 and accepts 1–100. Follow next_cursor with the same video_id, limit and credential; has_more is false and next_cursor is null on the last page. A traversal excludes requests inserted after its first page. Each entry has the same shape as the status poll plus a `title` field (the video title, null when unknown). The scheduled reconciler advances requests; reading this list never dispatches work or changes billing. In-flight entries carry `eta_seconds` and `next_poll_seconds`.
 
         Parameters
         ----------
@@ -761,32 +760,32 @@ class RawTranscriptsClient:
     def request(
         self,
         *,
-        idempotency_key: str,
-        max_rows: int,
-        max_on_demand_cents: typing.Optional[float] = OMIT,
+        idempotency_key: typing.Optional[str] = None,
         video_id: typing.Optional[str] = OMIT,
         url: typing.Optional[str] = OMIT,
+        max_rows: typing.Optional[int] = OMIT,
+        max_on_demand_cents: typing.Optional[int] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[TranscriptRequestSubmitResponse]:
         """
-        Explicit whole-video purchase. Requires Idempotency-Key and max_rows; max_on_demand_cents defaults to zero. Accepted price, mode, and debit identity persist across retries. Included rows or credits are reserved up front; monetary on-demand usage is reserved until Premium is ready. Existing owned unlocks cost zero. A terminal generation failure refunds the exact original debit and period before reporting refunded. A repeated key returns the same request; different intent with that key returns idempotency_conflict. Poll the returned request with Retry-After. Pending work returns 202 and an existing artifact returns 201.
+        Explicit whole-video Premium purchase in one request: POST { video_id }. With no max_rows the purchase is capped at the current quote, and max_on_demand_cents defaults to zero, so it spends included rows or credits only and moves no money. Idempotency-Key is optional: without one, a purchase already open or owned for this video is returned with existing: true, and two simultaneous requests buy once. max_on_demand_cents above 0 is the only way to move money and requires both Idempotency-Key and max_rows (400 invalid_body names the missing one in param). A video with no known duration or longer than 12 hours answers 400 invalid_query with param video_id. A plan without Premium answers 403 forbidden with unlock. Accepted price, mode, and debit identity persist across retries. Included rows or credits are reserved up front; monetary on-demand usage is reserved until Premium is ready. Existing owned unlocks cost zero. A terminal generation failure refunds the exact original debit and period before reporting refunded. A repeated key returns the same request; different intent with that key returns idempotency_conflict. The body is { job, existing }. Poll job.status_url after Retry-After. A pending job returns 202; a ready, failed or refunded job returns 200. Idempotency-Replayed: true marks a replay of the same key; a different key joined onto the active purchase answers existing: true without it.
 
         Parameters
         ----------
-        idempotency_key : str
-            Persist a unique key and the exact request before sending a logical mutation. A retry returns its stored response with Idempotency-Replayed: true. A changed intent under a finalized key returns 409 idempotency_conflict. Keys belong to the authenticated owner, credential and mutation domain. Current authorization still applies. Receipts have no general 24-hour expiry; signing-secret recovery alone expires after 24 hours or when the secret is displaced.
-
-        max_rows : int
-            Maximum whole-video rows authorized. Credit mode charges four credits per row. Required even when submitting without a quote.
-
-        max_on_demand_cents : typing.Optional[float]
-            Maximum new monetary on-demand charge in cents. Omit to authorize none.
+        idempotency_key : typing.Optional[str]
+            1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400 invalid_idempotency_key. Persist a unique key and the exact request before sending a logical mutation. A retry returns its stored response with Idempotency-Replayed: true. A changed intent under a finalized key returns 409 idempotency_conflict. Keys belong to the authenticated owner, credential and mutation domain. Current authorization still applies. Receipts have no general 24-hour expiry; signing-secret recovery alone expires after 24 hours or when the secret is displaced.
 
         video_id : typing.Optional[str]
-            YouTube video id (11 characters). Either videoId or url is required.
+            YouTube video id (11 characters). Either video_id or url is required.
 
         url : typing.Optional[str]
-            A YouTube watch/short/live URL. Either videoId or url is required.
+            A YouTube watch/short/live URL. Either video_id or url is required.
+
+        max_rows : typing.Optional[int]
+            Maximum whole-video rows authorized. Credit mode charges four credits per row. Omit it to cap the purchase at the current quote. Required with max_on_demand_cents above 0.
+
+        max_on_demand_cents : typing.Optional[int]
+            Maximum new monetary on-demand charge in whole cents. Defaults to 0, which moves no money. Above 0 it requires Idempotency-Key and max_rows.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -794,16 +793,16 @@ class RawTranscriptsClient:
         Returns
         -------
         HttpResponse[TranscriptRequestSubmitResponse]
-            An existing in-flight or already-satisfied request was returned (existing: true)
+            job.state is ready, failed or refunded: the transcript is servable, or the purchase ended without one.
         """
         _response = self._client_wrapper.httpx_client.request(
             "v1/transcriptions",
             method="POST",
             json={
-                "max_on_demand_cents": max_on_demand_cents,
-                "max_rows": max_rows,
-                "videoId": video_id,
+                "video_id": video_id,
                 "url": url,
+                "max_rows": max_rows,
+                "max_on_demand_cents": max_on_demand_cents,
             },
             headers={
                 "content-type": "application/json",
@@ -888,17 +887,6 @@ class RawTranscriptsClient:
                         ),
                     ),
                 )
-            if _response.status_code == 422:
-                raise UnprocessableEntityError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
             if _response.status_code == 429:
                 raise TooManyRequestsError(
                     headers=dict(_response.headers),
@@ -932,9 +920,9 @@ class RawTranscriptsClient:
 
     def status(
         self, id: str, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> HttpResponse[TranscriptRequest]:
+    ) -> HttpResponse[TranscriptJob]:
         """
-        Agent-friendly polling contract: while the request is in flight the response carries a Retry-After header (seconds) and body fields `etaSeconds` + `nextPollSeconds`. Sleep on Retry-After and re-poll. `status` walks queued → downloading → transcribing → analyzing → complete (user-facing `stage` folds downloading into transcribing). refund_pending retains Retry-After and nextPollSeconds until reversal completes; it has no completion ETA. Terminal statuses (`complete`, `failed`, `refunded`) drop Retry-After. On `complete`, fetch the transcript via GET /v1/transcripts/{video_id}; the successful purchase owns the permanent unlock. `refunded` means the pipeline failed and the rows were returned. A caller with no account holds no jobs: it is refused with 401 job_requires_account, whose unlock points at sign-up.
+        Agent-friendly polling contract: while the request is in flight the response carries a Retry-After header (seconds) and body fields `eta_seconds` and `next_poll_seconds`. Sleep on Retry-After and re-poll. `status` walks queued → downloading → transcribing → analyzing → complete (user-facing `stage` folds downloading into transcribing). refund_pending retains Retry-After and next_poll_seconds until reversal completes; it has no completion ETA. Terminal statuses (`complete`, `failed`, `refunded`) drop Retry-After. On `complete`, fetch the transcript via GET /v1/transcripts/{video_id}; the successful purchase owns the permanent unlock. `refunded` means the pipeline failed and the rows were returned. A caller with no account holds no jobs: it is refused with 401 job_requires_account, whose unlock points at sign-up.
 
         Parameters
         ----------
@@ -946,7 +934,7 @@ class RawTranscriptsClient:
 
         Returns
         -------
-        HttpResponse[TranscriptRequest]
+        HttpResponse[TranscriptJob]
             Success
         """
         _response = self._client_wrapper.httpx_client.request(
@@ -957,9 +945,9 @@ class RawTranscriptsClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    TranscriptRequest,
+                    TranscriptJob,
                     parse_obj_as(
-                        type_=TranscriptRequest,  # type: ignore
+                        type_=TranscriptJob,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -1244,7 +1232,7 @@ class AsyncRawTranscriptsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[TranscriptResult]:
         """
-        Caption retrieval costs one row per started 15 minutes. Premium retrieval is free and never buys, generates, or returns fallback captions. It returns owned ready content, 202 pending with a status URL, or 403 purchase_required with quote and prepare URLs. Purchase the full video explicitly through POST /v1/transcriptions. start/end only trim the returned content; language selects caption tracks, timestamps=false returns paragraphs. Premium responses retain revision and line indexes for corrections.
+        Caption retrieval costs one row per started 15 minutes. Premium retrieval is free and never buys, generates, or returns fallback captions. Branch on state: 200 ready is owned content; 202 pending carries the job, with Retry-After; 200 preparation_required carries the whole-video quote and the action to take, POST /v1/transcriptions with { video_id }, plus last_attempt when the previous purchase failed. Plans without Premium read captions with an access gate instead. start/end only trim the returned content; language selects caption tracks, timestamps=false returns paragraphs. Premium responses retain revision and line indexes for corrections.
 
         Parameters
         ----------
@@ -1252,7 +1240,7 @@ class AsyncRawTranscriptsClient:
             YouTube video id, 11 characters.
 
         quality : typing.Optional[GetTranscriptsRequestQuality]
-            captions reads creator or automatic captions at 1 row per started 15 minutes. premium is read-only: an owned transcript returns 200 at zero rows, an active purchase returns 202 with status_url and next_poll_seconds, and an unowned transcript returns 403 purchase_required with quote_url and prepare_url. It never purchases or substitutes captions. Quote and explicitly purchase the whole video before reading Premium. Default captions unless changed in account settings.
+            captions reads creator or automatic captions at 1 row per started 15 minutes. premium is read-only: an owned transcript returns 200 state ready at zero rows, an active purchase returns 202 state pending with its job, and an unowned transcript on a plan with Premium returns 200 state preparation_required with the quote and the POST /v1/transcriptions action. It never purchases or substitutes captions. Default captions unless changed in account settings.
 
         language : typing.Optional[str]
             Comma-separated caption language priority list, at most 5, tried in order (e.g. "de,en"). Use asr for the first automatic track and asr-<code> for a specific one. Default en. languages[] in the response lists every track the video offers.
@@ -1275,7 +1263,7 @@ class AsyncRawTranscriptsClient:
         Returns
         -------
         AsyncHttpResponse[TranscriptResult]
-            The transcript: video, quality, source, language, languages, lines or paragraphs, speakers and revision on Premium, rows_billed, as_of, note.
+            state ready: the transcript (video, quality, source, language, languages, lines or paragraphs, speakers and revision on Premium, rows_billed, as_of, note). state preparation_required: Premium is not owned yet; the quote and the POST that prepares it.
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v1/transcripts/{encode_path_param(video_id)}",
@@ -1401,7 +1389,7 @@ class AsyncRawTranscriptsClient:
         self, video_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[TranscriptPurchaseQuote]:
         """
-        Optional free quote. It does not reserve funds or start generation. max_rows authorizes rows, while max_on_demand_cents separately authorizes new money and defaults to zero on purchase. The accepted purchase stores its pricing mode.
+        Optional free quote. It does not reserve funds or start generation. max_rows authorizes rows, while max_on_demand_cents separately authorizes new money and defaults to zero on purchase. The accepted purchase stores its pricing mode. A video with no known duration, or one past the 12 hour cap, answers 400 invalid_query with param video_id.
 
         Parameters
         ----------
@@ -1635,7 +1623,7 @@ class AsyncRawTranscriptsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[TranscriptRequestListResponseRequestsItem, TranscriptRequestListResponse]:
         """
-        Your transcription requests in descending creation time and id order. limit defaults to 20 and accepts 1–100. Follow next_cursor with the same video_id, limit and credential; has_more is false and next_cursor is null on the last page. A traversal excludes requests inserted after its first page. Each entry has the same shape as the status poll plus a `title` field (the video title, null when unknown). The scheduled reconciler advances requests; reading this list never dispatches work or changes billing. In-flight entries carry `etaSeconds` + `nextPollSeconds`.
+        Your transcription requests in descending creation time and id order. limit defaults to 20 and accepts 1–100. Follow next_cursor with the same video_id, limit and credential; has_more is false and next_cursor is null on the last page. A traversal excludes requests inserted after its first page. Each entry has the same shape as the status poll plus a `title` field (the video title, null when unknown). The scheduled reconciler advances requests; reading this list never dispatches work or changes billing. In-flight entries carry `eta_seconds` and `next_poll_seconds`.
 
         Parameters
         ----------
@@ -1766,32 +1754,32 @@ class AsyncRawTranscriptsClient:
     async def request(
         self,
         *,
-        idempotency_key: str,
-        max_rows: int,
-        max_on_demand_cents: typing.Optional[float] = OMIT,
+        idempotency_key: typing.Optional[str] = None,
         video_id: typing.Optional[str] = OMIT,
         url: typing.Optional[str] = OMIT,
+        max_rows: typing.Optional[int] = OMIT,
+        max_on_demand_cents: typing.Optional[int] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[TranscriptRequestSubmitResponse]:
         """
-        Explicit whole-video purchase. Requires Idempotency-Key and max_rows; max_on_demand_cents defaults to zero. Accepted price, mode, and debit identity persist across retries. Included rows or credits are reserved up front; monetary on-demand usage is reserved until Premium is ready. Existing owned unlocks cost zero. A terminal generation failure refunds the exact original debit and period before reporting refunded. A repeated key returns the same request; different intent with that key returns idempotency_conflict. Poll the returned request with Retry-After. Pending work returns 202 and an existing artifact returns 201.
+        Explicit whole-video Premium purchase in one request: POST { video_id }. With no max_rows the purchase is capped at the current quote, and max_on_demand_cents defaults to zero, so it spends included rows or credits only and moves no money. Idempotency-Key is optional: without one, a purchase already open or owned for this video is returned with existing: true, and two simultaneous requests buy once. max_on_demand_cents above 0 is the only way to move money and requires both Idempotency-Key and max_rows (400 invalid_body names the missing one in param). A video with no known duration or longer than 12 hours answers 400 invalid_query with param video_id. A plan without Premium answers 403 forbidden with unlock. Accepted price, mode, and debit identity persist across retries. Included rows or credits are reserved up front; monetary on-demand usage is reserved until Premium is ready. Existing owned unlocks cost zero. A terminal generation failure refunds the exact original debit and period before reporting refunded. A repeated key returns the same request; different intent with that key returns idempotency_conflict. The body is { job, existing }. Poll job.status_url after Retry-After. A pending job returns 202; a ready, failed or refunded job returns 200. Idempotency-Replayed: true marks a replay of the same key; a different key joined onto the active purchase answers existing: true without it.
 
         Parameters
         ----------
-        idempotency_key : str
-            Persist a unique key and the exact request before sending a logical mutation. A retry returns its stored response with Idempotency-Replayed: true. A changed intent under a finalized key returns 409 idempotency_conflict. Keys belong to the authenticated owner, credential and mutation domain. Current authorization still applies. Receipts have no general 24-hour expiry; signing-secret recovery alone expires after 24 hours or when the secret is displaced.
-
-        max_rows : int
-            Maximum whole-video rows authorized. Credit mode charges four credits per row. Required even when submitting without a quote.
-
-        max_on_demand_cents : typing.Optional[float]
-            Maximum new monetary on-demand charge in cents. Omit to authorize none.
+        idempotency_key : typing.Optional[str]
+            1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400 invalid_idempotency_key. Persist a unique key and the exact request before sending a logical mutation. A retry returns its stored response with Idempotency-Replayed: true. A changed intent under a finalized key returns 409 idempotency_conflict. Keys belong to the authenticated owner, credential and mutation domain. Current authorization still applies. Receipts have no general 24-hour expiry; signing-secret recovery alone expires after 24 hours or when the secret is displaced.
 
         video_id : typing.Optional[str]
-            YouTube video id (11 characters). Either videoId or url is required.
+            YouTube video id (11 characters). Either video_id or url is required.
 
         url : typing.Optional[str]
-            A YouTube watch/short/live URL. Either videoId or url is required.
+            A YouTube watch/short/live URL. Either video_id or url is required.
+
+        max_rows : typing.Optional[int]
+            Maximum whole-video rows authorized. Credit mode charges four credits per row. Omit it to cap the purchase at the current quote. Required with max_on_demand_cents above 0.
+
+        max_on_demand_cents : typing.Optional[int]
+            Maximum new monetary on-demand charge in whole cents. Defaults to 0, which moves no money. Above 0 it requires Idempotency-Key and max_rows.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1799,16 +1787,16 @@ class AsyncRawTranscriptsClient:
         Returns
         -------
         AsyncHttpResponse[TranscriptRequestSubmitResponse]
-            An existing in-flight or already-satisfied request was returned (existing: true)
+            job.state is ready, failed or refunded: the transcript is servable, or the purchase ended without one.
         """
         _response = await self._client_wrapper.httpx_client.request(
             "v1/transcriptions",
             method="POST",
             json={
-                "max_on_demand_cents": max_on_demand_cents,
-                "max_rows": max_rows,
-                "videoId": video_id,
+                "video_id": video_id,
                 "url": url,
+                "max_rows": max_rows,
+                "max_on_demand_cents": max_on_demand_cents,
             },
             headers={
                 "content-type": "application/json",
@@ -1893,17 +1881,6 @@ class AsyncRawTranscriptsClient:
                         ),
                     ),
                 )
-            if _response.status_code == 422:
-                raise UnprocessableEntityError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
             if _response.status_code == 429:
                 raise TooManyRequestsError(
                     headers=dict(_response.headers),
@@ -1937,9 +1914,9 @@ class AsyncRawTranscriptsClient:
 
     async def status(
         self, id: str, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> AsyncHttpResponse[TranscriptRequest]:
+    ) -> AsyncHttpResponse[TranscriptJob]:
         """
-        Agent-friendly polling contract: while the request is in flight the response carries a Retry-After header (seconds) and body fields `etaSeconds` + `nextPollSeconds`. Sleep on Retry-After and re-poll. `status` walks queued → downloading → transcribing → analyzing → complete (user-facing `stage` folds downloading into transcribing). refund_pending retains Retry-After and nextPollSeconds until reversal completes; it has no completion ETA. Terminal statuses (`complete`, `failed`, `refunded`) drop Retry-After. On `complete`, fetch the transcript via GET /v1/transcripts/{video_id}; the successful purchase owns the permanent unlock. `refunded` means the pipeline failed and the rows were returned. A caller with no account holds no jobs: it is refused with 401 job_requires_account, whose unlock points at sign-up.
+        Agent-friendly polling contract: while the request is in flight the response carries a Retry-After header (seconds) and body fields `eta_seconds` and `next_poll_seconds`. Sleep on Retry-After and re-poll. `status` walks queued → downloading → transcribing → analyzing → complete (user-facing `stage` folds downloading into transcribing). refund_pending retains Retry-After and next_poll_seconds until reversal completes; it has no completion ETA. Terminal statuses (`complete`, `failed`, `refunded`) drop Retry-After. On `complete`, fetch the transcript via GET /v1/transcripts/{video_id}; the successful purchase owns the permanent unlock. `refunded` means the pipeline failed and the rows were returned. A caller with no account holds no jobs: it is refused with 401 job_requires_account, whose unlock points at sign-up.
 
         Parameters
         ----------
@@ -1951,7 +1928,7 @@ class AsyncRawTranscriptsClient:
 
         Returns
         -------
-        AsyncHttpResponse[TranscriptRequest]
+        AsyncHttpResponse[TranscriptJob]
             Success
         """
         _response = await self._client_wrapper.httpx_client.request(
@@ -1962,9 +1939,9 @@ class AsyncRawTranscriptsClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    TranscriptRequest,
+                    TranscriptJob,
                     parse_obj_as(
-                        type_=TranscriptRequest,  # type: ignore
+                        type_=TranscriptJob,  # type: ignore
                         object_=_response.json(),
                     ),
                 )

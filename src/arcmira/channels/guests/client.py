@@ -43,7 +43,7 @@ class GuestsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[ChannelGuestListResponseItemsItem, ChannelGuestListResponse]:
         """
-        People who appeared as guests on the channel, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, limit, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total, offset, limit and hasMore mirror the web shape.
+        People who appeared as guests on the channel, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total counts every matching row and limit is the page size applied.
 
         Parameters
         ----------
@@ -53,7 +53,7 @@ class GuestsClient:
         limit : typing.Optional[int]
 
         cursor : typing.Optional[str]
-            Signed continuation from next_cursor. Bound to route, filters, limit, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
+            Signed continuation from next_cursor. Bound to route, filters, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
 
         q : typing.Optional[str]
             Substring filter over the row's text columns (e.g. video title, channel name, description).
@@ -141,7 +141,7 @@ class AsyncGuestsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[ChannelGuestListResponseItemsItem, ChannelGuestListResponse]:
         """
-        People who appeared as guests on the channel, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, limit, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total, offset, limit and hasMore mirror the web shape.
+        People who appeared as guests on the channel, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total counts every matching row and limit is the page size applied.
 
         Parameters
         ----------
@@ -151,7 +151,7 @@ class AsyncGuestsClient:
         limit : typing.Optional[int]
 
         cursor : typing.Optional[str]
-            Signed continuation from next_cursor. Bound to route, filters, limit, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
+            Signed continuation from next_cursor. Bound to route, filters, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
 
         q : typing.Optional[str]
             Substring filter over the row's text columns (e.g. video title, channel name, description).

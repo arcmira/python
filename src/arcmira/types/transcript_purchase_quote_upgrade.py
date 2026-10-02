@@ -6,11 +6,13 @@ import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 
 
-class TranscriptPendingPremiumJob(UniversalBaseModel):
-    job_id: str
-    status: str
-    next_poll_seconds: float
-    eta_seconds: typing.Optional[float] = None
+class TranscriptPurchaseQuoteUpgrade(UniversalBaseModel):
+    """
+    Present when eligible is false: the plan checkout that can buy this transcript, as a button label and an absolute link.
+    """
+
+    label: str
+    href: str
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

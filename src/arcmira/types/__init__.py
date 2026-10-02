@@ -62,7 +62,6 @@ if typing.TYPE_CHECKING:
     from .channel_videos_response_episodes_item import ChannelVideosResponseEpisodesItem
     from .correction_accepted_response import CorrectionAcceptedResponse
     from .correction_accepted_response_kind import CorrectionAcceptedResponseKind
-    from .correction_seq_mismatch_response import CorrectionSeqMismatchResponse
     from .delivery_issue_change import DeliveryIssueChange
     from .delivery_issue_change_channel import DeliveryIssueChangeChannel
     from .entity import Entity
@@ -352,23 +351,34 @@ if typing.TYPE_CHECKING:
     from .transcript_edit_submitted_response import TranscriptEditSubmittedResponse
     from .transcript_edit_submitted_response_edit import TranscriptEditSubmittedResponseEdit
     from .transcript_edit_submitted_response_edit_status import TranscriptEditSubmittedResponseEditStatus
+    from .transcript_job import TranscriptJob
+    from .transcript_job_charge import TranscriptJobCharge
+    from .transcript_job_charge_from import TranscriptJobChargeFrom
+    from .transcript_job_charge_unit import TranscriptJobChargeUnit
+    from .transcript_job_stage import TranscriptJobStage
+    from .transcript_job_state import TranscriptJobState
+    from .transcript_job_status import TranscriptJobStatus
     from .transcript_pending import TranscriptPending
-    from .transcript_pending_premium_job import TranscriptPendingPremiumJob
     from .transcript_pending_quality import TranscriptPendingQuality
+    from .transcript_preparation_required import TranscriptPreparationRequired
+    from .transcript_preparation_required_action import TranscriptPreparationRequiredAction
+    from .transcript_preparation_required_action_body import TranscriptPreparationRequiredActionBody
+    from .transcript_preparation_required_action_method import TranscriptPreparationRequiredActionMethod
+    from .transcript_preparation_required_last_attempt import TranscriptPreparationRequiredLastAttempt
+    from .transcript_preparation_required_quality import TranscriptPreparationRequiredQuality
+    from .transcript_preparation_required_quote import TranscriptPreparationRequiredQuote
+    from .transcript_preparation_required_quote_charge import TranscriptPreparationRequiredQuoteCharge
+    from .transcript_preparation_required_quote_charge_from import TranscriptPreparationRequiredQuoteChargeFrom
+    from .transcript_preparation_required_quote_charge_unit import TranscriptPreparationRequiredQuoteChargeUnit
     from .transcript_purchase_quote import TranscriptPurchaseQuote
     from .transcript_purchase_quote_billing_scope import TranscriptPurchaseQuoteBillingScope
     from .transcript_purchase_quote_charge import TranscriptPurchaseQuoteCharge
+    from .transcript_purchase_quote_charge_from import TranscriptPurchaseQuoteChargeFrom
     from .transcript_purchase_quote_charge_unit import TranscriptPurchaseQuoteChargeUnit
+    from .transcript_purchase_quote_upgrade import TranscriptPurchaseQuoteUpgrade
     from .transcript_quote import TranscriptQuote
-    from .transcript_request import TranscriptRequest
-    from .transcript_request_charge import TranscriptRequestCharge
-    from .transcript_request_charge_unit import TranscriptRequestChargeUnit
     from .transcript_request_list_response import TranscriptRequestListResponse
     from .transcript_request_list_response_requests_item import TranscriptRequestListResponseRequestsItem
-    from .transcript_request_quote import TranscriptRequestQuote
-    from .transcript_request_stage import TranscriptRequestStage
-    from .transcript_request_state import TranscriptRequestState
-    from .transcript_request_status import TranscriptRequestStatus
     from .transcript_request_submit_response import TranscriptRequestSubmitResponse
     from .transcript_response import TranscriptResponse
     from .transcript_response_access import TranscriptResponseAccess
@@ -379,12 +389,16 @@ if typing.TYPE_CHECKING:
     from .transcript_response_access_unlock_action import TranscriptResponseAccessUnlockAction
     from .transcript_response_lines_item import TranscriptResponseLinesItem
     from .transcript_response_paragraphs_item import TranscriptResponseParagraphsItem
-    from .transcript_response_premium_job import TranscriptResponsePremiumJob
     from .transcript_response_quality import TranscriptResponseQuality
     from .transcript_response_range import TranscriptResponseRange
     from .transcript_response_source import TranscriptResponseSource
     from .transcript_response_speakers_item import TranscriptResponseSpeakersItem
-    from .transcript_result import TranscriptResult, TranscriptResult_Pending, TranscriptResult_Ready
+    from .transcript_result import (
+        TranscriptResult,
+        TranscriptResult_Pending,
+        TranscriptResult_PreparationRequired,
+        TranscriptResult_Ready,
+    )
     from .transcript_search_chunk import TranscriptSearchChunk
     from .transcript_search_response import TranscriptSearchResponse
     from .transcript_search_response_access import TranscriptSearchResponseAccess
@@ -470,7 +484,6 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ChannelVideosResponseEpisodesItem": ".channel_videos_response_episodes_item",
     "CorrectionAcceptedResponse": ".correction_accepted_response",
     "CorrectionAcceptedResponseKind": ".correction_accepted_response_kind",
-    "CorrectionSeqMismatchResponse": ".correction_seq_mismatch_response",
     "DeliveryIssueChange": ".delivery_issue_change",
     "DeliveryIssueChangeChannel": ".delivery_issue_change_channel",
     "Entity": ".entity",
@@ -748,23 +761,34 @@ _dynamic_imports: typing.Dict[str, str] = {
     "TranscriptEditSubmittedResponse": ".transcript_edit_submitted_response",
     "TranscriptEditSubmittedResponseEdit": ".transcript_edit_submitted_response_edit",
     "TranscriptEditSubmittedResponseEditStatus": ".transcript_edit_submitted_response_edit_status",
+    "TranscriptJob": ".transcript_job",
+    "TranscriptJobCharge": ".transcript_job_charge",
+    "TranscriptJobChargeFrom": ".transcript_job_charge_from",
+    "TranscriptJobChargeUnit": ".transcript_job_charge_unit",
+    "TranscriptJobStage": ".transcript_job_stage",
+    "TranscriptJobState": ".transcript_job_state",
+    "TranscriptJobStatus": ".transcript_job_status",
     "TranscriptPending": ".transcript_pending",
-    "TranscriptPendingPremiumJob": ".transcript_pending_premium_job",
     "TranscriptPendingQuality": ".transcript_pending_quality",
+    "TranscriptPreparationRequired": ".transcript_preparation_required",
+    "TranscriptPreparationRequiredAction": ".transcript_preparation_required_action",
+    "TranscriptPreparationRequiredActionBody": ".transcript_preparation_required_action_body",
+    "TranscriptPreparationRequiredActionMethod": ".transcript_preparation_required_action_method",
+    "TranscriptPreparationRequiredLastAttempt": ".transcript_preparation_required_last_attempt",
+    "TranscriptPreparationRequiredQuality": ".transcript_preparation_required_quality",
+    "TranscriptPreparationRequiredQuote": ".transcript_preparation_required_quote",
+    "TranscriptPreparationRequiredQuoteCharge": ".transcript_preparation_required_quote_charge",
+    "TranscriptPreparationRequiredQuoteChargeFrom": ".transcript_preparation_required_quote_charge_from",
+    "TranscriptPreparationRequiredQuoteChargeUnit": ".transcript_preparation_required_quote_charge_unit",
     "TranscriptPurchaseQuote": ".transcript_purchase_quote",
     "TranscriptPurchaseQuoteBillingScope": ".transcript_purchase_quote_billing_scope",
     "TranscriptPurchaseQuoteCharge": ".transcript_purchase_quote_charge",
+    "TranscriptPurchaseQuoteChargeFrom": ".transcript_purchase_quote_charge_from",
     "TranscriptPurchaseQuoteChargeUnit": ".transcript_purchase_quote_charge_unit",
+    "TranscriptPurchaseQuoteUpgrade": ".transcript_purchase_quote_upgrade",
     "TranscriptQuote": ".transcript_quote",
-    "TranscriptRequest": ".transcript_request",
-    "TranscriptRequestCharge": ".transcript_request_charge",
-    "TranscriptRequestChargeUnit": ".transcript_request_charge_unit",
     "TranscriptRequestListResponse": ".transcript_request_list_response",
     "TranscriptRequestListResponseRequestsItem": ".transcript_request_list_response_requests_item",
-    "TranscriptRequestQuote": ".transcript_request_quote",
-    "TranscriptRequestStage": ".transcript_request_stage",
-    "TranscriptRequestState": ".transcript_request_state",
-    "TranscriptRequestStatus": ".transcript_request_status",
     "TranscriptRequestSubmitResponse": ".transcript_request_submit_response",
     "TranscriptResponse": ".transcript_response",
     "TranscriptResponseAccess": ".transcript_response_access",
@@ -775,13 +799,13 @@ _dynamic_imports: typing.Dict[str, str] = {
     "TranscriptResponseAccessUnlockAction": ".transcript_response_access_unlock_action",
     "TranscriptResponseLinesItem": ".transcript_response_lines_item",
     "TranscriptResponseParagraphsItem": ".transcript_response_paragraphs_item",
-    "TranscriptResponsePremiumJob": ".transcript_response_premium_job",
     "TranscriptResponseQuality": ".transcript_response_quality",
     "TranscriptResponseRange": ".transcript_response_range",
     "TranscriptResponseSource": ".transcript_response_source",
     "TranscriptResponseSpeakersItem": ".transcript_response_speakers_item",
     "TranscriptResult": ".transcript_result",
     "TranscriptResult_Pending": ".transcript_result",
+    "TranscriptResult_PreparationRequired": ".transcript_result",
     "TranscriptResult_Ready": ".transcript_result",
     "TranscriptSearchChunk": ".transcript_search_chunk",
     "TranscriptSearchResponse": ".transcript_search_response",
@@ -892,7 +916,6 @@ __all__ = [
     "ChannelVideosResponseEpisodesItem",
     "CorrectionAcceptedResponse",
     "CorrectionAcceptedResponseKind",
-    "CorrectionSeqMismatchResponse",
     "DeliveryIssueChange",
     "DeliveryIssueChangeChannel",
     "Entity",
@@ -1170,23 +1193,34 @@ __all__ = [
     "TranscriptEditSubmittedResponse",
     "TranscriptEditSubmittedResponseEdit",
     "TranscriptEditSubmittedResponseEditStatus",
+    "TranscriptJob",
+    "TranscriptJobCharge",
+    "TranscriptJobChargeFrom",
+    "TranscriptJobChargeUnit",
+    "TranscriptJobStage",
+    "TranscriptJobState",
+    "TranscriptJobStatus",
     "TranscriptPending",
-    "TranscriptPendingPremiumJob",
     "TranscriptPendingQuality",
+    "TranscriptPreparationRequired",
+    "TranscriptPreparationRequiredAction",
+    "TranscriptPreparationRequiredActionBody",
+    "TranscriptPreparationRequiredActionMethod",
+    "TranscriptPreparationRequiredLastAttempt",
+    "TranscriptPreparationRequiredQuality",
+    "TranscriptPreparationRequiredQuote",
+    "TranscriptPreparationRequiredQuoteCharge",
+    "TranscriptPreparationRequiredQuoteChargeFrom",
+    "TranscriptPreparationRequiredQuoteChargeUnit",
     "TranscriptPurchaseQuote",
     "TranscriptPurchaseQuoteBillingScope",
     "TranscriptPurchaseQuoteCharge",
+    "TranscriptPurchaseQuoteChargeFrom",
     "TranscriptPurchaseQuoteChargeUnit",
+    "TranscriptPurchaseQuoteUpgrade",
     "TranscriptQuote",
-    "TranscriptRequest",
-    "TranscriptRequestCharge",
-    "TranscriptRequestChargeUnit",
     "TranscriptRequestListResponse",
     "TranscriptRequestListResponseRequestsItem",
-    "TranscriptRequestQuote",
-    "TranscriptRequestStage",
-    "TranscriptRequestState",
-    "TranscriptRequestStatus",
     "TranscriptRequestSubmitResponse",
     "TranscriptResponse",
     "TranscriptResponseAccess",
@@ -1197,13 +1231,13 @@ __all__ = [
     "TranscriptResponseAccessUnlockAction",
     "TranscriptResponseLinesItem",
     "TranscriptResponseParagraphsItem",
-    "TranscriptResponsePremiumJob",
     "TranscriptResponseQuality",
     "TranscriptResponseRange",
     "TranscriptResponseSource",
     "TranscriptResponseSpeakersItem",
     "TranscriptResult",
     "TranscriptResult_Pending",
+    "TranscriptResult_PreparationRequired",
     "TranscriptResult_Ready",
     "TranscriptSearchChunk",
     "TranscriptSearchResponse",

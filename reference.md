@@ -701,7 +701,7 @@ client.entities.momentum(
 <dl>
 <dd>
 
-Cursor-paginated mentions filtered by entity (entity_id or entity_name is required), channel, text query, sentiment, appearance flag, and date range. The signed continuation binds the route, filters, limit, caller and visibility; invalid or old cursors return invalid_cursor. A first-page ID fence excludes later insertions, including old-date backfills. Edits and deletions to existing rows remain live. Read timestamps from start_seconds / end_seconds (integer seconds; 0 means full episode); the MM:SS (or HH:MM:SS) string fields are deprecated. is_appearance filtering applies to person entities only; passing is_appearance=true for any other type returns a 400 (appearances_person_only). details=full attaches per-mention commercial recommendations and requires a Pro+ plan.
+Cursor-paginated mentions filtered by entity (entity_id or entity_name is required), channel, text query, sentiment, appearance flag, and date range. The signed continuation binds the route, filters, caller and visibility; invalid or old cursors return invalid_cursor. A first-page ID fence excludes later insertions, including old-date backfills. Edits and deletions to existing rows remain live. Read timestamps from start_seconds / end_seconds (integer seconds; 0 means full episode); the MM:SS (or HH:MM:SS) string fields are deprecated. is_appearance filtering applies to person entities only; passing is_appearance=true for any other type returns a 400 (appearances_person_only). details=full attaches per-mention commercial recommendations and requires a Pro+ plan.
 </dd>
 </dl>
 </dd>
@@ -996,7 +996,7 @@ client.mentions.count()
 <dl>
 <dd>
 
-Cursor-paginated commercial mentions (ad reads, endorsements, neutral mentions) filtered by entity (entity_id or entity_name is required), channel, mention_class, confidence, and date range. The signed continuation binds the route, filters, limit, caller and visibility; invalid or old cursors return invalid_cursor. A first-page ID fence excludes later insertions, including old-date backfills. Edits and deletions to existing rows remain live. Requires a Pro+ plan. Read timestamps from start_seconds / end_seconds (integer seconds); the MM:SS string fields are deprecated.
+Cursor-paginated commercial mentions (ad reads, endorsements, neutral mentions) filtered by entity (entity_id or entity_name is required), channel, mention_class, confidence, and date range. The signed continuation binds the route, filters, caller and visibility; invalid or old cursors return invalid_cursor. A first-page ID fence excludes later insertions, including old-date backfills. Edits and deletions to existing rows remain live. Requires a Pro+ plan. Read timestamps from start_seconds / end_seconds (integer seconds); the MM:SS string fields are deprecated.
 </dd>
 </dl>
 </dd>
@@ -1180,6 +1180,7 @@ client = Arcmira(
 )
 
 client.feedback.submit(
+    idempotency_key="8b2f6c3e-4d1a-4e7b-9c05-2f6a1b7d3e90",
     type="recommendations",
     query={
         "key": "value"
@@ -1216,7 +1217,7 @@ client.feedback.submit(
 <dl>
 <dd>
 
-**idempotency_key:** `typing.Optional[str]` — Persist a unique key and the exact request before sending a logical mutation. A retry returns its stored response with Idempotency-Replayed: true. A changed intent under a finalized key returns 409 idempotency_conflict. Keys belong to the authenticated owner, credential and mutation domain. Current authorization still applies. Receipts have no general 24-hour expiry; signing-secret recovery alone expires after 24 hours or when the secret is displaced.
+**idempotency_key:** `typing.Optional[str]` — 1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400 invalid_idempotency_key. Persist a unique key and the exact request before sending a logical mutation. A retry returns its stored response with Idempotency-Replayed: true. A changed intent under a finalized key returns 409 idempotency_conflict. Keys belong to the authenticated owner, credential and mutation domain. Current authorization still applies. Receipts have no general 24-hour expiry; signing-secret recovery alone expires after 24 hours or when the secret is displaced.
 
 </dd>
 </dl>
@@ -1531,7 +1532,7 @@ client.transcripts.search(
 <dl>
 <dd>
 
-Caption retrieval costs one row per started 15 minutes. Premium retrieval is free and never buys, generates, or returns fallback captions. It returns owned ready content, 202 pending with a status URL, or 403 purchase_required with quote and prepare URLs. Purchase the full video explicitly through POST /v1/transcriptions. start/end only trim the returned content; language selects caption tracks, timestamps=false returns paragraphs. Premium responses retain revision and line indexes for corrections.
+Caption retrieval costs one row per started 15 minutes. Premium retrieval is free and never buys, generates, or returns fallback captions. Branch on state: 200 ready is owned content; 202 pending carries the job, with Retry-After; 200 preparation_required carries the whole-video quote and the action to take, POST /v1/transcriptions with { video_id }, plus last_attempt when the previous purchase failed. Plans without Premium read captions with an access gate instead. start/end only trim the returned content; language selects caption tracks, timestamps=false returns paragraphs. Premium responses retain revision and line indexes for corrections.
 </dd>
 </dl>
 </dd>
@@ -1580,7 +1581,7 @@ client.transcripts.get(
 <dl>
 <dd>
 
-**quality:** `typing.Optional[GetTranscriptsRequestQuality]` — captions reads creator or automatic captions at 1 row per started 15 minutes. premium is read-only: an owned transcript returns 200 at zero rows, an active purchase returns 202 with status_url and next_poll_seconds, and an unowned transcript returns 403 purchase_required with quote_url and prepare_url. It never purchases or substitutes captions. Quote and explicitly purchase the whole video before reading Premium. Default captions unless changed in account settings.
+**quality:** `typing.Optional[GetTranscriptsRequestQuality]` — captions reads creator or automatic captions at 1 row per started 15 minutes. premium is read-only: an owned transcript returns 200 state ready at zero rows, an active purchase returns 202 state pending with its job, and an unowned transcript on a plan with Premium returns 200 state preparation_required with the quote and the POST /v1/transcriptions action. It never purchases or substitutes captions. Default captions unless changed in account settings.
 
 </dd>
 </dl>
@@ -1652,7 +1653,7 @@ client.transcripts.get(
 <dl>
 <dd>
 
-Optional free quote. It does not reserve funds or start generation. max_rows authorizes rows, while max_on_demand_cents separately authorizes new money and defaults to zero on purchase. The accepted purchase stores its pricing mode.
+Optional free quote. It does not reserve funds or start generation. max_rows authorizes rows, while max_on_demand_cents separately authorizes new money and defaults to zero on purchase. The accepted purchase stores its pricing mode. A video with no known duration, or one past the 12 hour cap, answers 400 invalid_query with param video_id.
 </dd>
 </dl>
 </dd>
@@ -1798,7 +1799,7 @@ client.transcripts.captions(
 <dl>
 <dd>
 
-Your transcription requests in descending creation time and id order. limit defaults to 20 and accepts 1–100. Follow next_cursor with the same video_id, limit and credential; has_more is false and next_cursor is null on the last page. A traversal excludes requests inserted after its first page. Each entry has the same shape as the status poll plus a `title` field (the video title, null when unknown). The scheduled reconciler advances requests; reading this list never dispatches work or changes billing. In-flight entries carry `etaSeconds` + `nextPollSeconds`.
+Your transcription requests in descending creation time and id order. limit defaults to 20 and accepts 1–100. Follow next_cursor with the same video_id, limit and credential; has_more is false and next_cursor is null on the last page. A traversal excludes requests inserted after its first page. Each entry has the same shape as the status poll plus a `title` field (the video title, null when unknown). The scheduled reconciler advances requests; reading this list never dispatches work or changes billing. In-flight entries carry `eta_seconds` and `next_poll_seconds`.
 </dd>
 </dl>
 </dd>
@@ -1885,7 +1886,7 @@ client.transcripts.list_requests()
 <dl>
 <dd>
 
-Explicit whole-video purchase. Requires Idempotency-Key and max_rows; max_on_demand_cents defaults to zero. Accepted price, mode, and debit identity persist across retries. Included rows or credits are reserved up front; monetary on-demand usage is reserved until Premium is ready. Existing owned unlocks cost zero. A terminal generation failure refunds the exact original debit and period before reporting refunded. A repeated key returns the same request; different intent with that key returns idempotency_conflict. Poll the returned request with Retry-After. Pending work returns 202 and an existing artifact returns 201.
+Explicit whole-video Premium purchase in one request: POST { video_id }. With no max_rows the purchase is capped at the current quote, and max_on_demand_cents defaults to zero, so it spends included rows or credits only and moves no money. Idempotency-Key is optional: without one, a purchase already open or owned for this video is returned with existing: true, and two simultaneous requests buy once. max_on_demand_cents above 0 is the only way to move money and requires both Idempotency-Key and max_rows (400 invalid_body names the missing one in param). A video with no known duration or longer than 12 hours answers 400 invalid_query with param video_id. A plan without Premium answers 403 forbidden with unlock. Accepted price, mode, and debit identity persist across retries. Included rows or credits are reserved up front; monetary on-demand usage is reserved until Premium is ready. Existing owned unlocks cost zero. A terminal generation failure refunds the exact original debit and period before reporting refunded. A repeated key returns the same request; different intent with that key returns idempotency_conflict. The body is { job, existing }. Poll job.status_url after Retry-After. A pending job returns 202; a ready, failed or refunded job returns 200. Idempotency-Replayed: true marks a replay of the same key; a different key joined onto the active purchase answers existing: true without it.
 </dd>
 </dl>
 </dd>
@@ -1909,8 +1910,7 @@ client = Arcmira(
 )
 
 client.transcripts.request(
-    idempotency_key="Idempotency-Key",
-    max_rows=1,
+    idempotency_key="8b2f6c3e-4d1a-4e7b-9c05-2f6a1b7d3e90",
 )
 
 ```
@@ -1927,7 +1927,7 @@ client.transcripts.request(
 <dl>
 <dd>
 
-**idempotency_key:** `str` — Persist a unique key and the exact request before sending a logical mutation. A retry returns its stored response with Idempotency-Replayed: true. A changed intent under a finalized key returns 409 idempotency_conflict. Keys belong to the authenticated owner, credential and mutation domain. Current authorization still applies. Receipts have no general 24-hour expiry; signing-secret recovery alone expires after 24 hours or when the secret is displaced.
+**idempotency_key:** `typing.Optional[str]` — 1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400 invalid_idempotency_key. Persist a unique key and the exact request before sending a logical mutation. A retry returns its stored response with Idempotency-Replayed: true. A changed intent under a finalized key returns 409 idempotency_conflict. Keys belong to the authenticated owner, credential and mutation domain. Current authorization still applies. Receipts have no general 24-hour expiry; signing-secret recovery alone expires after 24 hours or when the secret is displaced.
 
 </dd>
 </dl>
@@ -1935,7 +1935,7 @@ client.transcripts.request(
 <dl>
 <dd>
 
-**max_rows:** `int` — Maximum whole-video rows authorized. Credit mode charges four credits per row. Required even when submitting without a quote.
+**video_id:** `typing.Optional[str]` — YouTube video id (11 characters). Either video_id or url is required.
 
 </dd>
 </dl>
@@ -1943,7 +1943,7 @@ client.transcripts.request(
 <dl>
 <dd>
 
-**max_on_demand_cents:** `typing.Optional[float]` — Maximum new monetary on-demand charge in cents. Omit to authorize none.
+**url:** `typing.Optional[str]` — A YouTube watch/short/live URL. Either video_id or url is required.
 
 </dd>
 </dl>
@@ -1951,7 +1951,7 @@ client.transcripts.request(
 <dl>
 <dd>
 
-**video_id:** `typing.Optional[str]` — YouTube video id (11 characters). Either videoId or url is required.
+**max_rows:** `typing.Optional[int]` — Maximum whole-video rows authorized. Credit mode charges four credits per row. Omit it to cap the purchase at the current quote. Required with max_on_demand_cents above 0.
 
 </dd>
 </dl>
@@ -1959,7 +1959,7 @@ client.transcripts.request(
 <dl>
 <dd>
 
-**url:** `typing.Optional[str]` — A YouTube watch/short/live URL. Either videoId or url is required.
+**max_on_demand_cents:** `typing.Optional[int]` — Maximum new monetary on-demand charge in whole cents. Defaults to 0, which moves no money. Above 0 it requires Idempotency-Key and max_rows.
 
 </dd>
 </dl>
@@ -1979,7 +1979,7 @@ client.transcripts.request(
 </dl>
 </details>
 
-<details><summary><code>client.transcripts.<a href="src/arcmira/transcripts/client.py">status</a>(...) -> TranscriptRequest</code></summary>
+<details><summary><code>client.transcripts.<a href="src/arcmira/transcripts/client.py">status</a>(...) -> TranscriptJob</code></summary>
 <dl>
 <dd>
 
@@ -1991,7 +1991,7 @@ client.transcripts.request(
 <dl>
 <dd>
 
-Agent-friendly polling contract: while the request is in flight the response carries a Retry-After header (seconds) and body fields `etaSeconds` + `nextPollSeconds`. Sleep on Retry-After and re-poll. `status` walks queued → downloading → transcribing → analyzing → complete (user-facing `stage` folds downloading into transcribing). refund_pending retains Retry-After and nextPollSeconds until reversal completes; it has no completion ETA. Terminal statuses (`complete`, `failed`, `refunded`) drop Retry-After. On `complete`, fetch the transcript via GET /v1/transcripts/{video_id}; the successful purchase owns the permanent unlock. `refunded` means the pipeline failed and the rows were returned. A caller with no account holds no jobs: it is refused with 401 job_requires_account, whose unlock points at sign-up.
+Agent-friendly polling contract: while the request is in flight the response carries a Retry-After header (seconds) and body fields `eta_seconds` and `next_poll_seconds`. Sleep on Retry-After and re-poll. `status` walks queued → downloading → transcribing → analyzing → complete (user-facing `stage` folds downloading into transcribing). refund_pending retains Retry-After and next_poll_seconds until reversal completes; it has no completion ETA. Terminal statuses (`complete`, `failed`, `refunded`) drop Retry-After. On `complete`, fetch the transcript via GET /v1/transcripts/{video_id}; the successful purchase owns the permanent unlock. `refunded` means the pipeline failed and the rows were returned. A caller with no account holds no jobs: it is refused with 401 job_requires_account, whose unlock points at sign-up.
 </dd>
 </dl>
 </dd>
@@ -2539,6 +2539,7 @@ client = Arcmira(
 )
 
 client.monitors.create(
+    idempotency_key="8b2f6c3e-4d1a-4e7b-9c05-2f6a1b7d3e90",
     name="name",
 )
 
@@ -2564,7 +2565,7 @@ client.monitors.create(
 <dl>
 <dd>
 
-**idempotency_key:** `typing.Optional[str]` — Use 8 to 128 letters, numbers, underscores or hyphens per intent. Keys are scoped to the account, credential and resource family. The same key and normalized method, path and body returns the committed response with Idempotency-Replayed: true. A changed intent within the same family returns 409 idempotency_conflict. Monitor and tracker families have independent namespaces. Secret recovery is limited as described by the operation.
+**idempotency_key:** `typing.Optional[str]` — One key per intent, 1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400 invalid_idempotency_key. Keys are scoped to the account, credential and resource family. The same key and normalized method, path and body returns the committed response with Idempotency-Replayed: true. A changed intent within the same family returns 409 idempotency_conflict. Monitor and tracker families have independent namespaces. Secret recovery is limited as described by the operation.
 
 </dd>
 </dl>
@@ -2693,6 +2694,7 @@ client = Arcmira(
 
 client.monitors.delete(
     id="id",
+    idempotency_key="8b2f6c3e-4d1a-4e7b-9c05-2f6a1b7d3e90",
 )
 
 ```
@@ -2717,7 +2719,7 @@ client.monitors.delete(
 <dl>
 <dd>
 
-**idempotency_key:** `typing.Optional[str]` — Use 8 to 128 letters, numbers, underscores or hyphens per intent. Keys are scoped to the account, credential and resource family. The same key and normalized method, path and body returns the committed response with Idempotency-Replayed: true. A changed intent within the same family returns 409 idempotency_conflict. Monitor and tracker families have independent namespaces. Secret recovery is limited as described by the operation.
+**idempotency_key:** `typing.Optional[str]` — One key per intent, 1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400 invalid_idempotency_key. Keys are scoped to the account, credential and resource family. The same key and normalized method, path and body returns the committed response with Idempotency-Replayed: true. A changed intent within the same family returns 409 idempotency_conflict. Monitor and tracker families have independent namespaces. Secret recovery is limited as described by the operation.
 
 </dd>
 </dl>
@@ -2774,6 +2776,7 @@ client = Arcmira(
 
 client.monitors.update(
     id="id",
+    idempotency_key="8b2f6c3e-4d1a-4e7b-9c05-2f6a1b7d3e90",
 )
 
 ```
@@ -2798,7 +2801,7 @@ client.monitors.update(
 <dl>
 <dd>
 
-**idempotency_key:** `typing.Optional[str]` — Use 8 to 128 letters, numbers, underscores or hyphens per intent. Keys are scoped to the account, credential and resource family. The same key and normalized method, path and body returns the committed response with Idempotency-Replayed: true. A changed intent within the same family returns 409 idempotency_conflict. Monitor and tracker families have independent namespaces. Secret recovery is limited as described by the operation.
+**idempotency_key:** `typing.Optional[str]` — One key per intent, 1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400 invalid_idempotency_key. Keys are scoped to the account, credential and resource family. The same key and normalized method, path and body returns the committed response with Idempotency-Replayed: true. A changed intent within the same family returns 409 idempotency_conflict. Monitor and tracker families have independent namespaces. Secret recovery is limited as described by the operation.
 
 </dd>
 </dl>
@@ -2959,6 +2962,7 @@ client = Arcmira(
 
 client.monitors.rotate_webhook_secret(
     id="id",
+    idempotency_key="8b2f6c3e-4d1a-4e7b-9c05-2f6a1b7d3e90",
 )
 
 ```
@@ -2983,7 +2987,7 @@ client.monitors.rotate_webhook_secret(
 <dl>
 <dd>
 
-**idempotency_key:** `typing.Optional[str]` — Use 8 to 128 letters, numbers, underscores or hyphens per intent. Keys are scoped to the account, credential and resource family. The same key and normalized method, path and body returns the committed response with Idempotency-Replayed: true. A changed intent within the same family returns 409 idempotency_conflict. Monitor and tracker families have independent namespaces. Secret recovery is limited as described by the operation.
+**idempotency_key:** `typing.Optional[str]` — One key per intent, 1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400 invalid_idempotency_key. Keys are scoped to the account, credential and resource family. The same key and normalized method, path and body returns the committed response with Idempotency-Replayed: true. A changed intent within the same family returns 409 idempotency_conflict. Monitor and tracker families have independent namespaces. Secret recovery is limited as described by the operation.
 
 </dd>
 </dl>
@@ -3103,6 +3107,7 @@ client = Arcmira(
 )
 
 client.trackers.create(
+    idempotency_key="8b2f6c3e-4d1a-4e7b-9c05-2f6a1b7d3e90",
     entity_name="entityName",
     entity_type="person",
 )
@@ -3137,7 +3142,7 @@ client.trackers.create(
 <dl>
 <dd>
 
-**idempotency_key:** `typing.Optional[str]` — Use 8 to 128 letters, numbers, underscores or hyphens per intent. Keys are scoped to the account, credential and resource family. The same key and normalized method, path and body returns the committed response with Idempotency-Replayed: true. A changed intent within the same family returns 409 idempotency_conflict. Monitor and tracker families have independent namespaces. Secret recovery is limited as described by the operation.
+**idempotency_key:** `typing.Optional[str]` — One key per intent, 1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400 invalid_idempotency_key. Keys are scoped to the account, credential and resource family. The same key and normalized method, path and body returns the committed response with Idempotency-Replayed: true. A changed intent within the same family returns 409 idempotency_conflict. Monitor and tracker families have independent namespaces. Secret recovery is limited as described by the operation.
 
 </dd>
 </dl>
@@ -3266,6 +3271,7 @@ client = Arcmira(
 
 client.trackers.delete(
     id="id",
+    idempotency_key="8b2f6c3e-4d1a-4e7b-9c05-2f6a1b7d3e90",
 )
 
 ```
@@ -3290,7 +3296,7 @@ client.trackers.delete(
 <dl>
 <dd>
 
-**idempotency_key:** `typing.Optional[str]` — Use 8 to 128 letters, numbers, underscores or hyphens per intent. Keys are scoped to the account, credential and resource family. The same key and normalized method, path and body returns the committed response with Idempotency-Replayed: true. A changed intent within the same family returns 409 idempotency_conflict. Monitor and tracker families have independent namespaces. Secret recovery is limited as described by the operation.
+**idempotency_key:** `typing.Optional[str]` — One key per intent, 1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400 invalid_idempotency_key. Keys are scoped to the account, credential and resource family. The same key and normalized method, path and body returns the committed response with Idempotency-Replayed: true. A changed intent within the same family returns 409 idempotency_conflict. Monitor and tracker families have independent namespaces. Secret recovery is limited as described by the operation.
 
 </dd>
 </dl>
@@ -3347,6 +3353,7 @@ client = Arcmira(
 
 client.trackers.update(
     id="id",
+    idempotency_key="8b2f6c3e-4d1a-4e7b-9c05-2f6a1b7d3e90",
 )
 
 ```
@@ -3371,7 +3378,7 @@ client.trackers.update(
 <dl>
 <dd>
 
-**idempotency_key:** `typing.Optional[str]` — Use 8 to 128 letters, numbers, underscores or hyphens per intent. Keys are scoped to the account, credential and resource family. The same key and normalized method, path and body returns the committed response with Idempotency-Replayed: true. A changed intent within the same family returns 409 idempotency_conflict. Monitor and tracker families have independent namespaces. Secret recovery is limited as described by the operation.
+**idempotency_key:** `typing.Optional[str]` — One key per intent, 1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400 invalid_idempotency_key. Keys are scoped to the account, credential and resource family. The same key and normalized method, path and body returns the committed response with Idempotency-Replayed: true. A changed intent within the same family returns 409 idempotency_conflict. Monitor and tracker families have independent namespaces. Secret recovery is limited as described by the operation.
 
 </dd>
 </dl>
@@ -3611,7 +3618,7 @@ client.team.spend()
 <dl>
 <dd>
 
-Unified corrections ingestion for all kinds: line_edit, speaker_reassign, speaker_identify, add_person, entity_tag, segment_rewrite. Corrections are free (0 rows) and land as pending-review rows attributed to your API key; speaker_identify/add_person also create a community-flagged appearance immediately. segment_rewrite is the structural primitive: it replaces an inclusive segment range with new segments (an empty replacements array deletes the range); timestamps can be pinned per replacement with optional start/end seconds, and unpinned times are repaired by char-proportional interpolation between pins. Anchored kinds (line_edit, speaker_reassign, entity_tag, segment_rewrite) must echo the `revision` from a Premium transcript read and an `anchor` ({ segmentIndex, contentHash: djb2 of the covered segment text }); `anchor.segmentIndex` is the line's `index` in that read. Error semantics for outbox-style clients: A 409 with a revision/anchor reason means the transcript changed (body { reason, currentRevision }); create a new event and key after re-anchoring, because the original refusal consumed its sequence and is replayable. A 409 with reason idempotency_conflict means a finalized key was reused for changed intent; recover the original request instead of rebasing that key. A 412 sequence mismatch (body { expectedSeq }) stores no receipt or effect; synchronize local counters and resend under the same key.
+Unified corrections ingestion for all kinds: line_edit, speaker_reassign, speaker_identify, add_person, entity_tag, segment_rewrite. Corrections are free (0 rows) and land as pending-review rows attributed to your API key; speaker_identify/add_person also create a community-flagged appearance immediately. segment_rewrite is the structural primitive: it replaces an inclusive segment range with new segments (an empty replacements array deletes the range); timestamps can be pinned per replacement with optional start/end seconds, and unpinned times are repaired by char-proportional interpolation between pins. Anchored kinds (line_edit, speaker_reassign, entity_tag, segment_rewrite) must echo the `revision` from a Premium transcript read and an `anchor` ({ segmentIndex, contentHash: djb2 of the covered segment text }); `anchor.segmentIndex` is the line's `index` in that read. Every refusal uses the shared error envelope. Error semantics for outbox-style clients: a 409 revision_mismatch or anchor_mismatch means the transcript changed, and error.current_revision is the revision to re-read; create a new event and key after re-anchoring, because the original refusal consumed its sequence and is replayable. A 409 idempotency_conflict means a finalized key was reused for changed intent; recover the original request instead of rebasing that key. A 412 sequence_mismatch stores no receipt or effect; error.expected_seq is the next seq, so synchronize local counters and resend under the same key.
 </dd>
 </dl>
 </dd>
@@ -3636,6 +3643,7 @@ client = Arcmira(
 
 client.corrections.submit(
     video_id="video_id",
+    idempotency_key="8b2f6c3e-4d1a-4e7b-9c05-2f6a1b7d3e90",
     kind="line_edit",
     payload={
         "key": "value"
@@ -3680,7 +3688,7 @@ client.corrections.submit(
 <dl>
 <dd>
 
-**idempotency_key:** `typing.Optional[str]` — Persist a unique client event key with the HTTP method, public path and parsed body. The same finalized intent replays its original response with Idempotency-Replayed: true; changed finalized input returns 409 idempotency_conflict. Receipts have no expiry. A 412 stores no receipt or effect, so synchronize the sequence and resend under the same key. Other finalized refusals consume the eligible sequence once.
+**idempotency_key:** `typing.Optional[str]` — 1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400 invalid_idempotency_key. Persist a unique client event key with the HTTP method, public path and parsed body. The same finalized intent replays its original response with Idempotency-Replayed: true; changed finalized input returns 409 idempotency_conflict. Receipts have no expiry. A 412 stores no receipt or effect, so synchronize the sequence and resend under the same key. Other finalized refusals consume the eligible sequence once.
 
 </dd>
 </dl>
@@ -4012,7 +4020,7 @@ client.channels.sponsors.list(
 <dl>
 <dd>
 
-The indexed videos of a YouTube channel, newest first, each with its video_id, title, publish date, duration, view count, and watch_url on arcmira.com. Pass next_cursor as cursor to continue. The signed token binds the route, filters, limit, caller and visibility; invalid or old tokens return invalid_cursor. A first-page media ID fence excludes later insertions, including old-date backfills; edits and deletions to existing rows remain live. Call it for the latest or most recent episode of a show, or to list what a show published in a window, then pass a video_id to GET /v1/mentions/counts video_ids for what that episode mentions or to GET /v1/transcripts/{video_id} to read it. indexed_through is the newest date we hold for the channel. An empty list means nothing is indexed; channel backfill is not available yet. Bills one row per video returned. Every gate is a typed error whose error.unlock.url names the plan that lifts it; pass src=mcp-tool only from the Arcmira MCP server.
+The indexed videos of a YouTube channel, newest first, each with its video_id, title, publish date, duration, view count, and watch_url on arcmira.com. Pass next_cursor as cursor to continue. The signed token binds the route, filters, caller and visibility; invalid or old tokens return invalid_cursor. A first-page media ID fence excludes later insertions, including old-date backfills; edits and deletions to existing rows remain live. Call it for the latest or most recent episode of a show, or to list what a show published in a window, then pass a video_id to GET /v1/mentions/counts video_ids for what that episode mentions or to GET /v1/transcripts/{video_id} to read it. indexed_through is the newest date we hold for the channel. An empty list means nothing is indexed; channel backfill is not available yet. Bills one row per video returned. Every gate is a typed error whose error.unlock.url names the plan that lifts it; pass src=mcp-tool only from the Arcmira MCP server.
 </dd>
 </dl>
 </dd>
@@ -4069,7 +4077,7 @@ client.channels.videos.list(
 <dl>
 <dd>
 
-**cursor:** `typing.Optional[str]` — Opaque continuation from next_cursor. Bound to the channel, filters, limit, caller, and visibility. Invalid or old tokens return invalid_cursor.
+**cursor:** `typing.Optional[str]` — Opaque continuation from next_cursor. Bound to the channel, filters, caller, and visibility; limit may change between pages. Invalid or old tokens return invalid_cursor.
 
 </dd>
 </dl>
@@ -4118,7 +4126,7 @@ client.channels.videos.list(
 <dl>
 <dd>
 
-The topics that co-occur with this channel in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, limit, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total, offset, limit and hasMore mirror the web shape.
+The topics that co-occur with this channel in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total counts every matching row and limit is the page size applied.
 </dd>
 </dl>
 </dd>
@@ -4175,7 +4183,7 @@ client.channels.related.topics(
 <dl>
 <dd>
 
-**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, limit, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
+**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
 
 </dd>
 </dl>
@@ -4255,7 +4263,7 @@ client.channels.related.topics(
 <dl>
 <dd>
 
-The people that co-occur with this channel in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, limit, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total, offset, limit and hasMore mirror the web shape.
+The people that co-occur with this channel in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total counts every matching row and limit is the page size applied.
 </dd>
 </dl>
 </dd>
@@ -4312,7 +4320,7 @@ client.channels.related.people(
 <dl>
 <dd>
 
-**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, limit, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
+**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
 
 </dd>
 </dl>
@@ -4392,7 +4400,7 @@ client.channels.related.people(
 <dl>
 <dd>
 
-The organizations that co-occur with this channel in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, limit, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total, offset, limit and hasMore mirror the web shape.
+The organizations that co-occur with this channel in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total counts every matching row and limit is the page size applied.
 </dd>
 </dl>
 </dd>
@@ -4449,7 +4457,7 @@ client.channels.related.organizations(
 <dl>
 <dd>
 
-**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, limit, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
+**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
 
 </dd>
 </dl>
@@ -4529,7 +4537,7 @@ client.channels.related.organizations(
 <dl>
 <dd>
 
-The products that co-occur with this channel in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, limit, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total, offset, limit and hasMore mirror the web shape.
+The products that co-occur with this channel in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total counts every matching row and limit is the page size applied.
 </dd>
 </dl>
 </dd>
@@ -4586,7 +4594,7 @@ client.channels.related.products(
 <dl>
 <dd>
 
-**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, limit, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
+**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
 
 </dd>
 </dl>
@@ -4666,7 +4674,7 @@ client.channels.related.products(
 <dl>
 <dd>
 
-The channels that co-occur with this channel in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, limit, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total, offset, limit and hasMore mirror the web shape.
+The channels that co-occur with this channel in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total counts every matching row and limit is the page size applied.
 </dd>
 </dl>
 </dd>
@@ -4723,7 +4731,7 @@ client.channels.related.channels(
 <dl>
 <dd>
 
-**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, limit, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
+**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
 
 </dd>
 </dl>
@@ -4804,7 +4812,7 @@ client.channels.related.channels(
 <dl>
 <dd>
 
-People who appeared as guests on the channel, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, limit, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total, offset, limit and hasMore mirror the web shape.
+People who appeared as guests on the channel, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total counts every matching row and limit is the page size applied.
 </dd>
 </dl>
 </dd>
@@ -4861,7 +4869,7 @@ client.channels.guests.list(
 <dl>
 <dd>
 
-**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, limit, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
+**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
 
 </dd>
 </dl>
@@ -5096,7 +5104,7 @@ client.entities.mentions.list(
 <dl>
 <dd>
 
-Cursor-paginated commercial mentions (ad reads, endorsements, neutral mentions) for one entity, newest media first. The signed continuation binds the route, filters, limit, caller and visibility; invalid or old cursors return invalid_cursor. A first-page ID fence excludes later insertions, including old-date backfills. Edits and deletions to existing rows remain live. Requires a Pro+ plan. Read timestamps from start_seconds / end_seconds (integer seconds); the MM:SS string fields are deprecated. Rows below min_confidence (default 0.7) and disputed rows (unless include_disputed=true) are excluded.
+Cursor-paginated commercial mentions (ad reads, endorsements, neutral mentions) for one entity, newest media first. The signed continuation binds the route, filters, caller and visibility; invalid or old cursors return invalid_cursor. A first-page ID fence excludes later insertions, including old-date backfills. Edits and deletions to existing rows remain live. Requires a Pro+ plan. Read timestamps from start_seconds / end_seconds (integer seconds); the MM:SS string fields are deprecated. Rows below min_confidence (default 0.7) and disputed rows (unless include_disputed=true) are excluded.
 </dd>
 </dl>
 </dd>
@@ -5326,6 +5334,7 @@ client = Arcmira(
 
 client.monitors.trackers.add(
     id="id",
+    idempotency_key="8b2f6c3e-4d1a-4e7b-9c05-2f6a1b7d3e90",
     tracker_ids=[
         "trackerIds"
     ],
@@ -5361,7 +5370,7 @@ client.monitors.trackers.add(
 <dl>
 <dd>
 
-**idempotency_key:** `typing.Optional[str]` — Use 8 to 128 letters, numbers, underscores or hyphens per intent. Keys are scoped to the account, credential and resource family. The same key and normalized method, path and body returns the committed response with Idempotency-Replayed: true. A changed intent within the same family returns 409 idempotency_conflict. Monitor and tracker families have independent namespaces. Secret recovery is limited as described by the operation.
+**idempotency_key:** `typing.Optional[str]` — One key per intent, 1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400 invalid_idempotency_key. Keys are scoped to the account, credential and resource family. The same key and normalized method, path and body returns the committed response with Idempotency-Replayed: true. A changed intent within the same family returns 409 idempotency_conflict. Monitor and tracker families have independent namespaces. Secret recovery is limited as described by the operation.
 
 </dd>
 </dl>
@@ -5394,7 +5403,7 @@ client.monitors.trackers.add(
 <dl>
 <dd>
 
-The newest n alert deliveries for the monitor, as a single page. This endpoint does not paginate: has_more is always false and next_cursor is always null. entity_id ("ent_{n}") and mention_id ("men_{n}") are public-ID forms that join directly against entity and mention rows; media_id and appearance_id are raw integer ids, matching the numeric ids used elsewhere in the API. Dispute a fired alert via POST /v1/feedback with type monitor_alert.
+The newest limit alert deliveries for the monitor (default 25, at most 100), as a single page. has_more is true when older alerts exist past limit; this endpoint does not paginate, so next_cursor is always null and a larger limit reads further. entity_id ("ent_{n}") and mention_id ("men_{n}") are public-ID forms that join directly against entity and mention rows; media_id and appearance_id are raw integer ids, matching the numeric ids used elsewhere in the API. Dispute a fired alert via POST /v1/feedback with type monitor_alert.
 </dd>
 </dl>
 </dd>
@@ -5443,7 +5452,7 @@ client.monitors.alerts.list(
 <dl>
 <dd>
 
-**n:** `typing.Optional[int]`
+**limit:** `typing.Optional[int]` — Alerts to return, newest first, 1 to 100. Default 25.
 
 </dd>
 </dl>
@@ -5476,7 +5485,7 @@ client.monitors.alerts.list(
 <dl>
 <dd>
 
-The topics that co-occur with this organization in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, limit, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total, offset, limit and hasMore mirror the web shape.
+The topics that co-occur with this organization in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total counts every matching row and limit is the page size applied.
 </dd>
 </dl>
 </dd>
@@ -5533,7 +5542,7 @@ client.organizations.related.topics(
 <dl>
 <dd>
 
-**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, limit, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
+**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
 
 </dd>
 </dl>
@@ -5613,7 +5622,7 @@ client.organizations.related.topics(
 <dl>
 <dd>
 
-The people that co-occur with this organization in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, limit, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total, offset, limit and hasMore mirror the web shape.
+The people that co-occur with this organization in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total counts every matching row and limit is the page size applied.
 </dd>
 </dl>
 </dd>
@@ -5670,7 +5679,7 @@ client.organizations.related.people(
 <dl>
 <dd>
 
-**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, limit, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
+**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
 
 </dd>
 </dl>
@@ -5750,7 +5759,7 @@ client.organizations.related.people(
 <dl>
 <dd>
 
-The organizations that co-occur with this organization in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, limit, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total, offset, limit and hasMore mirror the web shape.
+The organizations that co-occur with this organization in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total counts every matching row and limit is the page size applied.
 </dd>
 </dl>
 </dd>
@@ -5807,7 +5816,7 @@ client.organizations.related.organizations(
 <dl>
 <dd>
 
-**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, limit, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
+**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
 
 </dd>
 </dl>
@@ -5887,7 +5896,7 @@ client.organizations.related.organizations(
 <dl>
 <dd>
 
-The products that co-occur with this organization in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, limit, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total, offset, limit and hasMore mirror the web shape.
+The products that co-occur with this organization in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total counts every matching row and limit is the page size applied.
 </dd>
 </dl>
 </dd>
@@ -5944,7 +5953,7 @@ client.organizations.related.products(
 <dl>
 <dd>
 
-**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, limit, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
+**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
 
 </dd>
 </dl>
@@ -6024,7 +6033,7 @@ client.organizations.related.products(
 <dl>
 <dd>
 
-The channels that co-occur with this organization in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, limit, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total, offset, limit and hasMore mirror the web shape.
+The channels that co-occur with this organization in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total counts every matching row and limit is the page size applied.
 </dd>
 </dl>
 </dd>
@@ -6081,7 +6090,7 @@ client.organizations.related.channels(
 <dl>
 <dd>
 
-**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, limit, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
+**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
 
 </dd>
 </dl>
@@ -6162,7 +6171,7 @@ client.organizations.related.channels(
 <dl>
 <dd>
 
-Appearances (the person was actually present in the media) for one person, newest first. Person-only: the equivalent route for any other entity type returns a 400 (appearances_person_only). Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, limit, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total, offset, limit and hasMore mirror the web shape. The rows are display-oriented. For programmatic pagination, date filtering, and the standard mention-row shape, use GET /v1/mentions?entity_id=...&is_appearance=true instead.
+Appearances (the person was actually present in the media) for one person, newest first. Person-only: the equivalent route for any other entity type returns a 400 (appearances_person_only). Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total counts every matching row and limit is the page size applied. The rows are display-oriented. For programmatic pagination, date filtering, and the standard mention-row shape, use GET /v1/mentions?entity_id=...&is_appearance=true instead.
 </dd>
 </dl>
 </dd>
@@ -6219,7 +6228,7 @@ client.people.appearances.list(
 <dl>
 <dd>
 
-**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, limit, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
+**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
 
 </dd>
 </dl>
@@ -6300,7 +6309,7 @@ client.people.appearances.list(
 <dl>
 <dd>
 
-The topics that co-occur with this person in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, limit, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total, offset, limit and hasMore mirror the web shape.
+The topics that co-occur with this person in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total counts every matching row and limit is the page size applied.
 </dd>
 </dl>
 </dd>
@@ -6357,7 +6366,7 @@ client.people.related.topics(
 <dl>
 <dd>
 
-**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, limit, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
+**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
 
 </dd>
 </dl>
@@ -6437,7 +6446,7 @@ client.people.related.topics(
 <dl>
 <dd>
 
-The people that co-occur with this person in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, limit, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total, offset, limit and hasMore mirror the web shape.
+The people that co-occur with this person in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total counts every matching row and limit is the page size applied.
 </dd>
 </dl>
 </dd>
@@ -6494,7 +6503,7 @@ client.people.related.people(
 <dl>
 <dd>
 
-**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, limit, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
+**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
 
 </dd>
 </dl>
@@ -6574,7 +6583,7 @@ client.people.related.people(
 <dl>
 <dd>
 
-The organizations that co-occur with this person in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, limit, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total, offset, limit and hasMore mirror the web shape.
+The organizations that co-occur with this person in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total counts every matching row and limit is the page size applied.
 </dd>
 </dl>
 </dd>
@@ -6631,7 +6640,7 @@ client.people.related.organizations(
 <dl>
 <dd>
 
-**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, limit, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
+**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
 
 </dd>
 </dl>
@@ -6711,7 +6720,7 @@ client.people.related.organizations(
 <dl>
 <dd>
 
-The products that co-occur with this person in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, limit, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total, offset, limit and hasMore mirror the web shape.
+The products that co-occur with this person in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total counts every matching row and limit is the page size applied.
 </dd>
 </dl>
 </dd>
@@ -6768,7 +6777,7 @@ client.people.related.products(
 <dl>
 <dd>
 
-**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, limit, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
+**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
 
 </dd>
 </dl>
@@ -6848,7 +6857,7 @@ client.people.related.products(
 <dl>
 <dd>
 
-The channels that co-occur with this person in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, limit, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total, offset, limit and hasMore mirror the web shape.
+The channels that co-occur with this person in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total counts every matching row and limit is the page size applied.
 </dd>
 </dl>
 </dd>
@@ -6905,7 +6914,7 @@ client.people.related.channels(
 <dl>
 <dd>
 
-**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, limit, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
+**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
 
 </dd>
 </dl>
@@ -6986,7 +6995,7 @@ client.people.related.channels(
 <dl>
 <dd>
 
-The topics that co-occur with this product in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, limit, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total, offset, limit and hasMore mirror the web shape.
+The topics that co-occur with this product in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total counts every matching row and limit is the page size applied.
 </dd>
 </dl>
 </dd>
@@ -7043,7 +7052,7 @@ client.products.related.topics(
 <dl>
 <dd>
 
-**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, limit, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
+**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
 
 </dd>
 </dl>
@@ -7123,7 +7132,7 @@ client.products.related.topics(
 <dl>
 <dd>
 
-The people that co-occur with this product in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, limit, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total, offset, limit and hasMore mirror the web shape.
+The people that co-occur with this product in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total counts every matching row and limit is the page size applied.
 </dd>
 </dl>
 </dd>
@@ -7180,7 +7189,7 @@ client.products.related.people(
 <dl>
 <dd>
 
-**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, limit, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
+**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
 
 </dd>
 </dl>
@@ -7260,7 +7269,7 @@ client.products.related.people(
 <dl>
 <dd>
 
-The organizations that co-occur with this product in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, limit, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total, offset, limit and hasMore mirror the web shape.
+The organizations that co-occur with this product in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total counts every matching row and limit is the page size applied.
 </dd>
 </dl>
 </dd>
@@ -7317,7 +7326,7 @@ client.products.related.organizations(
 <dl>
 <dd>
 
-**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, limit, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
+**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
 
 </dd>
 </dl>
@@ -7397,7 +7406,7 @@ client.products.related.organizations(
 <dl>
 <dd>
 
-The products that co-occur with this product in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, limit, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total, offset, limit and hasMore mirror the web shape.
+The products that co-occur with this product in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total counts every matching row and limit is the page size applied.
 </dd>
 </dl>
 </dd>
@@ -7454,7 +7463,7 @@ client.products.related.products(
 <dl>
 <dd>
 
-**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, limit, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
+**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
 
 </dd>
 </dl>
@@ -7534,7 +7543,7 @@ client.products.related.products(
 <dl>
 <dd>
 
-The channels that co-occur with this product in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, limit, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total, offset, limit and hasMore mirror the web shape.
+The channels that co-occur with this product in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total counts every matching row and limit is the page size applied.
 </dd>
 </dl>
 </dd>
@@ -7591,7 +7600,7 @@ client.products.related.channels(
 <dl>
 <dd>
 
-**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, limit, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
+**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
 
 </dd>
 </dl>
@@ -7760,7 +7769,7 @@ client.team.usage_events.list()
 <dl>
 <dd>
 
-The topics that co-occur with this topic in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, limit, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total, offset, limit and hasMore mirror the web shape.
+The topics that co-occur with this topic in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total counts every matching row and limit is the page size applied.
 </dd>
 </dl>
 </dd>
@@ -7817,7 +7826,7 @@ client.topics.related.topics(
 <dl>
 <dd>
 
-**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, limit, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
+**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
 
 </dd>
 </dl>
@@ -7897,7 +7906,7 @@ client.topics.related.topics(
 <dl>
 <dd>
 
-The people that co-occur with this topic in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, limit, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total, offset, limit and hasMore mirror the web shape.
+The people that co-occur with this topic in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total counts every matching row and limit is the page size applied.
 </dd>
 </dl>
 </dd>
@@ -7954,7 +7963,7 @@ client.topics.related.people(
 <dl>
 <dd>
 
-**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, limit, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
+**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
 
 </dd>
 </dl>
@@ -8034,7 +8043,7 @@ client.topics.related.people(
 <dl>
 <dd>
 
-The organizations that co-occur with this topic in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, limit, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total, offset, limit and hasMore mirror the web shape.
+The organizations that co-occur with this topic in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total counts every matching row and limit is the page size applied.
 </dd>
 </dl>
 </dd>
@@ -8091,7 +8100,7 @@ client.topics.related.organizations(
 <dl>
 <dd>
 
-**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, limit, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
+**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
 
 </dd>
 </dl>
@@ -8171,7 +8180,7 @@ client.topics.related.organizations(
 <dl>
 <dd>
 
-The products that co-occur with this topic in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, limit, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total, offset, limit and hasMore mirror the web shape.
+The products that co-occur with this topic in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total counts every matching row and limit is the page size applied.
 </dd>
 </dl>
 </dd>
@@ -8228,7 +8237,7 @@ client.topics.related.products(
 <dl>
 <dd>
 
-**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, limit, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
+**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
 
 </dd>
 </dl>
@@ -8308,7 +8317,7 @@ client.topics.related.products(
 <dl>
 <dd>
 
-The channels that co-occur with this topic in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, limit, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total, offset, limit and hasMore mirror the web shape.
+The channels that co-occur with this topic in indexed media, with q/field/sort/order filtering. Signed cursor pagination: rows are in items, and next_cursor (null on the last page) feeds cursor. A token binds route, filters, caller and visibility; malformed or old tokens return invalid_cursor. Aggregate and display lists are live: changed ranks or deleted rows may shift later pages. total counts every matching row and limit is the page size applied.
 </dd>
 </dl>
 </dd>
@@ -8365,7 +8374,7 @@ client.topics.related.channels(
 <dl>
 <dd>
 
-**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, limit, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
+**cursor:** `typing.Optional[str]` — Signed continuation from next_cursor. Bound to route, filters, caller and visibility; invalid or old tokens return invalid_cursor. Person appearance publication pages use a media-id insertion fence; aggregate sorts remain live.
 
 </dd>
 </dl>
@@ -8446,7 +8455,7 @@ client.topics.related.channels(
 <dl>
 <dd>
 
-The newest n alert deliveries for the tracker, as a single page. This endpoint does not paginate: has_more is always false and next_cursor is always null. entity_id ("ent_{n}") and mention_id ("men_{n}") are public-ID forms that join directly against entity and mention rows; media_id and appearance_id are raw integer ids, matching the numeric ids used elsewhere in the API. Dispute a fired alert via POST /v1/feedback with type monitor_alert.
+The newest limit alert deliveries for the tracker (default 25, at most 100), as a single page. has_more is true when older alerts exist past limit; this endpoint does not paginate, so next_cursor is always null and a larger limit reads further. entity_id ("ent_{n}") and mention_id ("men_{n}") are public-ID forms that join directly against entity and mention rows; media_id and appearance_id are raw integer ids, matching the numeric ids used elsewhere in the API. Dispute a fired alert via POST /v1/feedback with type monitor_alert.
 </dd>
 </dl>
 </dd>
@@ -8495,7 +8504,7 @@ client.trackers.alerts.list(
 <dl>
 <dd>
 
-**n:** `typing.Optional[int]`
+**limit:** `typing.Optional[int]` — Alerts to return, newest first, 1 to 100. Default 25.
 
 </dd>
 </dl>
@@ -8553,6 +8562,7 @@ client = Arcmira(
 
 client.transcripts.edits.submit(
     video_id="video_id",
+    idempotency_key="8b2f6c3e-4d1a-4e7b-9c05-2f6a1b7d3e90",
     segment_index=1,
     original_text="originalText",
     corrected_text="correctedText",
@@ -8604,7 +8614,7 @@ client.transcripts.edits.submit(
 <dl>
 <dd>
 
-**idempotency_key:** `typing.Optional[str]` — Persist a unique key and the exact request before sending a logical mutation. A retry returns its stored response with Idempotency-Replayed: true. A changed intent under a finalized key returns 409 idempotency_conflict. Keys belong to the authenticated owner, credential and mutation domain. Current authorization still applies. Receipts have no general 24-hour expiry; signing-secret recovery alone expires after 24 hours or when the secret is displaced.
+**idempotency_key:** `typing.Optional[str]` — 1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400 invalid_idempotency_key. Persist a unique key and the exact request before sending a logical mutation. A retry returns its stored response with Idempotency-Replayed: true. A changed intent under a finalized key returns 409 idempotency_conflict. Keys belong to the authenticated owner, credential and mutation domain. Current authorization still applies. Receipts have no general 24-hour expiry; signing-secret recovery alone expires after 24 hours or when the secret is displaced.
 
 </dd>
 </dl>
@@ -8738,6 +8748,7 @@ client = Arcmira(
 
 client.transcripts.speakers.identify(
     video_id="video_id",
+    idempotency_key="8b2f6c3e-4d1a-4e7b-9c05-2f6a1b7d3e90",
     speaker_id=1,
 )
 
@@ -8771,7 +8782,7 @@ client.transcripts.speakers.identify(
 <dl>
 <dd>
 
-**idempotency_key:** `typing.Optional[str]` — Persist a unique key and the exact request before sending a logical mutation. A retry returns its stored response with Idempotency-Replayed: true. A changed intent under a finalized key returns 409 idempotency_conflict. Keys belong to the authenticated owner, credential and mutation domain. Current authorization still applies. Receipts have no general 24-hour expiry; signing-secret recovery alone expires after 24 hours or when the secret is displaced.
+**idempotency_key:** `typing.Optional[str]` — 1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400 invalid_idempotency_key. Persist a unique key and the exact request before sending a logical mutation. A retry returns its stored response with Idempotency-Replayed: true. A changed intent under a finalized key returns 409 idempotency_conflict. Keys belong to the authenticated owner, credential and mutation domain. Current authorization still applies. Receipts have no general 24-hour expiry; signing-secret recovery alone expires after 24 hours or when the secret is displaced.
 
 </dd>
 </dl>
@@ -8994,6 +9005,7 @@ client = Arcmira(
 
 client.transcripts.merges.submit(
     video_id="video_id",
+    idempotency_key="8b2f6c3e-4d1a-4e7b-9c05-2f6a1b7d3e90",
     source_name="sourceName",
     target_entity_id=1,
 )
@@ -9036,7 +9048,7 @@ client.transcripts.merges.submit(
 <dl>
 <dd>
 
-**idempotency_key:** `typing.Optional[str]` — Persist a unique key and the exact request before sending a logical mutation. A retry returns its stored response with Idempotency-Replayed: true. A changed intent under a finalized key returns 409 idempotency_conflict. Keys belong to the authenticated owner, credential and mutation domain. Current authorization still applies. Receipts have no general 24-hour expiry; signing-secret recovery alone expires after 24 hours or when the secret is displaced.
+**idempotency_key:** `typing.Optional[str]` — 1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400 invalid_idempotency_key. Persist a unique key and the exact request before sending a logical mutation. A retry returns its stored response with Idempotency-Replayed: true. A changed intent under a finalized key returns 409 idempotency_conflict. Keys belong to the authenticated owner, credential and mutation domain. Current authorization still applies. Receipts have no general 24-hour expiry; signing-secret recovery alone expires after 24 hours or when the secret is displaced.
 
 </dd>
 </dl>

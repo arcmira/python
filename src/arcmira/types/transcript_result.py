@@ -8,12 +8,15 @@ import pydantic
 import typing_extensions
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 from .caption_track import CaptionTrack
-from .transcript_pending_premium_job import TranscriptPendingPremiumJob
+from .transcript_job import TranscriptJob
 from .transcript_pending_quality import TranscriptPendingQuality
+from .transcript_preparation_required_action import TranscriptPreparationRequiredAction
+from .transcript_preparation_required_last_attempt import TranscriptPreparationRequiredLastAttempt
+from .transcript_preparation_required_quality import TranscriptPreparationRequiredQuality
+from .transcript_preparation_required_quote import TranscriptPreparationRequiredQuote
 from .transcript_response_access import TranscriptResponseAccess
 from .transcript_response_lines_item import TranscriptResponseLinesItem
 from .transcript_response_paragraphs_item import TranscriptResponseParagraphsItem
-from .transcript_response_premium_job import TranscriptResponsePremiumJob
 from .transcript_response_quality import TranscriptResponseQuality
 from .transcript_response_range import TranscriptResponseRange
 from .transcript_response_source import TranscriptResponseSource
@@ -35,9 +38,27 @@ class TranscriptResult_Ready(UniversalBaseModel):
     range: typing.Optional[TranscriptResponseRange] = None
     rows_billed: int
     as_of: typing.Optional[str] = None
-    premium_job: typing.Optional[TranscriptResponsePremiumJob] = None
+    premium_job: typing.Optional[TranscriptJob] = None
     access: typing.Optional[TranscriptResponseAccess] = None
     note: str
+
+    if IS_PYDANTIC_V2:
+        model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
+    else:
+
+        class Config:
+            frozen = True
+            smart_union = True
+            extra = pydantic.Extra.allow
+
+
+class TranscriptResult_PreparationRequired(UniversalBaseModel):
+    state: typing.Literal["preparation_required"] = "preparation_required"
+    quality: TranscriptPreparationRequiredQuality
+    video_id: str
+    quote: typing.Optional[TranscriptPreparationRequiredQuote] = None
+    action: TranscriptPreparationRequiredAction
+    last_attempt: typing.Optional[TranscriptPreparationRequiredLastAttempt] = None
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
@@ -52,9 +73,8 @@ class TranscriptResult_Ready(UniversalBaseModel):
 class TranscriptResult_Pending(UniversalBaseModel):
     state: typing.Literal["pending"] = "pending"
     quality: TranscriptPendingQuality
-    premium_job: TranscriptPendingPremiumJob
-    status_url: str
-    next_poll_seconds: float
+    video_id: str
+    job: TranscriptJob
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
@@ -67,5 +87,6 @@ class TranscriptResult_Pending(UniversalBaseModel):
 
 
 TranscriptResult = typing_extensions.Annotated[
-    typing.Union[TranscriptResult_Ready, TranscriptResult_Pending], pydantic.Field(discriminator="state")
+    typing.Union[TranscriptResult_Ready, TranscriptResult_PreparationRequired, TranscriptResult_Pending],
+    pydantic.Field(discriminator="state"),
 ]

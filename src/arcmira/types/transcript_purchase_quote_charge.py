@@ -3,13 +3,24 @@
 import typing
 
 import pydantic
+import typing_extensions
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
+from ..core.serialization import FieldMetadata
+from .transcript_purchase_quote_charge_from import TranscriptPurchaseQuoteChargeFrom
 from .transcript_purchase_quote_charge_unit import TranscriptPurchaseQuoteChargeUnit
 
 
 class TranscriptPurchaseQuoteCharge(UniversalBaseModel):
     unit: TranscriptPurchaseQuoteChargeUnit
     amount: float
+    from_: typing_extensions.Annotated[
+        TranscriptPurchaseQuoteChargeFrom,
+        FieldMetadata(alias="from"),
+        pydantic.Field(alias="from", description="Where the charge would come from at the current balance."),
+    ]
+    """
+    Where the charge would come from at the current balance.
+    """
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

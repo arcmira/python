@@ -20,15 +20,19 @@ class GenerationTests(unittest.TestCase):
         self.assertEqual(doc, before)
         union = prepared['components']['schemas']['TranscriptResult']
         self.assertEqual(union['discriminator']['propertyName'], 'state')
-        self.assertEqual(set(union['discriminator']['mapping']), {'ready','pending'})
+        self.assertEqual(set(union['discriminator']['mapping']), {'ready','preparation_required','pending'})
         for path, collection in [('/v1/transcriptions','requests'),('/v1/channels/{channel_id}/videos','episodes')]:
             self.assertEqual(prepared['paths'][path]['get']['x-fern-pagination']['results'], '$response.'+collection)
         post = prepared['paths']['/v1/transcriptions']['post']
-        self.assertTrue(next(p for p in post['parameters'] if p['name']=='Idempotency-Key')['required'])
-        self.assertIn('max_rows', post['requestBody']['content']['application/json']['schema']['required'])
+        self.assertFalse(next(p for p in post['parameters'] if p['name']=='Idempotency-Key').get('required'))
+        body = post['requestBody']['content']['application/json']['schema']
+        self.assertNotIn('videoId', body['properties'])
+        self.assertNotIn('max_rows', body.get('required', []))
+        self.assertEqual(post['x-fern-sdk-method-name'], 'request')
 
     def test_installed_api_error_matches_the_preserved_override(self):
         self.assertEqual((ROOT / 'src/arcmira/core/api_error.py').read_text(), (ROOT / 'scripts/overrides/api_error.py').read_text())
         self.assertIn('overrides/api_error.py', (ROOT / 'scripts/install-generated.py').read_text())
+
 
 if __name__ == '__main__': unittest.main()

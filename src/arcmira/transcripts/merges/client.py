@@ -83,7 +83,7 @@ class MergesClient:
             The canonical entity these mentions actually refer to.
 
         idempotency_key : typing.Optional[str]
-            Persist a unique key and the exact request before sending a logical mutation. A retry returns its stored response with Idempotency-Replayed: true. A changed intent under a finalized key returns 409 idempotency_conflict. Keys belong to the authenticated owner, credential and mutation domain. Current authorization still applies. Receipts have no general 24-hour expiry; signing-secret recovery alone expires after 24 hours or when the secret is displaced.
+            1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400 invalid_idempotency_key. Persist a unique key and the exact request before sending a logical mutation. A retry returns its stored response with Idempotency-Replayed: true. A changed intent under a finalized key returns 409 idempotency_conflict. Keys belong to the authenticated owner, credential and mutation domain. Current authorization still applies. Receipts have no general 24-hour expiry; signing-secret recovery alone expires after 24 hours or when the secret is displaced.
 
         replace_with : typing.Optional[str]
             Optional respelling applied to the transcript text (e.g. "Imad" → "Emad").
@@ -107,6 +107,7 @@ class MergesClient:
         )
         client.transcripts.merges.submit(
             video_id="video_id",
+            idempotency_key="8b2f6c3e-4d1a-4e7b-9c05-2f6a1b7d3e90",
             source_name="sourceName",
             target_entity_id=1,
         )
@@ -238,7 +239,7 @@ class AsyncMergesClient:
             The canonical entity these mentions actually refer to.
 
         idempotency_key : typing.Optional[str]
-            Persist a unique key and the exact request before sending a logical mutation. A retry returns its stored response with Idempotency-Replayed: true. A changed intent under a finalized key returns 409 idempotency_conflict. Keys belong to the authenticated owner, credential and mutation domain. Current authorization still applies. Receipts have no general 24-hour expiry; signing-secret recovery alone expires after 24 hours or when the secret is displaced.
+            1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400 invalid_idempotency_key. Persist a unique key and the exact request before sending a logical mutation. A retry returns its stored response with Idempotency-Replayed: true. A changed intent under a finalized key returns 409 idempotency_conflict. Keys belong to the authenticated owner, credential and mutation domain. Current authorization still applies. Receipts have no general 24-hour expiry; signing-secret recovery alone expires after 24 hours or when the secret is displaced.
 
         replace_with : typing.Optional[str]
             Optional respelling applied to the transcript text (e.g. "Imad" → "Emad").
@@ -267,6 +268,7 @@ class AsyncMergesClient:
         async def main() -> None:
             await client.transcripts.merges.submit(
                 video_id="video_id",
+                idempotency_key="8b2f6c3e-4d1a-4e7b-9c05-2f6a1b7d3e90",
                 source_name="sourceName",
                 target_entity_id=1,
             )
