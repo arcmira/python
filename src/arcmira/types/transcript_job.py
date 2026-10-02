@@ -37,7 +37,7 @@ class TranscriptJob(UniversalBaseModel):
 
     stage: typing.Optional[TranscriptJobStage] = pydantic.Field(default=None)
     """
-    User-facing stage: downloading folds into transcribing. Values: queued (waiting to start), transcribing (downloading or transcribing), analyzing (analysis running). Null for terminal statuses.
+    User-facing stage: downloading folds into transcribing. Values: queued (waiting to start), transcribing (downloading or transcribing), analyzing (analysis running). Null for terminal statuses and refund_pending.
     """
 
     charge: typing.Optional[TranscriptJobCharge] = pydantic.Field(default=None)
@@ -47,7 +47,7 @@ class TranscriptJob(UniversalBaseModel):
 
     eta_seconds: typing.Optional[int] = pydantic.Field(default=None)
     """
-    Estimated seconds until completion, re-derived from live pipeline telemetry on every poll. Only present while the request is in flight.
+    Estimated seconds until completion, re-derived from live pipeline telemetry on every poll. Only present while the request is in flight; absent on refund_pending, which has no completion ETA.
     """
 
     next_poll_seconds: typing.Optional[int] = pydantic.Field(default=None)

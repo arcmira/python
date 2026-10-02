@@ -7,9 +7,20 @@ import typing_extensions
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 from ..core.serialization import FieldMetadata
 from .error_error import ErrorError
+from .error_quote import ErrorQuote
 
 
 class Error(UniversalBaseModel):
+    quote: typing.Optional[ErrorQuote] = pydantic.Field(default=None)
+    """
+    The refused price, on a priced refusal: quota_exceeded, max_rows_exceeded, max_charge_exceeded, spend_limit_exceeded, purchase_authority_changed and paid_plan_required.
+    """
+
+    existing_request_id: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    On max_charge_exceeded: the accepted purchase for this video that holds a higher money ceiling. Poll it at /v1/transcriptions/{id} instead of starting another.
+    """
+
     existing_id: typing_extensions.Annotated[
         typing.Optional[str],
         FieldMetadata(alias="existingId"),

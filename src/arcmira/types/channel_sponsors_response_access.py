@@ -8,6 +8,7 @@ from .channel_sponsors_response_access_gate import ChannelSponsorsResponseAccess
 from .channel_sponsors_response_access_reason import ChannelSponsorsResponseAccessReason
 from .channel_sponsors_response_access_type import ChannelSponsorsResponseAccessType
 from .channel_sponsors_response_access_unlock import ChannelSponsorsResponseAccessUnlock
+from .error_resource import ErrorResource
 
 
 class ChannelSponsorsResponseAccess(UniversalBaseModel):
@@ -45,6 +46,7 @@ class ChannelSponsorsResponseAccess(UniversalBaseModel):
     Which boundary refused. Present on every gate error; switch on it without parsing the message.
     """
 
+    resource: typing.Optional[ErrorResource] = None
     unlock: typing.Optional[ChannelSponsorsResponseAccessUnlock] = pydantic.Field(default=None)
     """
     How to lift the gate. Present when the gate has an unlock.

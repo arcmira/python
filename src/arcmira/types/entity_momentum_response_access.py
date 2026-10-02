@@ -8,6 +8,7 @@ from .entity_momentum_response_access_gate import EntityMomentumResponseAccessGa
 from .entity_momentum_response_access_reason import EntityMomentumResponseAccessReason
 from .entity_momentum_response_access_type import EntityMomentumResponseAccessType
 from .entity_momentum_response_access_unlock import EntityMomentumResponseAccessUnlock
+from .error_resource import ErrorResource
 
 
 class EntityMomentumResponseAccess(UniversalBaseModel):
@@ -45,6 +46,7 @@ class EntityMomentumResponseAccess(UniversalBaseModel):
     Which boundary refused. Present on every gate error; switch on it without parsing the message.
     """
 
+    resource: typing.Optional[ErrorResource] = None
     unlock: typing.Optional[EntityMomentumResponseAccessUnlock] = pydantic.Field(default=None)
     """
     How to lift the gate. Present when the gate has an unlock.

@@ -122,6 +122,44 @@ if typing.TYPE_CHECKING:
     from .error_error_type import ErrorErrorType
     from .error_error_unlock import ErrorErrorUnlock
     from .error_error_unlock_action import ErrorErrorUnlockAction
+    from .error_quote import ErrorQuote
+    from .error_quote_charge import ErrorQuoteCharge
+    from .error_quote_charge_from import ErrorQuoteChargeFrom
+    from .error_quote_charge_unit import ErrorQuoteChargeUnit
+    from .error_resource import (
+        ErrorResource,
+        ErrorResource_Chart,
+        ErrorResource_Commercial,
+        ErrorResource_Counts,
+        ErrorResource_Feature,
+        ErrorResource_Filter,
+        ErrorResource_FreshMedia,
+        ErrorResource_Key,
+        ErrorResource_MediaRows,
+        ErrorResource_Pagination,
+        ErrorResource_PremiumTranscript,
+        ErrorResource_Requests,
+        ErrorResource_Rows,
+        ErrorResource_SidebarRows,
+    )
+    from .error_resource_chart import ErrorResourceChart
+    from .error_resource_commercial import ErrorResourceCommercial
+    from .error_resource_commercial_what import ErrorResourceCommercialWhat
+    from .error_resource_counts import ErrorResourceCounts
+    from .error_resource_feature import ErrorResourceFeature
+    from .error_resource_feature_feature import ErrorResourceFeatureFeature
+    from .error_resource_filter import ErrorResourceFilter
+    from .error_resource_fresh_media import ErrorResourceFreshMedia
+    from .error_resource_key import ErrorResourceKey
+    from .error_resource_key_scope import ErrorResourceKeyScope
+    from .error_resource_media_rows import ErrorResourceMediaRows
+    from .error_resource_pagination import ErrorResourcePagination
+    from .error_resource_pagination_param import ErrorResourcePaginationParam
+    from .error_resource_premium_transcript import ErrorResourcePremiumTranscript
+    from .error_resource_requests import ErrorResourceRequests
+    from .error_resource_rows import ErrorResourceRows
+    from .error_resource_sidebar_rows import ErrorResourceSidebarRows
+    from .error_resource_sidebar_rows_section import ErrorResourceSidebarRowsSection
     from .exposure_meta import ExposureMeta
     from .exposure_meta_access import ExposureMetaAccess
     from .exposure_meta_access_chart import ExposureMetaAccessChart
@@ -544,6 +582,42 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ErrorErrorType": ".error_error_type",
     "ErrorErrorUnlock": ".error_error_unlock",
     "ErrorErrorUnlockAction": ".error_error_unlock_action",
+    "ErrorQuote": ".error_quote",
+    "ErrorQuoteCharge": ".error_quote_charge",
+    "ErrorQuoteChargeFrom": ".error_quote_charge_from",
+    "ErrorQuoteChargeUnit": ".error_quote_charge_unit",
+    "ErrorResource": ".error_resource",
+    "ErrorResourceChart": ".error_resource_chart",
+    "ErrorResourceCommercial": ".error_resource_commercial",
+    "ErrorResourceCommercialWhat": ".error_resource_commercial_what",
+    "ErrorResourceCounts": ".error_resource_counts",
+    "ErrorResourceFeature": ".error_resource_feature",
+    "ErrorResourceFeatureFeature": ".error_resource_feature_feature",
+    "ErrorResourceFilter": ".error_resource_filter",
+    "ErrorResourceFreshMedia": ".error_resource_fresh_media",
+    "ErrorResourceKey": ".error_resource_key",
+    "ErrorResourceKeyScope": ".error_resource_key_scope",
+    "ErrorResourceMediaRows": ".error_resource_media_rows",
+    "ErrorResourcePagination": ".error_resource_pagination",
+    "ErrorResourcePaginationParam": ".error_resource_pagination_param",
+    "ErrorResourcePremiumTranscript": ".error_resource_premium_transcript",
+    "ErrorResourceRequests": ".error_resource_requests",
+    "ErrorResourceRows": ".error_resource_rows",
+    "ErrorResourceSidebarRows": ".error_resource_sidebar_rows",
+    "ErrorResourceSidebarRowsSection": ".error_resource_sidebar_rows_section",
+    "ErrorResource_Chart": ".error_resource",
+    "ErrorResource_Commercial": ".error_resource",
+    "ErrorResource_Counts": ".error_resource",
+    "ErrorResource_Feature": ".error_resource",
+    "ErrorResource_Filter": ".error_resource",
+    "ErrorResource_FreshMedia": ".error_resource",
+    "ErrorResource_Key": ".error_resource",
+    "ErrorResource_MediaRows": ".error_resource",
+    "ErrorResource_Pagination": ".error_resource",
+    "ErrorResource_PremiumTranscript": ".error_resource",
+    "ErrorResource_Requests": ".error_resource",
+    "ErrorResource_Rows": ".error_resource",
+    "ErrorResource_SidebarRows": ".error_resource",
     "ExposureMeta": ".exposure_meta",
     "ExposureMetaAccess": ".exposure_meta_access",
     "ExposureMetaAccessChart": ".exposure_meta_access_chart",
@@ -976,6 +1050,42 @@ __all__ = [
     "ErrorErrorType",
     "ErrorErrorUnlock",
     "ErrorErrorUnlockAction",
+    "ErrorQuote",
+    "ErrorQuoteCharge",
+    "ErrorQuoteChargeFrom",
+    "ErrorQuoteChargeUnit",
+    "ErrorResource",
+    "ErrorResourceChart",
+    "ErrorResourceCommercial",
+    "ErrorResourceCommercialWhat",
+    "ErrorResourceCounts",
+    "ErrorResourceFeature",
+    "ErrorResourceFeatureFeature",
+    "ErrorResourceFilter",
+    "ErrorResourceFreshMedia",
+    "ErrorResourceKey",
+    "ErrorResourceKeyScope",
+    "ErrorResourceMediaRows",
+    "ErrorResourcePagination",
+    "ErrorResourcePaginationParam",
+    "ErrorResourcePremiumTranscript",
+    "ErrorResourceRequests",
+    "ErrorResourceRows",
+    "ErrorResourceSidebarRows",
+    "ErrorResourceSidebarRowsSection",
+    "ErrorResource_Chart",
+    "ErrorResource_Commercial",
+    "ErrorResource_Counts",
+    "ErrorResource_Feature",
+    "ErrorResource_Filter",
+    "ErrorResource_FreshMedia",
+    "ErrorResource_Key",
+    "ErrorResource_MediaRows",
+    "ErrorResource_Pagination",
+    "ErrorResource_PremiumTranscript",
+    "ErrorResource_Requests",
+    "ErrorResource_Rows",
+    "ErrorResource_SidebarRows",
     "ExposureMeta",
     "ExposureMetaAccess",
     "ExposureMetaAccessChart",

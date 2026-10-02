@@ -9,11 +9,13 @@ from urllib.parse import parse_qs, urlparse
 
 from arcmira import Arcmira, AsyncArcmira
 from arcmira.core.api_error import ApiError
+from arcmira.errors import PaymentRequiredError
 from arcmira.types.transcript_result import TranscriptResult_Ready, TranscriptResult_Pending
 
 FIXTURES = json.loads((Path(__file__).parent / 'fixtures/transcription-responses.json').read_text())
 QUOTE = FIXTURES['quote_transcription']['body']
 REQUEST = FIXTURES['get_transcription']['body']
+REFUSED = FIXTURES['refused_quota']['body']
 def error(code, kind):
     return dict(type=kind, code=code, message=code, doc_url='https://arcmira.com/docs/errors', request_id='fixture-request')
 
@@ -41,6 +43,8 @@ class Handler(BaseHTTPRequestHandler):
         status, extra = 200, {}
         if url.path.endswith('/quote'):
             result = QUOTE
+        elif url.path == '/v1/transcriptions' and self.command == 'POST' and 'refused0000' in body:
+            status, result = 402, REFUSED
         elif url.path == '/v1/transcriptions' and self.command == 'POST':
             key = self.headers['Idempotency-Key']
             replay = key in RECEIPTS
@@ -58,8 +62,6 @@ class Handler(BaseHTTPRequestHandler):
             result = dict(channel={'youtube_channel_id':'UC-test','name':'Fixture'}, episodes=[episode], returned=1, has_more='cursor' not in query, next_cursor=None if 'cursor' in query else CURSOR, indexed_through=None, index_age_days=None, as_of=None, note='Fixture')
         elif url.path.endswith('/pending0000'):
             status, result = 202, PENDING
-        elif url.path.endswith('/refused0000'):
-            status, result = 403, {'error': error('purchase_required', 'permission_error'), 'quote': QUOTE, 'prepare_url': '/v1/transcriptions'}
         else:
             result = FIXTURES['get_transcript']['body']
         self.send_response(status)
@@ -96,11 +98,15 @@ class GeneratedClientTests(unittest.TestCase):
     def test_quote_and_refusal(self):
         quote = self.client.transcripts.quote(video_id='dQw4w9WgXcQ')
         self.assertEqual(quote.quote.rows, QUOTE['quote']['rows'])
-        with self.assertRaises(ApiError) as caught:
-            self.client.transcripts.get(video_id='refused0000', quality='premium')
-        self.assertEqual(caught.exception.status_code, 403)
-        self.assertEqual(caught.exception.body.quote, QUOTE)
-        self.assertEqual(str(caught.exception), '403 purchase_required: purchase_required')
+        with self.assertRaises(PaymentRequiredError) as caught:
+            self.client.transcripts.request(video_id='refused0000')
+        refusal = caught.exception.body
+        self.assertEqual(refusal.error.code, 'quota_exceeded')
+        self.assertEqual(refusal.error.unlock.tier, REFUSED['error']['unlock']['tier'])
+        self.assertEqual(refusal.quote.rows, REFUSED['quote']['rows'])
+        self.assertEqual(refusal.quote.charge.amount, REFUSED['quote']['charge']['amount'])
+        self.assertEqual(refusal.quote.max_on_demand_cents, REFUSED['quote']['max_on_demand_cents'])
+        self.assertEqual(str(caught.exception), f"402 quota_exceeded: {REFUSED['error']['message']}")
         self.assertNotIn('headers', str(caught.exception))
 
     def test_preparation_exact_intent_and_replay(self):

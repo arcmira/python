@@ -4,6 +4,7 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
+from .error_resource import ErrorResource
 from .transcript_search_response_access_gate import TranscriptSearchResponseAccessGate
 from .transcript_search_response_access_reason import TranscriptSearchResponseAccessReason
 from .transcript_search_response_access_type import TranscriptSearchResponseAccessType
@@ -45,6 +46,7 @@ class TranscriptSearchResponseAccess(UniversalBaseModel):
     Which boundary refused. Present on every gate error; switch on it without parsing the message.
     """
 
+    resource: typing.Optional[ErrorResource] = None
     unlock: typing.Optional[TranscriptSearchResponseAccessUnlock] = pydantic.Field(default=None)
     """
     How to lift the gate. Present when the gate has an unlock.

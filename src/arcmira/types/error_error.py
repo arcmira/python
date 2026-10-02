@@ -8,6 +8,7 @@ from .error_error_gate import ErrorErrorGate
 from .error_error_reason import ErrorErrorReason
 from .error_error_type import ErrorErrorType
 from .error_error_unlock import ErrorErrorUnlock
+from .error_resource import ErrorResource
 
 
 class ErrorError(UniversalBaseModel):
@@ -41,6 +42,7 @@ class ErrorError(UniversalBaseModel):
     Which boundary refused. Present on every gate error; switch on it without parsing the message.
     """
 
+    resource: typing.Optional[ErrorResource] = None
     unlock: typing.Optional[ErrorErrorUnlock] = pydantic.Field(default=None)
     """
     How to lift the gate. Present when the gate has an unlock.

@@ -405,5 +405,33 @@
       "as_of": "2026-08-05T00:00:00.000Z",
       "note": "Premium transcripts are Arcmira's own. Every Premium transcript is diarized: each line carries a speaker. We identify each speaker from the audio, the video, and internal and community review. We are right most of the time and wrong sometimes, so when a name matters, say it came from Arcmira's speaker identification and cite the line."
     }
+  },
+  "refused_quota": {
+    "status": 402,
+    "body": {
+      "error": {
+        "type": "quota_exceeded",
+        "code": "quota_exceeded",
+        "message": "This transcript needs 75 rows and the account has 10 left this month. Raise max_on_demand_cents or upgrade.",
+        "gate": "rows",
+        "unlock": {
+          "tier": "Pro",
+          "url": "https://arcmira.com/pricing?src=api",
+          "offer": null
+        },
+        "doc_url": "https://arcmira.com/docs/errors#quota_exceeded",
+        "request_id": "req_fixture"
+      },
+      "quote": {
+        "quarters": 1,
+        "rows": 75,
+        "charge": {
+          "unit": "credits",
+          "amount": 300,
+          "from": "mixed"
+        },
+        "max_on_demand_cents": 104
+      }
+    }
   }
 }

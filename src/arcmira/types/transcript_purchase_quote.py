@@ -26,7 +26,6 @@ class TranscriptPurchaseQuote(UniversalBaseModel):
     credits_per_row: float
     max_on_demand_cents: float
     on_demand_cents_per_unit: float
-    prepare_url: str
     refund_policy: str
 
     if IS_PYDANTIC_V2:
