@@ -8,8 +8,7 @@ from ..core.request_options import RequestOptions
 from ..types.recommendation import Recommendation
 from ..types.recommendation_list_response import RecommendationListResponse
 from .raw_client import AsyncRawRecommendationsClient, RawRecommendationsClient
-from .types.list_recommendations_request_entity_type import ListRecommendationsRequestEntityType
-from .types.list_recommendations_request_mention_class import ListRecommendationsRequestMentionClass
+from .types.list_recommendations_request_class import ListRecommendationsRequestClass
 
 
 class RecommendationsClient:
@@ -30,47 +29,43 @@ class RecommendationsClient:
     def list(
         self,
         *,
+        entity_id: str,
         limit: typing.Optional[int] = None,
         cursor: typing.Optional[str] = None,
-        entity_id: typing.Optional[str] = None,
-        entity_name: typing.Optional[str] = None,
-        entity_type: typing.Optional[ListRecommendationsRequestEntityType] = None,
         channel_id: typing.Optional[str] = None,
-        channel_name: typing.Optional[str] = None,
-        mention_class: typing.Optional[ListRecommendationsRequestMentionClass] = None,
+        class_: typing.Optional[ListRecommendationsRequestClass] = None,
         min_confidence: typing.Optional[float] = None,
-        date_from: typing.Optional[str] = None,
-        date_to: typing.Optional[str] = None,
+        after: typing.Optional[str] = None,
+        before: typing.Optional[str] = None,
         include_disputed: typing.Optional[bool] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[Recommendation, RecommendationListResponse]:
         """
-        Cursor-paginated commercial mentions (ad reads, endorsements, neutral mentions) filtered by entity (entity_id or entity_name is required), channel, mention_class, confidence, and date range. The signed continuation binds the route, filters, caller and visibility; invalid or old cursors return invalid_cursor. A first-page ID fence excludes later insertions, including old-date backfills. Edits and deletions to existing rows remain live. Requires a Pro+ plan. Read timestamps from start_seconds / end_seconds (integer seconds); the MM:SS string fields are deprecated.
+        Cursor-paginated commercial mentions (sponsored, organic and neutral mentions) filtered by entity (entity_id is required; resolve a name first with GET /v1/entities/resolve, or the call answers 400 id_required naming the parameter), channel (channel_id), class, confidence, and publication window [after, before). The signed continuation binds the route, filters, caller and visibility; invalid or old cursors return invalid_cursor. A first-page ID fence excludes later insertions, including old-date backfills. Edits and deletions to existing rows remain live. Requires a Pro+ plan. Positions are start_seconds and end_seconds (integer seconds).
 
         Parameters
         ----------
+        entity_id : str
+            The entity, as an id like ent_14. Required. Ids only: a name answers 400 id_required. Resolve names first with GET /v1/entities/resolve.
+
         limit : typing.Optional[int]
 
         cursor : typing.Optional[str]
             Signed continuation from next_cursor. Bound to this route, normalized query, caller and visibility; invalid or old tokens return invalid_cursor.
 
-        entity_id : typing.Optional[str]
-
-        entity_name : typing.Optional[str]
-
-        entity_type : typing.Optional[ListRecommendationsRequestEntityType]
-
         channel_id : typing.Optional[str]
+            Only media from this YouTube channel id (UC plus 22 characters). Ids only: a name answers 400 id_required. Resolve names first with GET /v1/entities/resolve.
 
-        channel_name : typing.Optional[str]
-
-        mention_class : typing.Optional[ListRecommendationsRequestMentionClass]
+        class_ : typing.Optional[ListRecommendationsRequestClass]
+            The commercial class to return. Omit for all three. Values: sponsored (an ad-style promotion heard at that moment: a paid sponsor read, promo code, affiliate plug, thanks for supplied goods or venue, or a show promoting its own product as an ad), organic (an unpaid personal recommendation), mention (a neutral commercial mention).
 
         min_confidence : typing.Optional[float]
 
-        date_from : typing.Optional[str]
+        after : typing.Optional[str]
+            Only media published at or after this instant. An ISO 8601 date (2026-09-01) or datetime with offset (2026-09-01T00:00:00Z), read in UTC. The window is half-open: after is inclusive, before is exclusive.
 
-        date_to : typing.Optional[str]
+        before : typing.Optional[str]
+            Only media published before this instant, so before=2026-09-02 includes all of 2026-09-01. An ISO 8601 date (2026-09-01) or datetime with offset (2026-09-01T00:00:00Z), read in UTC. The window is half-open: after is inclusive, before is exclusive.
 
         include_disputed : typing.Optional[bool]
 
@@ -89,7 +84,9 @@ class RecommendationsClient:
         client = Arcmira(
             api_key="YOUR_API_KEY",
         )
-        response = client.recommendations.list()
+        response = client.recommendations.list(
+            entity_id="entity_id",
+        )
         for item in response:
             yield item
         # alternatively, you can paginate page-by-page
@@ -97,17 +94,14 @@ class RecommendationsClient:
             yield page
         """
         return self._raw_client.list(
+            entity_id=entity_id,
             limit=limit,
             cursor=cursor,
-            entity_id=entity_id,
-            entity_name=entity_name,
-            entity_type=entity_type,
             channel_id=channel_id,
-            channel_name=channel_name,
-            mention_class=mention_class,
+            class_=class_,
             min_confidence=min_confidence,
-            date_from=date_from,
-            date_to=date_to,
+            after=after,
+            before=before,
             include_disputed=include_disputed,
             request_options=request_options,
         )
@@ -131,47 +125,43 @@ class AsyncRecommendationsClient:
     async def list(
         self,
         *,
+        entity_id: str,
         limit: typing.Optional[int] = None,
         cursor: typing.Optional[str] = None,
-        entity_id: typing.Optional[str] = None,
-        entity_name: typing.Optional[str] = None,
-        entity_type: typing.Optional[ListRecommendationsRequestEntityType] = None,
         channel_id: typing.Optional[str] = None,
-        channel_name: typing.Optional[str] = None,
-        mention_class: typing.Optional[ListRecommendationsRequestMentionClass] = None,
+        class_: typing.Optional[ListRecommendationsRequestClass] = None,
         min_confidence: typing.Optional[float] = None,
-        date_from: typing.Optional[str] = None,
-        date_to: typing.Optional[str] = None,
+        after: typing.Optional[str] = None,
+        before: typing.Optional[str] = None,
         include_disputed: typing.Optional[bool] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[Recommendation, RecommendationListResponse]:
         """
-        Cursor-paginated commercial mentions (ad reads, endorsements, neutral mentions) filtered by entity (entity_id or entity_name is required), channel, mention_class, confidence, and date range. The signed continuation binds the route, filters, caller and visibility; invalid or old cursors return invalid_cursor. A first-page ID fence excludes later insertions, including old-date backfills. Edits and deletions to existing rows remain live. Requires a Pro+ plan. Read timestamps from start_seconds / end_seconds (integer seconds); the MM:SS string fields are deprecated.
+        Cursor-paginated commercial mentions (sponsored, organic and neutral mentions) filtered by entity (entity_id is required; resolve a name first with GET /v1/entities/resolve, or the call answers 400 id_required naming the parameter), channel (channel_id), class, confidence, and publication window [after, before). The signed continuation binds the route, filters, caller and visibility; invalid or old cursors return invalid_cursor. A first-page ID fence excludes later insertions, including old-date backfills. Edits and deletions to existing rows remain live. Requires a Pro+ plan. Positions are start_seconds and end_seconds (integer seconds).
 
         Parameters
         ----------
+        entity_id : str
+            The entity, as an id like ent_14. Required. Ids only: a name answers 400 id_required. Resolve names first with GET /v1/entities/resolve.
+
         limit : typing.Optional[int]
 
         cursor : typing.Optional[str]
             Signed continuation from next_cursor. Bound to this route, normalized query, caller and visibility; invalid or old tokens return invalid_cursor.
 
-        entity_id : typing.Optional[str]
-
-        entity_name : typing.Optional[str]
-
-        entity_type : typing.Optional[ListRecommendationsRequestEntityType]
-
         channel_id : typing.Optional[str]
+            Only media from this YouTube channel id (UC plus 22 characters). Ids only: a name answers 400 id_required. Resolve names first with GET /v1/entities/resolve.
 
-        channel_name : typing.Optional[str]
-
-        mention_class : typing.Optional[ListRecommendationsRequestMentionClass]
+        class_ : typing.Optional[ListRecommendationsRequestClass]
+            The commercial class to return. Omit for all three. Values: sponsored (an ad-style promotion heard at that moment: a paid sponsor read, promo code, affiliate plug, thanks for supplied goods or venue, or a show promoting its own product as an ad), organic (an unpaid personal recommendation), mention (a neutral commercial mention).
 
         min_confidence : typing.Optional[float]
 
-        date_from : typing.Optional[str]
+        after : typing.Optional[str]
+            Only media published at or after this instant. An ISO 8601 date (2026-09-01) or datetime with offset (2026-09-01T00:00:00Z), read in UTC. The window is half-open: after is inclusive, before is exclusive.
 
-        date_to : typing.Optional[str]
+        before : typing.Optional[str]
+            Only media published before this instant, so before=2026-09-02 includes all of 2026-09-01. An ISO 8601 date (2026-09-01) or datetime with offset (2026-09-01T00:00:00Z), read in UTC. The window is half-open: after is inclusive, before is exclusive.
 
         include_disputed : typing.Optional[bool]
 
@@ -195,7 +185,9 @@ class AsyncRecommendationsClient:
 
 
         async def main() -> None:
-            response = await client.recommendations.list()
+            response = await client.recommendations.list(
+                entity_id="entity_id",
+            )
             async for item in response:
                 yield item
 
@@ -207,17 +199,14 @@ class AsyncRecommendationsClient:
         asyncio.run(main())
         """
         return await self._raw_client.list(
+            entity_id=entity_id,
             limit=limit,
             cursor=cursor,
-            entity_id=entity_id,
-            entity_name=entity_name,
-            entity_type=entity_type,
             channel_id=channel_id,
-            channel_name=channel_name,
-            mention_class=mention_class,
+            class_=class_,
             min_confidence=min_confidence,
-            date_from=date_from,
-            date_to=date_to,
+            after=after,
+            before=before,
             include_disputed=include_disputed,
             request_options=request_options,
         )

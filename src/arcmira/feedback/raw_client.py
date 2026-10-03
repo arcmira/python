@@ -21,6 +21,7 @@ from ..errors.unauthorized_error import UnauthorizedError
 from ..types.error import Error
 from ..types.feedback_readback_response import FeedbackReadbackResponse
 from ..types.feedback_response import FeedbackResponse
+from .types.submit_feedback_request_category import SubmitFeedbackRequestCategory
 from .types.submit_feedback_request_corrections_item import SubmitFeedbackRequestCorrectionsItem
 from .types.submit_feedback_request_method import SubmitFeedbackRequestMethod
 from .types.submit_feedback_request_type import SubmitFeedbackRequestType
@@ -38,8 +39,8 @@ class RawFeedbackClient:
         self,
         *,
         type: SubmitFeedbackRequestType,
-        query: typing.Dict[str, typing.Any],
         idempotency_key: typing.Optional[str] = None,
+        query: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         endpoint: typing.Optional[str] = OMIT,
         method: typing.Optional[SubmitFeedbackRequestMethod] = OMIT,
         request_id: typing.Optional[str] = OMIT,
@@ -47,21 +48,23 @@ class RawFeedbackClient:
         source_url: typing.Optional[str] = OMIT,
         notes: typing.Optional[str] = OMIT,
         corrections: typing.Optional[typing.Sequence[SubmitFeedbackRequestCorrectionsItem]] = OMIT,
+        category: typing.Optional[SubmitFeedbackRequestCategory] = OMIT,
+        mcp_call_id: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[FeedbackResponse]:
         """
-        Attach corrections to the exact query you ran: pass the feedback type, the query object you sent, and optional per-item corrections. Public submissions are recorded for human review (status "logged"); nothing is auto-applied. Read the review status back later via GET /v1/feedback/{feedback_id}. recommendations and channel_sponsors feedback types require a Pro+ plan; every other type needs read. monitor_alert feedback targets fired alert rows: query carries monitor_id and/or tracker_id and/or alert_id, corrections target the alert row id, and every referenced alert row must belong to the caller (otherwise 404 alert_not_found). missed_alert corrections are expectations with no row to target: omit the correction id and put { source_url, approximate_timestamp_seconds?, entity_id? } in suggested_change. delivery_issue corrections may carry { channel } in suggested_change.
+        Attach corrections to the exact query you ran: pass the feedback type, the query object you sent, and optional per-item corrections. Public submissions are recorded for human review (status "logged"); nothing is auto-applied. Read the review status back later via GET /v1/feedback/{feedback_id}. recommendations and channel_sponsors feedback types require a Pro+ plan; every other type needs read. monitor_alert feedback targets fired alert rows: query carries monitor_id and/or tracker_id and/or alert_id, corrections target the alert row id, and every referenced alert row must belong to the caller (otherwise 404 alert_not_found). missed_alert corrections are expectations with no row to target: omit the correction id and put { source_url, approximate_timestamp_seconds?, entity_id? } in suggested_change. delivery_issue corrections may carry { channel } in suggested_change. experience feedback says how a task went as a whole rather than correcting a row: it requires category and notes, refuses corrections (400 invalid_feedback_request), and needs no query. category and mcp_call_id, when sent, are recorded in the stored query.
 
         Parameters
         ----------
         type : SubmitFeedbackRequestType
-            The surface being reviewed. Values: recommendations (/v1/recommendations rows by com_* id; requires a Pro+ plan), channel_sponsors (sponsor entities on a channel; requires a Pro+ plan), mentions (/v1/mentions rows by men_* id), entities_search (/v1/entities/search hits), entities (/v1/entities/lookup and /v1/entities/{id} payloads), channels (/v1/channels/{slug} payloads), monitor_alert (fired alert rows from /v1/monitors/{id}/alerts or /v1/trackers/{id}/alerts; corrections target the alert row id), appearances (person appearance rows), search (rows from /v1/search or /v1/entities/search).
-
-        query : typing.Dict[str, typing.Any]
-            The query object that produced the result you are reviewing, echoed back verbatim so reviewers can replay it. For monitor_alert feedback, carry monitor_id and/or tracker_id and/or alert_id.
+            The surface being reviewed. Values: recommendations (/v1/recommendations rows by com_* id; requires a Pro+ plan), channel_sponsors (sponsor entities on a channel; requires a Pro+ plan), mentions (/v1/mentions rows by men_* id), entities_search (/v1/entities/resolve candidates), entities (/v1/entities/{id} payloads), channels (/v1/channels/{channel_id}/videos rows), monitor_alert (fired alert rows from /v1/monitors/{id}/alerts or /v1/trackers/{id}/alerts; corrections target the alert row id), appearances (person appearance rows from /v1/mentions with is_appearance=true), search (/v1/search passages), experience (how a task went as a whole, not one row: requires category and notes, takes no corrections, and query is optional).
 
         idempotency_key : typing.Optional[str]
             1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400 invalid_idempotency_key. Persist a unique key and the exact request before sending a logical mutation. A retry returns its stored response with Idempotency-Replayed: true. A changed intent under a finalized key returns 409 idempotency_conflict. Keys belong to the authenticated owner, credential and mutation domain. Current authorization still applies. Receipts have no general 24-hour expiry; signing-secret recovery alone expires after 24 hours or when the secret is displaced.
+
+        query : typing.Optional[typing.Dict[str, typing.Any]]
+            The query object that produced the result you are reviewing, echoed back verbatim so reviewers can replay it. For monitor_alert feedback, carry monitor_id and/or tracker_id and/or alert_id.
 
         endpoint : typing.Optional[str]
 
@@ -74,8 +77,16 @@ class RawFeedbackClient:
         source_url : typing.Optional[str]
 
         notes : typing.Optional[str]
+            Free text for the reviewer. Required when type is experience: say what the user asked for and what went wrong, slow, or missing.
 
         corrections : typing.Optional[typing.Sequence[SubmitFeedbackRequestCorrectionsItem]]
+            Per-row corrections. Not allowed when type is experience.
+
+        category : typing.Optional[SubmitFeedbackRequestCategory]
+            What kind of problem this is. Values: wrong_entity (a name resolved to the wrong person, company or thing), bad_data (a row or field is wrong), missing (something that should exist was not found), slow (the task took too long), confusing (the answer or an error was hard to act on), other (anything else; say what in notes). Required when type is experience.
+
+        mcp_call_id : typing.Optional[str]
+            The MCP tool call this feedback is about, as the Arcmira MCP server names it (mcpc_ and 32 hex digits). Joins the feedback to that call in product analytics.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -102,6 +113,8 @@ class RawFeedbackClient:
                     annotation=typing.Sequence[SubmitFeedbackRequestCorrectionsItem],
                     direction="write",
                 ),
+                "category": category,
+                "mcp_call_id": mcp_call_id,
             },
             headers={
                 "content-type": "application/json",
@@ -215,7 +228,7 @@ class RawFeedbackClient:
         Parameters
         ----------
         feedback_id : str
-            The feedback submission id POST /v1/feedback returned.
+            The feedback submission id POST /v1/feedback returned, fbk_ and digits.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -324,8 +337,8 @@ class AsyncRawFeedbackClient:
         self,
         *,
         type: SubmitFeedbackRequestType,
-        query: typing.Dict[str, typing.Any],
         idempotency_key: typing.Optional[str] = None,
+        query: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         endpoint: typing.Optional[str] = OMIT,
         method: typing.Optional[SubmitFeedbackRequestMethod] = OMIT,
         request_id: typing.Optional[str] = OMIT,
@@ -333,21 +346,23 @@ class AsyncRawFeedbackClient:
         source_url: typing.Optional[str] = OMIT,
         notes: typing.Optional[str] = OMIT,
         corrections: typing.Optional[typing.Sequence[SubmitFeedbackRequestCorrectionsItem]] = OMIT,
+        category: typing.Optional[SubmitFeedbackRequestCategory] = OMIT,
+        mcp_call_id: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[FeedbackResponse]:
         """
-        Attach corrections to the exact query you ran: pass the feedback type, the query object you sent, and optional per-item corrections. Public submissions are recorded for human review (status "logged"); nothing is auto-applied. Read the review status back later via GET /v1/feedback/{feedback_id}. recommendations and channel_sponsors feedback types require a Pro+ plan; every other type needs read. monitor_alert feedback targets fired alert rows: query carries monitor_id and/or tracker_id and/or alert_id, corrections target the alert row id, and every referenced alert row must belong to the caller (otherwise 404 alert_not_found). missed_alert corrections are expectations with no row to target: omit the correction id and put { source_url, approximate_timestamp_seconds?, entity_id? } in suggested_change. delivery_issue corrections may carry { channel } in suggested_change.
+        Attach corrections to the exact query you ran: pass the feedback type, the query object you sent, and optional per-item corrections. Public submissions are recorded for human review (status "logged"); nothing is auto-applied. Read the review status back later via GET /v1/feedback/{feedback_id}. recommendations and channel_sponsors feedback types require a Pro+ plan; every other type needs read. monitor_alert feedback targets fired alert rows: query carries monitor_id and/or tracker_id and/or alert_id, corrections target the alert row id, and every referenced alert row must belong to the caller (otherwise 404 alert_not_found). missed_alert corrections are expectations with no row to target: omit the correction id and put { source_url, approximate_timestamp_seconds?, entity_id? } in suggested_change. delivery_issue corrections may carry { channel } in suggested_change. experience feedback says how a task went as a whole rather than correcting a row: it requires category and notes, refuses corrections (400 invalid_feedback_request), and needs no query. category and mcp_call_id, when sent, are recorded in the stored query.
 
         Parameters
         ----------
         type : SubmitFeedbackRequestType
-            The surface being reviewed. Values: recommendations (/v1/recommendations rows by com_* id; requires a Pro+ plan), channel_sponsors (sponsor entities on a channel; requires a Pro+ plan), mentions (/v1/mentions rows by men_* id), entities_search (/v1/entities/search hits), entities (/v1/entities/lookup and /v1/entities/{id} payloads), channels (/v1/channels/{slug} payloads), monitor_alert (fired alert rows from /v1/monitors/{id}/alerts or /v1/trackers/{id}/alerts; corrections target the alert row id), appearances (person appearance rows), search (rows from /v1/search or /v1/entities/search).
-
-        query : typing.Dict[str, typing.Any]
-            The query object that produced the result you are reviewing, echoed back verbatim so reviewers can replay it. For monitor_alert feedback, carry monitor_id and/or tracker_id and/or alert_id.
+            The surface being reviewed. Values: recommendations (/v1/recommendations rows by com_* id; requires a Pro+ plan), channel_sponsors (sponsor entities on a channel; requires a Pro+ plan), mentions (/v1/mentions rows by men_* id), entities_search (/v1/entities/resolve candidates), entities (/v1/entities/{id} payloads), channels (/v1/channels/{channel_id}/videos rows), monitor_alert (fired alert rows from /v1/monitors/{id}/alerts or /v1/trackers/{id}/alerts; corrections target the alert row id), appearances (person appearance rows from /v1/mentions with is_appearance=true), search (/v1/search passages), experience (how a task went as a whole, not one row: requires category and notes, takes no corrections, and query is optional).
 
         idempotency_key : typing.Optional[str]
             1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400 invalid_idempotency_key. Persist a unique key and the exact request before sending a logical mutation. A retry returns its stored response with Idempotency-Replayed: true. A changed intent under a finalized key returns 409 idempotency_conflict. Keys belong to the authenticated owner, credential and mutation domain. Current authorization still applies. Receipts have no general 24-hour expiry; signing-secret recovery alone expires after 24 hours or when the secret is displaced.
+
+        query : typing.Optional[typing.Dict[str, typing.Any]]
+            The query object that produced the result you are reviewing, echoed back verbatim so reviewers can replay it. For monitor_alert feedback, carry monitor_id and/or tracker_id and/or alert_id.
 
         endpoint : typing.Optional[str]
 
@@ -360,8 +375,16 @@ class AsyncRawFeedbackClient:
         source_url : typing.Optional[str]
 
         notes : typing.Optional[str]
+            Free text for the reviewer. Required when type is experience: say what the user asked for and what went wrong, slow, or missing.
 
         corrections : typing.Optional[typing.Sequence[SubmitFeedbackRequestCorrectionsItem]]
+            Per-row corrections. Not allowed when type is experience.
+
+        category : typing.Optional[SubmitFeedbackRequestCategory]
+            What kind of problem this is. Values: wrong_entity (a name resolved to the wrong person, company or thing), bad_data (a row or field is wrong), missing (something that should exist was not found), slow (the task took too long), confusing (the answer or an error was hard to act on), other (anything else; say what in notes). Required when type is experience.
+
+        mcp_call_id : typing.Optional[str]
+            The MCP tool call this feedback is about, as the Arcmira MCP server names it (mcpc_ and 32 hex digits). Joins the feedback to that call in product analytics.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -388,6 +411,8 @@ class AsyncRawFeedbackClient:
                     annotation=typing.Sequence[SubmitFeedbackRequestCorrectionsItem],
                     direction="write",
                 ),
+                "category": category,
+                "mcp_call_id": mcp_call_id,
             },
             headers={
                 "content-type": "application/json",
@@ -501,7 +526,7 @@ class AsyncRawFeedbackClient:
         Parameters
         ----------
         feedback_id : str
-            The feedback submission id POST /v1/feedback returned.
+            The feedback submission id POST /v1/feedback returned, fbk_ and digits.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.

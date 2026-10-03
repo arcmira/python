@@ -8,7 +8,7 @@ from .alert import Alert
 
 
 class AlertListResponse(UniversalBaseModel):
-    data: typing.List[Alert] = pydantic.Field()
+    alerts: typing.List[Alert] = pydantic.Field()
     """
     Newest alerts first.
     """

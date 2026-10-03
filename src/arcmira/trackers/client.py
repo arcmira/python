@@ -81,15 +81,15 @@ class TrackersClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> TrackerMutationResponse:
         """
-        Creates a standalone tracker watching one entity (name + type, resolved with the same entity resolution Search uses). Attach it to a monitor afterwards via POST /v1/monitors/{id}/trackers. Creating a duplicate (same entity name + type) returns 409 with the existingId.
+        Creates a standalone tracker watching one exact name and type, matched case-insensitively against entities in newly analyzed media, so a tracker can exist before the entity is indexed. To follow an entity you already have an id for, use POST /v1/monitors/{id}/entities. A channel is followed by its YouTube channel id (UC plus 22 characters); a channel name answers 400 id_required. Attach it to a monitor afterwards via POST /v1/monitors/{id}/trackers. Creating a duplicate (same entity name + type) returns 409 tracker_already_exists with the existing tracker id in error.details.existing_id.
 
         Parameters
         ----------
         entity_name : str
-            The entity name to resolve and watch. Required on create. Creating a duplicate (same name + type) returns 409 with the existingId.
+            The exact name to watch, matched case-insensitively against analyzed media, so a tracker can exist before the entity is indexed. For a channel, the YouTube channel id (UC plus 22 characters), never a name: a channel name answers 400 id_required naming GET /v1/entities/resolve?q=...&type=channel and best.youtube_channel_id. Required on create. Creating a duplicate (same name, compared case-insensitively, and type) returns 409 tracker_already_exists with the existing tracker id in error.details.existing_id.
 
         entity_type : CreateTrackersRequestEntityType
-            Entity type of the tracked entity. Required on create.
+            Entity type of the tracked entity. Required on create. org is accepted for organization, and the tracker answers organization.
 
         idempotency_key : typing.Optional[str]
             One key per intent, 1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400 invalid_idempotency_key. Keys are scoped to the account, credential and resource family. The same key and normalized method, path and body returns the committed response with Idempotency-Replayed: true. A changed intent within the same family returns 409 idempotency_conflict. Monitor and tracker families have independent namespaces. Secret recovery is limited as described by the operation.
@@ -138,7 +138,7 @@ class TrackersClient:
         )
         client.trackers.create(
             idempotency_key="8b2f6c3e-4d1a-4e7b-9c05-2f6a1b7d3e90",
-            entity_name="entityName",
+            entity_name="entity_name",
             entity_type="person",
         )
         """
@@ -218,7 +218,7 @@ class TrackersClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> TrackerMutationResponse:
         """
-        Partial update: send only the fields to change. The tracked entity itself (entityName/entityType) is immutable; delete and recreate to watch a different entity.
+        Partial update: send only the fields to change. The tracked entity itself (entity_name/entity_type) is immutable; delete and recreate to watch a different entity.
 
         Parameters
         ----------
@@ -373,15 +373,15 @@ class AsyncTrackersClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> TrackerMutationResponse:
         """
-        Creates a standalone tracker watching one entity (name + type, resolved with the same entity resolution Search uses). Attach it to a monitor afterwards via POST /v1/monitors/{id}/trackers. Creating a duplicate (same entity name + type) returns 409 with the existingId.
+        Creates a standalone tracker watching one exact name and type, matched case-insensitively against entities in newly analyzed media, so a tracker can exist before the entity is indexed. To follow an entity you already have an id for, use POST /v1/monitors/{id}/entities. A channel is followed by its YouTube channel id (UC plus 22 characters); a channel name answers 400 id_required. Attach it to a monitor afterwards via POST /v1/monitors/{id}/trackers. Creating a duplicate (same entity name + type) returns 409 tracker_already_exists with the existing tracker id in error.details.existing_id.
 
         Parameters
         ----------
         entity_name : str
-            The entity name to resolve and watch. Required on create. Creating a duplicate (same name + type) returns 409 with the existingId.
+            The exact name to watch, matched case-insensitively against analyzed media, so a tracker can exist before the entity is indexed. For a channel, the YouTube channel id (UC plus 22 characters), never a name: a channel name answers 400 id_required naming GET /v1/entities/resolve?q=...&type=channel and best.youtube_channel_id. Required on create. Creating a duplicate (same name, compared case-insensitively, and type) returns 409 tracker_already_exists with the existing tracker id in error.details.existing_id.
 
         entity_type : CreateTrackersRequestEntityType
-            Entity type of the tracked entity. Required on create.
+            Entity type of the tracked entity. Required on create. org is accepted for organization, and the tracker answers organization.
 
         idempotency_key : typing.Optional[str]
             One key per intent, 1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400 invalid_idempotency_key. Keys are scoped to the account, credential and resource family. The same key and normalized method, path and body returns the committed response with Idempotency-Replayed: true. A changed intent within the same family returns 409 idempotency_conflict. Monitor and tracker families have independent namespaces. Secret recovery is limited as described by the operation.
@@ -435,7 +435,7 @@ class AsyncTrackersClient:
         async def main() -> None:
             await client.trackers.create(
                 idempotency_key="8b2f6c3e-4d1a-4e7b-9c05-2f6a1b7d3e90",
-                entity_name="entityName",
+                entity_name="entity_name",
                 entity_type="person",
             )
 
@@ -526,7 +526,7 @@ class AsyncTrackersClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> TrackerMutationResponse:
         """
-        Partial update: send only the fields to change. The tracked entity itself (entityName/entityType) is immutable; delete and recreate to watch a different entity.
+        Partial update: send only the fields to change. The tracked entity itself (entity_name/entity_type) is immutable; delete and recreate to watch a different entity.
 
         Parameters
         ----------

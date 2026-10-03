@@ -3,34 +3,19 @@
 import typing
 
 import pydantic
-import typing_extensions
 from ..core.pydantic_utilities import IS_PYDANTIC_V2
-from ..core.serialization import FieldMetadata
 from .monitor import Monitor
 
 
 class MonitorMutationResponseMonitor(Monitor):
-    tracker_count: typing_extensions.Annotated[
-        int,
-        FieldMetadata(alias="trackerCount"),
-        pydantic.Field(
-            alias="trackerCount", description="Number of trackers in the monitor. Always 0 in the create response."
-        ),
-    ]
+    tracker_count: int = pydantic.Field()
     """
     Number of trackers in the monitor. Always 0 in the create response.
     """
 
-    webhook_secret: typing_extensions.Annotated[
-        typing.Optional[str],
-        FieldMetadata(alias="webhookSecret"),
-        pydantic.Field(
-            alias="webhookSecret",
-            description='The webhook signing secret ("whsec_..."). Only present when this request NEWLY enabled webhook signing: a create with notifyWebhook: true and a webhookUrl, or a PATCH that turns the webhook on (or sets a URL) where no secret existed before. Store it securely. The same Idempotency-Key can recover it for up to 24 hours while it remains the current or valid previous secret. A displaced or expired secret returns idempotency_result_expired without rotating again.',
-        ),
-    ] = None
+    webhook_secret: typing.Optional[str] = pydantic.Field(default=None)
     """
-    The webhook signing secret ("whsec_..."). Only present when this request NEWLY enabled webhook signing: a create with notifyWebhook: true and a webhookUrl, or a PATCH that turns the webhook on (or sets a URL) where no secret existed before. Store it securely. The same Idempotency-Key can recover it for up to 24 hours while it remains the current or valid previous secret. A displaced or expired secret returns idempotency_result_expired without rotating again.
+    The webhook signing secret ("whsec_..."). Only present when this request NEWLY enabled webhook signing: a create with notify_webhook: true and a webhook_url, or a PATCH that turns the webhook on (or sets a URL) where no secret existed before. Store it securely. The same Idempotency-Key can recover it for up to 24 hours while it remains the current or valid previous secret. A displaced or expired secret returns idempotency_result_expired without rotating again.
     """
 
     if IS_PYDANTIC_V2:

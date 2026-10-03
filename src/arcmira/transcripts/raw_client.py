@@ -12,7 +12,6 @@ from ..core.parse_error import ParsingError
 from ..core.pydantic_utilities import parse_obj_as
 from ..core.request_options import RequestOptions
 from ..errors.bad_request_error import BadRequestError
-from ..errors.conflict_error import ConflictError
 from ..errors.forbidden_error import ForbiddenError
 from ..errors.internal_server_error import InternalServerError
 from ..errors.not_found_error import NotFoundError
@@ -21,20 +20,14 @@ from ..errors.service_unavailable_error import ServiceUnavailableError
 from ..errors.too_many_requests_error import TooManyRequestsError
 from ..errors.unauthorized_error import UnauthorizedError
 from ..types.error import Error
-from ..types.transcript_job import TranscriptJob
 from ..types.transcript_purchase_quote import TranscriptPurchaseQuote
 from ..types.transcript_request_list_response import TranscriptRequestListResponse
 from ..types.transcript_request_list_response_requests_item import TranscriptRequestListResponseRequestsItem
-from ..types.transcript_request_submit_response import TranscriptRequestSubmitResponse
 from ..types.transcript_result import TranscriptResult
 from ..types.transcript_search_response import TranscriptSearchResponse
-from ..types.video_captions_response import VideoCaptionsResponse
 from .types.get_transcripts_request_quality import GetTranscriptsRequestQuality
 from .types.search_transcripts_request_source import SearchTranscriptsRequestSource
 from pydantic import ValidationError
-
-# this is used as the default value for optional parameters
-OMIT = typing.cast(typing.Any, ...)
 
 
 class RawTranscriptsClient:
@@ -51,14 +44,14 @@ class RawTranscriptsClient:
         about: typing.Optional[str] = None,
         by: typing.Optional[str] = None,
         kind: typing.Optional[str] = None,
-        published_after: typing.Optional[str] = None,
-        published_before: typing.Optional[str] = None,
+        after: typing.Optional[str] = None,
+        before: typing.Optional[str] = None,
         source: typing.Optional[SearchTranscriptsRequestSource] = None,
         limit: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[TranscriptSearchResponse]:
         """
-        Search indexed YouTube and podcast transcripts for short spoken slices. Each result includes spoken text, a watch URL, and a publish date. Scope with channel_ids (or channel) and entity_ids (a person id filters to that person's appearances); narrow to passages about entities with about, to a speaker with by, and to mention, recommendation_sponsored or recommendation_organic passages with kind. Every filter takes ids, never names: resolve a name first with GET /v1/entities/resolve, or the call answers 400 id_required naming the parameter. Results carry names beside ids (filters.about, filters.by, chunk about and speakers_by). Use one topic per call. Search results include text on every plan within the plan's publication-date window. Explicitly requesting source=arcmira_premium on a plan without Premium transcripts is refused with filter_requires_paid. A published_after narrower than the plan's freshness gate is refused with freshness_requires_paid rather than widened. Bills one row per chunk returned. Every gate is a typed error whose error.unlock.url names the plan that lifts it; pass src=mcp-tool only from the Arcmira MCP server.
+        Search indexed YouTube and podcast transcripts for short spoken slices. Each result includes spoken text, a watch URL, and a publish date. Scope with channel_ids (or channel) and entity_ids (a person id filters to that person's appearances); narrow to passages about entities with about, to a speaker with by, and to sponsored, organic or mention passages with kind. Every filter takes ids, never names: resolve a name first with GET /v1/entities/resolve, or the call answers 400 id_required naming the parameter. Results carry names beside ids (filters.about, filters.by, chunk about and speakers_by). Use one topic per call. Search results include text on every plan within the plan's publication-date window. Explicitly requesting source=arcmira_premium on a plan without Premium transcripts is refused with filter_requires_paid. An after later than the plan's freshness gate is refused with freshness_requires_paid rather than widened. Bills one row per chunk returned. Every gate is a typed error whose error.unlock.url names the plan that lifts it; pass src=mcp-tool only from the Arcmira MCP server.
 
         Parameters
         ----------
@@ -81,13 +74,13 @@ class RawTranscriptsClient:
             Comma-separated person ids (ent_{n}), at most 8. Only passages where one of these people says the query words (each line of a chunk is labeled with its speaker); a non-person id is refused with invalid_query naming its type. Speaker labels cover a minority of shows; an empty result carries a note saying whether the person is labeled anywhere. Ids only: a name answers 400 id_required. Resolve names first with GET /v1/entities/resolve.
 
         kind : typing.Optional[str]
-            Comma-separated passage kinds: mention, recommendation_sponsored, recommendation_organic. Combine with about to read what was said about a brand in ad reads or in organic talk.
+            Comma-separated passage classes: sponsored, organic, mention. Combine with about to read what was said about a brand in ad reads or in organic talk.
 
-        published_after : typing.Optional[str]
-            ISO date. Only media published on or after this day. A window narrower than your plan's freshness gate is refused with freshness_requires_paid rather than widened.
+        after : typing.Optional[str]
+            Only media published at or after this instant. An after later than your plan's freshness gate is refused with freshness_requires_paid rather than widened. An ISO 8601 date (2026-09-01) or datetime with offset (2026-09-01T00:00:00Z), read in UTC. The window is half-open: after is inclusive, before is exclusive.
 
-        published_before : typing.Optional[str]
-            ISO date. Only media published before this day.
+        before : typing.Optional[str]
+            Only media published before this instant, so before=2026-09-02 includes all of 2026-09-01. An ISO 8601 date (2026-09-01) or datetime with offset (2026-09-01T00:00:00Z), read in UTC. The window is half-open: after is inclusive, before is exclusive.
 
         source : typing.Optional[SearchTranscriptsRequestSource]
             Restrict to one transcript source class. arcmira_premium on a plan without Premium transcripts is refused with filter_requires_paid.
@@ -104,7 +97,7 @@ class RawTranscriptsClient:
             Success
         """
         _response = self._client_wrapper.httpx_client.request(
-            "v1/transcripts/search",
+            "v1/search",
             method="GET",
             params={
                 "q": q,
@@ -114,8 +107,8 @@ class RawTranscriptsClient:
                 "about": about,
                 "by": by,
                 "kind": kind,
-                "published_after": published_after,
-                "published_before": published_before,
+                "after": after,
+                "before": before,
                 "source": source,
                 "limit": limit,
             },
@@ -237,11 +230,12 @@ class RawTranscriptsClient:
         timestamps: typing.Optional[bool] = None,
         start: typing.Optional[float] = None,
         end: typing.Optional[float] = None,
+        retry: typing.Optional[bool] = None,
         refresh: typing.Optional[bool] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[TranscriptResult]:
         """
-        Caption retrieval costs one row per started 15 minutes. Premium retrieval is free and never buys, generates, or returns fallback captions. Branch on state: 200 ready is owned content; 202 pending carries the job, with Retry-After; 200 preparation_required carries the whole-video quote and the action to take, POST /v1/transcriptions with { video_id }, plus last_attempt when the previous purchase failed. Plans without Premium read captions with an access gate instead. start/end only trim the returned content; language selects caption tracks, timestamps=false returns paragraphs. Premium responses retain revision and line indexes for corrections.
+        Caption retrieval costs one row per started 15 minutes. quality=premium is one read: an owned transcript answers 200 ready at zero rows; otherwise this call buys the whole video within the account's plan and on-demand budget, included credits first and then on-demand money up to the account limit, and answers 202 pending with the job and Retry-After until the transcript is ready. Read again after Retry-After; repeated reads join the same purchase and never buy twice. When the last purchase for the video failed, the read answers 200 state failed with the job and last_attempt and buys nothing; retry=true buys it again. When the plan or the budget blocks, 403 paid_plan_required (with unlock) or 402 quota_exceeded or spend_limit_exceeded carries the price in quote and nothing is charged. A default-premium account with nothing owned reads captions with a note. start/end only trim the returned content; language selects caption tracks, timestamps=false returns paragraphs. Premium lines carry speaker and index, and the body carries speakers and revision.
 
         Parameters
         ----------
@@ -249,7 +243,7 @@ class RawTranscriptsClient:
             YouTube video id, 11 characters.
 
         quality : typing.Optional[GetTranscriptsRequestQuality]
-            captions reads creator or automatic captions at 1 row per started 15 minutes. premium is read-only: an owned transcript returns 200 state ready at zero rows, an active purchase returns 202 state pending with its job, and an unowned transcript on a plan with Premium returns 200 state preparation_required with the quote and the POST /v1/transcriptions action. It never purchases or substitutes captions. Default captions unless changed in account settings.
+            captions reads creator or automatic captions at 1 row per started 15 minutes. premium is one read: an owned transcript returns 200 state ready at zero rows; otherwise the read buys the whole video within the account's plan and on-demand budget (included credits first, then on-demand money up to the account limit) and returns 202 state pending with the job until it is ready. When the last purchase for the video failed it answers 200 state failed and buys again only with retry=true. 402 quota_exceeded or spend_limit_exceeded and 403 paid_plan_required carry the price in quote. It never substitutes captions. Default captions unless changed in account settings.
 
         language : typing.Optional[str]
             Comma-separated caption language priority list, at most 5, tried in order (e.g. "de,en"). Use asr for the first automatic track and asr-<code> for a specific one. Default en. languages[] in the response lists every track the video offers.
@@ -263,6 +257,9 @@ class RawTranscriptsClient:
         end : typing.Optional[float]
             Window end in seconds, greater than start and no greater than the video duration. Send start and end together.
 
+        retry : typing.Optional[bool]
+            Premium only; captions with retry=true returns invalid_query. When the last Premium purchase for this video failed, a read answers 200 state failed with the job and last_attempt and buys nothing; retry=true buys it again under the same quote, budget and one-purchase rules as the first read. While that refund is still settling (job.status refund_pending) even retry=true answers state failed. Without a failed purchase it changes nothing.
+
         refresh : typing.Optional[bool]
             Captions only; Premium with refresh=true returns invalid_query. Refetch the caption track from YouTube instead of serving the stored copy. Available only for videos outside our index; a pipeline-owned video refuses it with invalid_query.
 
@@ -272,7 +269,7 @@ class RawTranscriptsClient:
         Returns
         -------
         HttpResponse[TranscriptResult]
-            state ready: the transcript (video, quality, source, language, languages, lines or paragraphs, speakers and revision on Premium, rows_billed, as_of, note). state preparation_required: Premium is not owned yet; the quote and the POST that prepares it.
+            state ready: the transcript (video, quality, source, language, languages, lines or paragraphs, speakers and revision on Premium, rows_billed, as_of, note). state failed (Premium only): the last purchase for this video failed; job and last_attempt say why, nothing was bought, and retry=true buys again.
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v1/transcripts/{encode_path_param(video_id)}",
@@ -283,6 +280,7 @@ class RawTranscriptsClient:
                 "timestamps": timestamps,
                 "start": start,
                 "end": end,
+                "retry": retry,
                 "refresh": refresh,
             },
             request_options=request_options,
@@ -398,7 +396,7 @@ class RawTranscriptsClient:
         self, video_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> HttpResponse[TranscriptPurchaseQuote]:
         """
-        Optional free quote. It does not reserve funds or start generation. max_rows authorizes rows, while max_on_demand_cents separately authorizes new money and defaults to zero on purchase. The accepted purchase stores its pricing mode. A video with no known duration, or one past the 12 hour cap, answers 400 invalid_query with param video_id.
+        Optional free quote: the price a Premium read of this video would charge right now, as rows and credits, where the credits would come from, and max_on_demand_cents, the on-demand money the read would need beyond included credits within the account limit. It does not reserve funds or start generation. A video with no known duration, or one past the 12 hour cap, answers 400 invalid_query with param video_id.
 
         Parameters
         ----------
@@ -485,126 +483,6 @@ class RawTranscriptsClient:
                 )
             if _response.status_code == 500:
                 raise InternalServerError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
-        except ValidationError as e:
-            raise ParsingError(
-                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
-            )
-        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
-
-    def captions(
-        self, video_id: str, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> HttpResponse[VideoCaptionsResponse]:
-        """
-        Free (0 rows), any key. Returns the video metadata and every caption track YouTube lists for it, each as { code, name, generated }. Call it when GET /v1/transcripts/{video_id} answered transcript_unavailable without languages, or before asking for a specific track. Listing is served from a day-long cache; a cold listing answers 503 transcript_fetching with Retry-After while the fetch continues in the background.
-
-        Parameters
-        ----------
-        video_id : str
-            YouTube video id, 11 characters.
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        HttpResponse[VideoCaptionsResponse]
-            Success
-        """
-        _response = self._client_wrapper.httpx_client.request(
-            f"v1/videos/{encode_path_param(video_id)}/captions",
-            method="GET",
-            request_options=request_options,
-        )
-        try:
-            if 200 <= _response.status_code < 300:
-                _data = typing.cast(
-                    VideoCaptionsResponse,
-                    parse_obj_as(
-                        type_=VideoCaptionsResponse,  # type: ignore
-                        object_=_response.json(),
-                    ),
-                )
-                return HttpResponse(response=_response, data=_data)
-            if _response.status_code == 400:
-                raise BadRequestError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 401:
-                raise UnauthorizedError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 403:
-                raise ForbiddenError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 404:
-                raise NotFoundError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 429:
-                raise TooManyRequestsError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 500:
-                raise InternalServerError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 503:
-                raise ServiceUnavailableError(
                     headers=dict(_response.headers),
                     body=typing.cast(
                         Error,
@@ -757,276 +635,6 @@ class RawTranscriptsClient:
             )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    def request(
-        self,
-        *,
-        idempotency_key: typing.Optional[str] = None,
-        video_id: typing.Optional[str] = OMIT,
-        url: typing.Optional[str] = OMIT,
-        max_rows: typing.Optional[int] = OMIT,
-        max_on_demand_cents: typing.Optional[int] = OMIT,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> HttpResponse[TranscriptRequestSubmitResponse]:
-        """
-        Explicit whole-video Premium purchase in one request: POST { video_id }. With no max_rows the purchase is capped at the current quote, and max_on_demand_cents defaults to zero, so it spends included rows or credits only and moves no money. Idempotency-Key is optional: without one, a purchase already open or owned for this video is returned with existing: true, and two simultaneous requests buy once. max_on_demand_cents above 0 is the only way to move money and requires both Idempotency-Key and max_rows (400 invalid_body names the missing one in param). A video with no known duration or longer than 12 hours answers 400 invalid_body with param video_id. A plan without Premium answers 403 paid_plan_required with unlock. Accepted price, mode, and debit identity persist across retries. Included rows or credits are reserved up front; monetary on-demand usage is reserved until Premium is ready. Existing owned unlocks cost zero. A terminal generation failure refunds the exact original debit and period before reporting refunded. A repeated key returns the same request; different intent with that key returns idempotency_conflict. The body is { job, existing }. Poll job.status_url after Retry-After. A pending job returns 202; a ready, failed or refunded job returns 200. Idempotency-Replayed: true marks a replay of the same key; a different key joined onto the active purchase answers existing: true without it.
-
-        Parameters
-        ----------
-        idempotency_key : typing.Optional[str]
-            1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400 invalid_idempotency_key. Persist a unique key and the exact request before sending a logical mutation. A retry returns its stored response with Idempotency-Replayed: true. A changed intent under a finalized key returns 409 idempotency_conflict. Keys belong to the authenticated owner, credential and mutation domain. Current authorization still applies. Receipts have no general 24-hour expiry; signing-secret recovery alone expires after 24 hours or when the secret is displaced.
-
-        video_id : typing.Optional[str]
-            YouTube video id (11 characters). Either video_id or url is required.
-
-        url : typing.Optional[str]
-            A YouTube watch/short/live URL. Either video_id or url is required.
-
-        max_rows : typing.Optional[int]
-            Maximum whole-video rows authorized. Credit mode charges four credits per row. Omit it to cap the purchase at the current quote. Required with max_on_demand_cents above 0.
-
-        max_on_demand_cents : typing.Optional[int]
-            Maximum new monetary on-demand charge in whole cents. Defaults to 0, which moves no money. Above 0 it requires Idempotency-Key and max_rows.
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        HttpResponse[TranscriptRequestSubmitResponse]
-            job.state is ready, failed or refunded: the transcript is servable, or the purchase ended without one.
-        """
-        _response = self._client_wrapper.httpx_client.request(
-            "v1/transcriptions",
-            method="POST",
-            json={
-                "video_id": video_id,
-                "url": url,
-                "max_rows": max_rows,
-                "max_on_demand_cents": max_on_demand_cents,
-            },
-            headers={
-                "content-type": "application/json",
-                "Idempotency-Key": str(idempotency_key) if idempotency_key is not None else None,
-            },
-            request_options=request_options,
-            omit=OMIT,
-        )
-        try:
-            if 200 <= _response.status_code < 300:
-                _data = typing.cast(
-                    TranscriptRequestSubmitResponse,
-                    parse_obj_as(
-                        type_=TranscriptRequestSubmitResponse,  # type: ignore
-                        object_=_response.json(),
-                    ),
-                )
-                return HttpResponse(response=_response, data=_data)
-            if _response.status_code == 400:
-                raise BadRequestError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 401:
-                raise UnauthorizedError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 402:
-                raise PaymentRequiredError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 403:
-                raise ForbiddenError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 404:
-                raise NotFoundError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 409:
-                raise ConflictError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 429:
-                raise TooManyRequestsError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 500:
-                raise InternalServerError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
-        except ValidationError as e:
-            raise ParsingError(
-                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
-            )
-        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
-
-    def status(
-        self, id: str, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> HttpResponse[TranscriptJob]:
-        """
-        Agent-friendly polling contract: while the request is in flight the response carries a Retry-After header (seconds) and body fields `eta_seconds` and `next_poll_seconds`. Sleep on Retry-After and re-poll. `status` walks queued → downloading → transcribing → analyzing → complete (user-facing `stage` folds downloading into transcribing). refund_pending retains Retry-After and next_poll_seconds until reversal completes; it has no completion ETA. Terminal statuses (`complete`, `failed`, `refunded`) drop Retry-After. On `complete`, fetch the transcript via GET /v1/transcripts/{video_id}; the successful purchase owns the permanent unlock. `refunded` means the pipeline failed and the rows were returned. A caller with no account holds no jobs: it is refused with 401 job_requires_account, whose unlock points at sign-up.
-
-        Parameters
-        ----------
-        id : str
-            Transcription request id, the UUID POST /v1/transcriptions returned.
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        HttpResponse[TranscriptJob]
-            Success
-        """
-        _response = self._client_wrapper.httpx_client.request(
-            f"v1/transcriptions/{encode_path_param(id)}",
-            method="GET",
-            request_options=request_options,
-        )
-        try:
-            if 200 <= _response.status_code < 300:
-                _data = typing.cast(
-                    TranscriptJob,
-                    parse_obj_as(
-                        type_=TranscriptJob,  # type: ignore
-                        object_=_response.json(),
-                    ),
-                )
-                return HttpResponse(response=_response, data=_data)
-            if _response.status_code == 400:
-                raise BadRequestError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 401:
-                raise UnauthorizedError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 403:
-                raise ForbiddenError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 404:
-                raise NotFoundError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 429:
-                raise TooManyRequestsError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 500:
-                raise InternalServerError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
-        except ValidationError as e:
-            raise ParsingError(
-                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
-            )
-        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
-
 
 class AsyncRawTranscriptsClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
@@ -1042,14 +650,14 @@ class AsyncRawTranscriptsClient:
         about: typing.Optional[str] = None,
         by: typing.Optional[str] = None,
         kind: typing.Optional[str] = None,
-        published_after: typing.Optional[str] = None,
-        published_before: typing.Optional[str] = None,
+        after: typing.Optional[str] = None,
+        before: typing.Optional[str] = None,
         source: typing.Optional[SearchTranscriptsRequestSource] = None,
         limit: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[TranscriptSearchResponse]:
         """
-        Search indexed YouTube and podcast transcripts for short spoken slices. Each result includes spoken text, a watch URL, and a publish date. Scope with channel_ids (or channel) and entity_ids (a person id filters to that person's appearances); narrow to passages about entities with about, to a speaker with by, and to mention, recommendation_sponsored or recommendation_organic passages with kind. Every filter takes ids, never names: resolve a name first with GET /v1/entities/resolve, or the call answers 400 id_required naming the parameter. Results carry names beside ids (filters.about, filters.by, chunk about and speakers_by). Use one topic per call. Search results include text on every plan within the plan's publication-date window. Explicitly requesting source=arcmira_premium on a plan without Premium transcripts is refused with filter_requires_paid. A published_after narrower than the plan's freshness gate is refused with freshness_requires_paid rather than widened. Bills one row per chunk returned. Every gate is a typed error whose error.unlock.url names the plan that lifts it; pass src=mcp-tool only from the Arcmira MCP server.
+        Search indexed YouTube and podcast transcripts for short spoken slices. Each result includes spoken text, a watch URL, and a publish date. Scope with channel_ids (or channel) and entity_ids (a person id filters to that person's appearances); narrow to passages about entities with about, to a speaker with by, and to sponsored, organic or mention passages with kind. Every filter takes ids, never names: resolve a name first with GET /v1/entities/resolve, or the call answers 400 id_required naming the parameter. Results carry names beside ids (filters.about, filters.by, chunk about and speakers_by). Use one topic per call. Search results include text on every plan within the plan's publication-date window. Explicitly requesting source=arcmira_premium on a plan without Premium transcripts is refused with filter_requires_paid. An after later than the plan's freshness gate is refused with freshness_requires_paid rather than widened. Bills one row per chunk returned. Every gate is a typed error whose error.unlock.url names the plan that lifts it; pass src=mcp-tool only from the Arcmira MCP server.
 
         Parameters
         ----------
@@ -1072,13 +680,13 @@ class AsyncRawTranscriptsClient:
             Comma-separated person ids (ent_{n}), at most 8. Only passages where one of these people says the query words (each line of a chunk is labeled with its speaker); a non-person id is refused with invalid_query naming its type. Speaker labels cover a minority of shows; an empty result carries a note saying whether the person is labeled anywhere. Ids only: a name answers 400 id_required. Resolve names first with GET /v1/entities/resolve.
 
         kind : typing.Optional[str]
-            Comma-separated passage kinds: mention, recommendation_sponsored, recommendation_organic. Combine with about to read what was said about a brand in ad reads or in organic talk.
+            Comma-separated passage classes: sponsored, organic, mention. Combine with about to read what was said about a brand in ad reads or in organic talk.
 
-        published_after : typing.Optional[str]
-            ISO date. Only media published on or after this day. A window narrower than your plan's freshness gate is refused with freshness_requires_paid rather than widened.
+        after : typing.Optional[str]
+            Only media published at or after this instant. An after later than your plan's freshness gate is refused with freshness_requires_paid rather than widened. An ISO 8601 date (2026-09-01) or datetime with offset (2026-09-01T00:00:00Z), read in UTC. The window is half-open: after is inclusive, before is exclusive.
 
-        published_before : typing.Optional[str]
-            ISO date. Only media published before this day.
+        before : typing.Optional[str]
+            Only media published before this instant, so before=2026-09-02 includes all of 2026-09-01. An ISO 8601 date (2026-09-01) or datetime with offset (2026-09-01T00:00:00Z), read in UTC. The window is half-open: after is inclusive, before is exclusive.
 
         source : typing.Optional[SearchTranscriptsRequestSource]
             Restrict to one transcript source class. arcmira_premium on a plan without Premium transcripts is refused with filter_requires_paid.
@@ -1095,7 +703,7 @@ class AsyncRawTranscriptsClient:
             Success
         """
         _response = await self._client_wrapper.httpx_client.request(
-            "v1/transcripts/search",
+            "v1/search",
             method="GET",
             params={
                 "q": q,
@@ -1105,8 +713,8 @@ class AsyncRawTranscriptsClient:
                 "about": about,
                 "by": by,
                 "kind": kind,
-                "published_after": published_after,
-                "published_before": published_before,
+                "after": after,
+                "before": before,
                 "source": source,
                 "limit": limit,
             },
@@ -1228,11 +836,12 @@ class AsyncRawTranscriptsClient:
         timestamps: typing.Optional[bool] = None,
         start: typing.Optional[float] = None,
         end: typing.Optional[float] = None,
+        retry: typing.Optional[bool] = None,
         refresh: typing.Optional[bool] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[TranscriptResult]:
         """
-        Caption retrieval costs one row per started 15 minutes. Premium retrieval is free and never buys, generates, or returns fallback captions. Branch on state: 200 ready is owned content; 202 pending carries the job, with Retry-After; 200 preparation_required carries the whole-video quote and the action to take, POST /v1/transcriptions with { video_id }, plus last_attempt when the previous purchase failed. Plans without Premium read captions with an access gate instead. start/end only trim the returned content; language selects caption tracks, timestamps=false returns paragraphs. Premium responses retain revision and line indexes for corrections.
+        Caption retrieval costs one row per started 15 minutes. quality=premium is one read: an owned transcript answers 200 ready at zero rows; otherwise this call buys the whole video within the account's plan and on-demand budget, included credits first and then on-demand money up to the account limit, and answers 202 pending with the job and Retry-After until the transcript is ready. Read again after Retry-After; repeated reads join the same purchase and never buy twice. When the last purchase for the video failed, the read answers 200 state failed with the job and last_attempt and buys nothing; retry=true buys it again. When the plan or the budget blocks, 403 paid_plan_required (with unlock) or 402 quota_exceeded or spend_limit_exceeded carries the price in quote and nothing is charged. A default-premium account with nothing owned reads captions with a note. start/end only trim the returned content; language selects caption tracks, timestamps=false returns paragraphs. Premium lines carry speaker and index, and the body carries speakers and revision.
 
         Parameters
         ----------
@@ -1240,7 +849,7 @@ class AsyncRawTranscriptsClient:
             YouTube video id, 11 characters.
 
         quality : typing.Optional[GetTranscriptsRequestQuality]
-            captions reads creator or automatic captions at 1 row per started 15 minutes. premium is read-only: an owned transcript returns 200 state ready at zero rows, an active purchase returns 202 state pending with its job, and an unowned transcript on a plan with Premium returns 200 state preparation_required with the quote and the POST /v1/transcriptions action. It never purchases or substitutes captions. Default captions unless changed in account settings.
+            captions reads creator or automatic captions at 1 row per started 15 minutes. premium is one read: an owned transcript returns 200 state ready at zero rows; otherwise the read buys the whole video within the account's plan and on-demand budget (included credits first, then on-demand money up to the account limit) and returns 202 state pending with the job until it is ready. When the last purchase for the video failed it answers 200 state failed and buys again only with retry=true. 402 quota_exceeded or spend_limit_exceeded and 403 paid_plan_required carry the price in quote. It never substitutes captions. Default captions unless changed in account settings.
 
         language : typing.Optional[str]
             Comma-separated caption language priority list, at most 5, tried in order (e.g. "de,en"). Use asr for the first automatic track and asr-<code> for a specific one. Default en. languages[] in the response lists every track the video offers.
@@ -1254,6 +863,9 @@ class AsyncRawTranscriptsClient:
         end : typing.Optional[float]
             Window end in seconds, greater than start and no greater than the video duration. Send start and end together.
 
+        retry : typing.Optional[bool]
+            Premium only; captions with retry=true returns invalid_query. When the last Premium purchase for this video failed, a read answers 200 state failed with the job and last_attempt and buys nothing; retry=true buys it again under the same quote, budget and one-purchase rules as the first read. While that refund is still settling (job.status refund_pending) even retry=true answers state failed. Without a failed purchase it changes nothing.
+
         refresh : typing.Optional[bool]
             Captions only; Premium with refresh=true returns invalid_query. Refetch the caption track from YouTube instead of serving the stored copy. Available only for videos outside our index; a pipeline-owned video refuses it with invalid_query.
 
@@ -1263,7 +875,7 @@ class AsyncRawTranscriptsClient:
         Returns
         -------
         AsyncHttpResponse[TranscriptResult]
-            state ready: the transcript (video, quality, source, language, languages, lines or paragraphs, speakers and revision on Premium, rows_billed, as_of, note). state preparation_required: Premium is not owned yet; the quote and the POST that prepares it.
+            state ready: the transcript (video, quality, source, language, languages, lines or paragraphs, speakers and revision on Premium, rows_billed, as_of, note). state failed (Premium only): the last purchase for this video failed; job and last_attempt say why, nothing was bought, and retry=true buys again.
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v1/transcripts/{encode_path_param(video_id)}",
@@ -1274,6 +886,7 @@ class AsyncRawTranscriptsClient:
                 "timestamps": timestamps,
                 "start": start,
                 "end": end,
+                "retry": retry,
                 "refresh": refresh,
             },
             request_options=request_options,
@@ -1389,7 +1002,7 @@ class AsyncRawTranscriptsClient:
         self, video_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[TranscriptPurchaseQuote]:
         """
-        Optional free quote. It does not reserve funds or start generation. max_rows authorizes rows, while max_on_demand_cents separately authorizes new money and defaults to zero on purchase. The accepted purchase stores its pricing mode. A video with no known duration, or one past the 12 hour cap, answers 400 invalid_query with param video_id.
+        Optional free quote: the price a Premium read of this video would charge right now, as rows and credits, where the credits would come from, and max_on_demand_cents, the on-demand money the read would need beyond included credits within the account limit. It does not reserve funds or start generation. A video with no known duration, or one past the 12 hour cap, answers 400 invalid_query with param video_id.
 
         Parameters
         ----------
@@ -1494,126 +1107,6 @@ class AsyncRawTranscriptsClient:
             )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    async def captions(
-        self, video_id: str, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> AsyncHttpResponse[VideoCaptionsResponse]:
-        """
-        Free (0 rows), any key. Returns the video metadata and every caption track YouTube lists for it, each as { code, name, generated }. Call it when GET /v1/transcripts/{video_id} answered transcript_unavailable without languages, or before asking for a specific track. Listing is served from a day-long cache; a cold listing answers 503 transcript_fetching with Retry-After while the fetch continues in the background.
-
-        Parameters
-        ----------
-        video_id : str
-            YouTube video id, 11 characters.
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        AsyncHttpResponse[VideoCaptionsResponse]
-            Success
-        """
-        _response = await self._client_wrapper.httpx_client.request(
-            f"v1/videos/{encode_path_param(video_id)}/captions",
-            method="GET",
-            request_options=request_options,
-        )
-        try:
-            if 200 <= _response.status_code < 300:
-                _data = typing.cast(
-                    VideoCaptionsResponse,
-                    parse_obj_as(
-                        type_=VideoCaptionsResponse,  # type: ignore
-                        object_=_response.json(),
-                    ),
-                )
-                return AsyncHttpResponse(response=_response, data=_data)
-            if _response.status_code == 400:
-                raise BadRequestError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 401:
-                raise UnauthorizedError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 403:
-                raise ForbiddenError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 404:
-                raise NotFoundError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 429:
-                raise TooManyRequestsError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 500:
-                raise InternalServerError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 503:
-                raise ServiceUnavailableError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
-        except ValidationError as e:
-            raise ParsingError(
-                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
-            )
-        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
-
     async def list_requests(
         self,
         *,
@@ -1676,276 +1169,6 @@ class AsyncRawTranscriptsClient:
                     )
 
                 return AsyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
-            if _response.status_code == 400:
-                raise BadRequestError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 401:
-                raise UnauthorizedError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 403:
-                raise ForbiddenError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 404:
-                raise NotFoundError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 429:
-                raise TooManyRequestsError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 500:
-                raise InternalServerError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
-        except ValidationError as e:
-            raise ParsingError(
-                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
-            )
-        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
-
-    async def request(
-        self,
-        *,
-        idempotency_key: typing.Optional[str] = None,
-        video_id: typing.Optional[str] = OMIT,
-        url: typing.Optional[str] = OMIT,
-        max_rows: typing.Optional[int] = OMIT,
-        max_on_demand_cents: typing.Optional[int] = OMIT,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncHttpResponse[TranscriptRequestSubmitResponse]:
-        """
-        Explicit whole-video Premium purchase in one request: POST { video_id }. With no max_rows the purchase is capped at the current quote, and max_on_demand_cents defaults to zero, so it spends included rows or credits only and moves no money. Idempotency-Key is optional: without one, a purchase already open or owned for this video is returned with existing: true, and two simultaneous requests buy once. max_on_demand_cents above 0 is the only way to move money and requires both Idempotency-Key and max_rows (400 invalid_body names the missing one in param). A video with no known duration or longer than 12 hours answers 400 invalid_body with param video_id. A plan without Premium answers 403 paid_plan_required with unlock. Accepted price, mode, and debit identity persist across retries. Included rows or credits are reserved up front; monetary on-demand usage is reserved until Premium is ready. Existing owned unlocks cost zero. A terminal generation failure refunds the exact original debit and period before reporting refunded. A repeated key returns the same request; different intent with that key returns idempotency_conflict. The body is { job, existing }. Poll job.status_url after Retry-After. A pending job returns 202; a ready, failed or refunded job returns 200. Idempotency-Replayed: true marks a replay of the same key; a different key joined onto the active purchase answers existing: true without it.
-
-        Parameters
-        ----------
-        idempotency_key : typing.Optional[str]
-            1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400 invalid_idempotency_key. Persist a unique key and the exact request before sending a logical mutation. A retry returns its stored response with Idempotency-Replayed: true. A changed intent under a finalized key returns 409 idempotency_conflict. Keys belong to the authenticated owner, credential and mutation domain. Current authorization still applies. Receipts have no general 24-hour expiry; signing-secret recovery alone expires after 24 hours or when the secret is displaced.
-
-        video_id : typing.Optional[str]
-            YouTube video id (11 characters). Either video_id or url is required.
-
-        url : typing.Optional[str]
-            A YouTube watch/short/live URL. Either video_id or url is required.
-
-        max_rows : typing.Optional[int]
-            Maximum whole-video rows authorized. Credit mode charges four credits per row. Omit it to cap the purchase at the current quote. Required with max_on_demand_cents above 0.
-
-        max_on_demand_cents : typing.Optional[int]
-            Maximum new monetary on-demand charge in whole cents. Defaults to 0, which moves no money. Above 0 it requires Idempotency-Key and max_rows.
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        AsyncHttpResponse[TranscriptRequestSubmitResponse]
-            job.state is ready, failed or refunded: the transcript is servable, or the purchase ended without one.
-        """
-        _response = await self._client_wrapper.httpx_client.request(
-            "v1/transcriptions",
-            method="POST",
-            json={
-                "video_id": video_id,
-                "url": url,
-                "max_rows": max_rows,
-                "max_on_demand_cents": max_on_demand_cents,
-            },
-            headers={
-                "content-type": "application/json",
-                "Idempotency-Key": str(idempotency_key) if idempotency_key is not None else None,
-            },
-            request_options=request_options,
-            omit=OMIT,
-        )
-        try:
-            if 200 <= _response.status_code < 300:
-                _data = typing.cast(
-                    TranscriptRequestSubmitResponse,
-                    parse_obj_as(
-                        type_=TranscriptRequestSubmitResponse,  # type: ignore
-                        object_=_response.json(),
-                    ),
-                )
-                return AsyncHttpResponse(response=_response, data=_data)
-            if _response.status_code == 400:
-                raise BadRequestError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 401:
-                raise UnauthorizedError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 402:
-                raise PaymentRequiredError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 403:
-                raise ForbiddenError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 404:
-                raise NotFoundError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 409:
-                raise ConflictError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 429:
-                raise TooManyRequestsError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 500:
-                raise InternalServerError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
-        except ValidationError as e:
-            raise ParsingError(
-                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
-            )
-        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
-
-    async def status(
-        self, id: str, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> AsyncHttpResponse[TranscriptJob]:
-        """
-        Agent-friendly polling contract: while the request is in flight the response carries a Retry-After header (seconds) and body fields `eta_seconds` and `next_poll_seconds`. Sleep on Retry-After and re-poll. `status` walks queued → downloading → transcribing → analyzing → complete (user-facing `stage` folds downloading into transcribing). refund_pending retains Retry-After and next_poll_seconds until reversal completes; it has no completion ETA. Terminal statuses (`complete`, `failed`, `refunded`) drop Retry-After. On `complete`, fetch the transcript via GET /v1/transcripts/{video_id}; the successful purchase owns the permanent unlock. `refunded` means the pipeline failed and the rows were returned. A caller with no account holds no jobs: it is refused with 401 job_requires_account, whose unlock points at sign-up.
-
-        Parameters
-        ----------
-        id : str
-            Transcription request id, the UUID POST /v1/transcriptions returned.
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        AsyncHttpResponse[TranscriptJob]
-            Success
-        """
-        _response = await self._client_wrapper.httpx_client.request(
-            f"v1/transcriptions/{encode_path_param(id)}",
-            method="GET",
-            request_options=request_options,
-        )
-        try:
-            if 200 <= _response.status_code < 300:
-                _data = typing.cast(
-                    TranscriptJob,
-                    parse_obj_as(
-                        type_=TranscriptJob,  # type: ignore
-                        object_=_response.json(),
-                    ),
-                )
-                return AsyncHttpResponse(response=_response, data=_data)
             if _response.status_code == 400:
                 raise BadRequestError(
                     headers=dict(_response.headers),

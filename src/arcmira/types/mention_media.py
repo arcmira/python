@@ -8,11 +8,6 @@ from .mention_media_source_channel import MentionMediaSourceChannel
 
 
 class MentionMedia(UniversalBaseModel):
-    id: int = pydantic.Field()
-    """
-    Raw integer media row id.
-    """
-
     video_id: str = pydantic.Field()
     """
     YouTube video id (11 characters).

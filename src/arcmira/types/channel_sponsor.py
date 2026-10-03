@@ -4,16 +4,12 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
-from .channel_sponsor_entity import ChannelSponsorEntity
 from .channel_sponsor_sponsor_status import ChannelSponsorSponsorStatus
+from .entity_ref import EntityRef
 
 
 class ChannelSponsor(UniversalBaseModel):
-    entity: ChannelSponsorEntity = pydantic.Field()
-    """
-    The sponsoring entity.
-    """
-
+    entity: EntityRef
     ad_reads: int = pydantic.Field()
     """
     Number of ad_read recommendation rows for this sponsor on the channel.

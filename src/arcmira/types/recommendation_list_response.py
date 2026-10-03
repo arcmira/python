@@ -4,12 +4,17 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
+from .entity import Entity
+from .publication_window import PublicationWindow
 from .recommendation import Recommendation
-from .recommendation_list_response_entity import RecommendationListResponseEntity
 
 
 class RecommendationListResponse(UniversalBaseModel):
-    data: typing.List[Recommendation]
+    recommendations: typing.List[Recommendation] = pydantic.Field()
+    """
+    Newest first.
+    """
+
     has_more: bool = pydantic.Field()
     """
     True when more rows exist past this page.
@@ -20,10 +25,8 @@ class RecommendationListResponse(UniversalBaseModel):
     Opaque cursor for the next page. Null on the last page.
     """
 
-    entity: RecommendationListResponseEntity = pydantic.Field()
-    """
-    The resolved entity the recommendations belong to.
-    """
+    entity: Entity
+    window: PublicationWindow
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

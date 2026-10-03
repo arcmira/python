@@ -9,21 +9,81 @@ from urllib.parse import parse_qs, urlparse
 
 from arcmira import Arcmira, AsyncArcmira
 from arcmira.core.api_error import ApiError
-from arcmira.errors import PaymentRequiredError
-from arcmira.types.transcript_result import TranscriptResult_Ready, TranscriptResult_Pending
+from arcmira.errors import ForbiddenError, PaymentRequiredError
+from arcmira.types.transcript_result import TranscriptResult_Pending, TranscriptResult_Ready
 
 FIXTURES = json.loads((Path(__file__).parent / 'fixtures/transcription-responses.json').read_text())
-QUOTE = FIXTURES['quote_transcription']['body']
-REQUEST = FIXTURES['get_transcription']['body']
+PENDING = FIXTURES['pending_premium']['body']
 REFUSED = FIXTURES['refused_quota']['body']
-def error(code, kind):
-    return dict(type=kind, code=code, message=code, doc_url='https://arcmira.com/docs/errors', request_id='fixture-request')
+PAID_PLAN = FIXTURES['paid_plan_required']['body']
+QUOTE = FIXTURES['quote_transcription']['body']
+REQUEST = FIXTURES['list_transcriptions']['body']['requests'][0]
+REFUNDED = {**FIXTURES['job_refunded']['body'], 'title': None}
 
 PAGE_CAP = 5
 CURSOR = 'signed+/opaque==&cursor'
-PENDING = FIXTURES['pending_premium']['body']
+ENTITY = dict(id='ent_14', canonical_id='ent_14', name='Ramp', type='organization', is_canonical=True)
+ENTITY_REF = dict(id='ent_14', name='Ramp', type='organization')
+WINDOW = dict(after=None, before=None)
 CALLS = []
-RECEIPTS = {}
+
+
+def page(query, first, second):
+    continued = 'cursor' in query
+    return [second if continued else first], dict(has_more=not continued, next_cursor=None if continued else CURSOR)
+
+
+def mention(video_id):
+    return dict(id='men_' + video_id, entity=ENTITY_REF, media=dict(video_id=video_id), is_appearance=False, sentiment='neutral', start_seconds=0, end_seconds=20)
+
+
+def tracker(body):
+    return dict(id='trk_1', entity_name=body['entity_name'], entity_type=body['entity_type'], display_name=body['entity_name'], notify_email=True, notify_webhook=False, notify_slack=False, paused=False, created_at='2026-10-02T00:00:00Z', email_delivery_count=0, webhook_delivery_count=0, slack_delivery_count=0)
+
+
+def monitor(id, body):
+    return dict(id=id, name='Fixture', paused=body.get('paused', False), notify_emails=[], notify_webhook=False, notify_slack=False, created_at='2026-10-01T00:00:00Z', updated_at='2026-10-02T00:00:00Z', access='account', muted=False, tracker_count=1)
+
+
+def transcript(video_id, query):
+    if video_id == 'pending0000':
+        return 202, PENDING
+    if video_id == 'quota000000':
+        return 402, REFUSED
+    if video_id == 'plan0000000':
+        return 403, PAID_PLAN
+    if query.get('quality') == ['premium']:
+        return 200, FIXTURES['premium_ready']['body']
+    return 200, FIXTURES['get_transcript']['body']
+
+
+def route(method, path, query, body):
+    parts = path.strip('/').split('/')
+    if method == 'GET' and path.endswith('/quote'):
+        return 200, QUOTE
+    if method == 'GET' and parts[:2] == ['v1', 'transcripts']:
+        return transcript(parts[2], query)
+    if method == 'GET' and path == '/v1/entities/resolve':
+        best = dict(ENTITY_REF, match='exact')
+        return 200, dict(query=query['q'][0], context=None, confidence='exact', best=best, suggested=None, ask=None, candidates=[best], note='Fixture')
+    if method == 'GET' and path == '/v1/transcriptions':
+        requests, more = page(query, REQUEST, REFUNDED)
+        return 200, dict(requests=requests, **more)
+    if method == 'GET' and path.endswith('/videos'):
+        episodes, more = page(query, *[dict(video_id=v, channel_id='UC-test', watch_url='https://arcmira.com/video/' + v) for v in ('video-1', 'video-2')])
+        return 200, dict(channel=dict(youtube_channel_id='UC-test', name='Fixture'), episodes=episodes, returned=1, window=WINDOW, note='Fixture', **more)
+    if method == 'GET' and path == '/v1/mentions':
+        mentions, more = page(query, mention('video-1'), mention('video-2'))
+        return 200, dict(mentions=mentions, entity=ENTITY, window=WINDOW, **more)
+    if method == 'GET' and path == '/v1/recommendations':
+        row = dict(id='com_1', entity=ENTITY_REF, media=dict(video_id='video-1'), confidence=0.9, speaker_role='host', start_seconds=10, end_seconds=40, **{'class': 'sponsored'})
+        return 200, dict(recommendations=[row], entity=ENTITY, window=WINDOW, has_more=False, next_cursor=None)
+    if method == 'POST' and path == '/v1/trackers':
+        return 201, dict(tracker=tracker(body), message='Tracker created.')
+    if method == 'PATCH' and parts[:2] == ['v1', 'monitors']:
+        return 200, dict(monitor=monitor(parts[2], body), message='Monitor updated.')
+    return 404, dict(error=dict(type='not_found', code='not_found', message=f'No fixture for {method} {path}', doc_url='https://arcmira.com/docs/errors', request_id='fixture'))
+
 
 class Handler(BaseHTTPRequestHandler):
     def log_message(self, *args):
@@ -35,39 +95,27 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         self.answer()
 
+    def do_PATCH(self):
+        self.answer()
+
     def answer(self):
         url = urlparse(self.path)
         query = parse_qs(url.query)
-        body = self.rfile.read(int(self.headers.get('Content-Length', 0))).decode()
-        CALLS.append((url.path, query, dict(self.headers), body, self.command))
-        status, extra = 200, {}
-        if url.path.endswith('/quote'):
-            result = QUOTE
-        elif url.path == '/v1/transcriptions' and self.command == 'POST' and 'refused0000' in body:
-            status, result = 402, REFUSED
-        elif url.path == '/v1/transcriptions' and self.command == 'POST':
-            key = self.headers['Idempotency-Key']
-            replay = key in RECEIPTS
-            if replay and RECEIPTS[key] != body:
-                status, result = 409, {'error': error('idempotency_conflict', 'conflict_error')}
-            else:
-                RECEIPTS[key] = body
-                status = 200 if replay else 202
-                result = {'job': REQUEST, 'existing': replay}
-                if replay: extra['Idempotency-Replayed'] = 'true'
-        elif url.path == '/v1/transcriptions':
-            result = {'requests': [{**REQUEST, 'id': 'request-2' if 'cursor' in query else 'request-1'}], 'has_more': 'cursor' not in query, 'next_cursor': None if 'cursor' in query else CURSOR}
-        elif '/channels/' in url.path:
-            episode = dict(video_id='video-2' if 'cursor' in query else 'video-1', channel_id='UC-test', watch_url='https://arcmira.com/video/test')
-            result = dict(channel={'youtube_channel_id':'UC-test','name':'Fixture'}, episodes=[episode], returned=1, has_more='cursor' not in query, next_cursor=None if 'cursor' in query else CURSOR, indexed_through=None, index_age_days=None, as_of=None, note='Fixture')
-        elif url.path.endswith('/pending0000'):
-            status, result = 202, PENDING
-        else:
-            result = FIXTURES['get_transcript']['body']
+        raw = self.rfile.read(int(self.headers.get('Content-Length', 0))).decode()
+        body = json.loads(raw) if raw else {}
+        CALLS.append(dict(method=self.command, path=url.path, query=query, body=body))
+        status, result = route(self.command, url.path, query, body)
         self.send_response(status)
-        for name, value in {'Content-Type': 'application/json', 'Retry-After': '5', **extra}.items(): self.send_header(name, value)
+        self.send_header('Content-Type', 'application/json')
+        if status == 202:
+            self.send_header('Retry-After', str(result['job']['next_poll_seconds']))
         self.end_headers()
         self.wfile.write(json.dumps(result).encode())
+
+
+def capped(pager):
+    return list(itertools.islice(pager, PAGE_CAP))
+
 
 class GeneratedClientTests(unittest.TestCase):
     @classmethod
@@ -84,69 +132,126 @@ class GeneratedClientTests(unittest.TestCase):
         cls.server.server_close()
         cls.thread.join()
 
-    def test_ready_pending_status_and_union(self):
-        ready = self.client.transcripts.with_raw_response.get(video_id='dQw4w9WgXcQ')
-        self.assertIsInstance(ready.data, TranscriptResult_Ready)
+    def calls_since(self, before, path):
+        return [call for call in CALLS[before:] if call['path'] == path]
+
+    def test_ready_read(self):
+        ready = self.client.transcripts.with_raw_response.get('dQw4w9WgXcQ')
         self.assertEqual(ready.status_code, 200)
-        self.assertTrue(ready.data.lines)
-        pending = self.client.transcripts.with_raw_response.get(video_id='pending0000', quality='premium')
-        self.assertIsInstance(pending.data, TranscriptResult_Pending)
-        self.assertEqual(pending.status_code, 202)
-        self.assertEqual(pending.data.job.status_url, PENDING['job']['status_url'])
-        self.assertEqual(pending.headers['retry-after'], '5')
+        self.assertIsInstance(ready.data, TranscriptResult_Ready)
+        self.assertEqual(ready.data.quality, 'captions')
+        self.assertEqual(ready.data.lines[0].text, FIXTURES['get_transcript']['body']['lines'][0]['text'])
+        premium = self.client.transcripts.get('dQw4w9WgXcQ', quality='premium')
+        self.assertIsInstance(premium, TranscriptResult_Ready)
+        self.assertEqual(premium.quality, 'premium')
+        self.assertEqual(premium.revision, FIXTURES['premium_ready']['body']['revision'])
 
-    def test_quote_and_refusal(self):
-        quote = self.client.transcripts.quote(video_id='dQw4w9WgXcQ')
-        self.assertEqual(quote.quote.rows, QUOTE['quote']['rows'])
-        with self.assertRaises(PaymentRequiredError) as caught:
-            self.client.transcripts.request(video_id='refused0000')
-        refusal = caught.exception.body
-        self.assertEqual(refusal.error.code, 'quota_exceeded')
-        self.assertEqual(refusal.error.unlock.tier, REFUSED['error']['unlock']['tier'])
-        self.assertEqual(refusal.quote.rows, REFUSED['quote']['rows'])
-        self.assertEqual(refusal.quote.charge.amount, REFUSED['quote']['charge']['amount'])
-        self.assertEqual(refusal.quote.max_on_demand_cents, REFUSED['quote']['max_on_demand_cents'])
-        self.assertEqual(str(caught.exception), f"402 quota_exceeded: {REFUSED['error']['message']}")
-        self.assertNotIn('headers', str(caught.exception))
-
-    def test_preparation_exact_intent_and_replay(self):
-        intent = dict(video_id='dQw4w9WgXcQ', max_rows=300, max_on_demand_cents=0, idempotency_key='python-saved-intent')
-        first = self.client.transcripts.with_raw_response.request(**intent)
-        replay = self.client.transcripts.with_raw_response.request(**intent)
-        sent = [call[2]['Idempotency-Key'] for call in CALLS if call[0] == '/v1/transcriptions' and call[4] == 'POST' and 'Idempotency-Key' in call[2]]
-        self.assertEqual(sent[-2:], ['python-saved-intent', 'python-saved-intent'])
-        self.assertEqual(first.status_code, 202)
-        self.assertEqual(replay.status_code, 200)
-        self.assertEqual(replay.data.job.id, first.data.job.id)
-        self.assertTrue(replay.data.existing)
-        self.assertEqual(replay.headers['idempotency-replayed'], 'true')
-        self.assertEqual(json.loads(CALLS[-1][3]), dict(video_id='dQw4w9WgXcQ', max_rows=300, max_on_demand_cents=0))
-        with self.assertRaises(ApiError) as caught:
-            self.client.transcripts.request(**{**intent, 'max_rows':600})
-        self.assertEqual(caught.exception.status_code, 409)
-
-    def test_request_and_episode_arrays_preserve_opaque_cursor(self):
+    def test_premium_pending_carries_the_job_and_retry_after(self):
         before = len(CALLS)
-        capped = lambda pager: list(itertools.islice(pager, PAGE_CAP))
-        self.assertEqual([x.id for x in capped(self.client.transcripts.list_requests(limit=1))], ['request-1','request-2'])
-        self.assertEqual([x.video_id for x in capped(self.client.channels.videos.list(channel_id='UC-test', limit=1))], ['video-1','video-2'])
-        continued = [call for call in CALLS[before:] if 'cursor' in call[1]]
-        self.assertEqual(len(continued), 2)
-        for call in continued:
-            self.assertEqual(call[1]['cursor'], [CURSOR])
-            self.assertEqual(call[1]['limit'], ['1'])
+        pending = self.client.transcripts.with_raw_response.get('pending0000', quality='premium')
+        self.assertEqual(pending.status_code, 202)
+        self.assertIsInstance(pending.data, TranscriptResult_Pending)
+        self.assertEqual(pending.data.job.id, PENDING['job']['id'])
+        self.assertEqual(pending.data.job.next_poll_seconds, PENDING['job']['next_poll_seconds'])
+        self.assertEqual(pending.headers['retry-after'], str(PENDING['job']['next_poll_seconds']))
+        sent = self.calls_since(before, '/v1/transcripts/pending0000')
+        self.assertEqual([(call['method'], call['query']) for call in sent], [('GET', {'quality': ['premium']})])
 
-    def test_async_pending_and_pagination(self):
+    def test_premium_refusals_are_typed_errors_with_the_quote(self):
+        for video_id, error_type, fixture in (('quota000000', PaymentRequiredError, REFUSED), ('plan0000000', ForbiddenError, PAID_PLAN)):
+            with self.subTest(code=fixture['error']['code']):
+                with self.assertRaises(error_type) as caught:
+                    self.client.transcripts.get(video_id, quality='premium')
+                error = caught.exception.body.error
+                expected = fixture['error']
+                self.assertIsInstance(caught.exception, ApiError)
+                self.assertEqual((error.type, error.code, error.gate), (expected['type'], expected['code'], expected['gate']))
+                self.assertEqual(error.unlock.tier, expected['unlock']['tier'])
+                quote = error.details.quote
+                self.assertEqual(quote.rows, expected['details']['quote']['rows'])
+                self.assertEqual(quote.charge.amount, expected['details']['quote']['charge']['amount'])
+                self.assertEqual(quote.max_on_demand_cents, expected['details']['quote']['max_on_demand_cents'])
+                self.assertEqual(str(caught.exception), f"{caught.exception.status_code} {expected['code']}: {expected['message']}")
+
+    def test_resolve_with_best_and_no_suggestion(self):
+        before = len(CALLS)
+        match = self.client.entities.resolve(q='Ramp', type='organization')
+        self.assertEqual(self.calls_since(before, '/v1/entities/resolve')[0]['query'], {'q': ['Ramp'], 'type': ['organization']})
+        self.assertEqual(match.best.id, 'ent_14')
+        self.assertIsNone(match.suggested)
+
+    def test_quote_passes_through(self):
+        quote = self.client.transcripts.quote('dQw4w9WgXcQ')
+        self.assertEqual(quote.quote.rows, QUOTE['quote']['rows'])
+        self.assertEqual(quote.charge.amount, QUOTE['charge']['amount'])
+        self.assertEqual(quote.max_on_demand_cents, QUOTE['max_on_demand_cents'])
+
+    def test_pagers_follow_the_opaque_cursor(self):
+        cases = (
+            ('/v1/transcriptions', lambda: self.client.transcripts.list_requests(limit=1), lambda row: row.id, [REQUEST['id'], REFUNDED['id']]),
+            ('/v1/channels/UC-test/videos', lambda: self.client.channels.videos.list('UC-test', limit=1), lambda row: row.video_id, ['video-1', 'video-2']),
+            ('/v1/mentions', lambda: self.client.mentions.list(entity_id='ent_14', limit=1), lambda row: row.media.video_id, ['video-1', 'video-2']),
+        )
+        for path, pager, key, expected in cases:
+            with self.subTest(path=path):
+                before = len(CALLS)
+                self.assertEqual([key(row) for row in capped(pager())], expected)
+                continued = [call['query'] for call in self.calls_since(before, path) if 'cursor' in call['query']]
+                self.assertEqual(len(continued), 1)
+                self.assertEqual(continued[0]['cursor'], [CURSOR])
+                self.assertEqual(continued[0]['limit'], ['1'])
+
+    def test_refunded_request_row_parses(self):
+        rows = capped(self.client.transcripts.list_requests(limit=1))
+        self.assertEqual([row.state for row in rows], ['pending', 'refunded'])
+
+    def test_mentions_send_entity_id_and_the_half_open_window(self):
+        before = len(CALLS)
+        rows = capped(self.client.mentions.list(entity_id='ent_14', channel_id='UC-test', after='2026-09-01', before='2026-09-02'))
+        self.assertEqual(len(rows), 2)
+        first = self.calls_since(before, '/v1/mentions')[0]['query']
+        self.assertEqual(first, {'entity_id': ['ent_14'], 'channel_id': ['UC-test'], 'after': ['2026-09-01'], 'before': ['2026-09-02']})
+
+    def test_recommendations_send_class(self):
+        before = len(CALLS)
+        rows = capped(self.client.recommendations.list(entity_id='ent_14', class_='sponsored'))
+        self.assertEqual([row.class_ for row in rows], ['sponsored'])
+        query = self.calls_since(before, '/v1/recommendations')[0]['query']
+        self.assertEqual(query, {'entity_id': ['ent_14'], 'class': ['sponsored']})
+
+    def test_trackers_create_sends_entity_name_and_type(self):
+        before = len(CALLS)
+        created = self.client.trackers.create(entity_name='Ramp', entity_type='organization')
+        self.assertEqual(self.calls_since(before, '/v1/trackers')[0]['body'], {'entity_name': 'Ramp', 'entity_type': 'organization'})
+        self.assertEqual(created.tracker.entity_name, 'Ramp')
+        self.assertFalse(created.tracker.paused)
+
+    def test_monitors_update_sends_paused(self):
+        before = len(CALLS)
+        updated = self.client.monitors.update('mon_1', paused=True)
+        self.assertEqual(self.calls_since(before, '/v1/monitors/mon_1')[0]['body'], {'paused': True})
+        self.assertTrue(updated.monitor.paused)
+
+    def test_async_read_and_pagination(self):
         async def run():
             client = AsyncArcmira(api_key='local-test-key', base_url=self.base, max_retries=0, timeout=5)
-            pending = await client.transcripts.with_raw_response.get(video_id='pending0000', quality='premium')
+            ready = await client.transcripts.get('dQw4w9WgXcQ')
+            self.assertIsInstance(ready, TranscriptResult_Ready)
+            pending = await client.transcripts.with_raw_response.get('pending0000', quality='premium')
             self.assertEqual(pending.status_code, 202)
             self.assertIsInstance(pending.data, TranscriptResult_Pending)
+            self.assertEqual(pending.headers['retry-after'], str(PENDING['job']['next_poll_seconds']))
+            with self.assertRaises(PaymentRequiredError) as caught:
+                await client.transcripts.get('quota000000', quality='premium')
+            self.assertEqual(caught.exception.body.error.details.quote.rows, REFUSED['error']['details']['quote']['rows'])
             rows = []
-            async for row in await client.transcripts.list_requests(limit=1):
-                rows.append(row.id)
-                if len(rows) >= PAGE_CAP: break
-            self.assertEqual(rows, ['request-1','request-2'])
+            async for row in await client.mentions.list(entity_id='ent_14', limit=1):
+                rows.append(row.media.video_id)
+                if len(rows) >= PAGE_CAP:
+                    break
+            self.assertEqual(rows, ['video-1', 'video-2'])
         asyncio.run(run())
 
-if __name__ == '__main__': unittest.main()
+
+if __name__ == '__main__':
+    unittest.main()

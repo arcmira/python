@@ -3,9 +3,7 @@
 import typing
 
 import pydantic
-import typing_extensions
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
-from ..core.serialization import FieldMetadata
 
 
 class MonitorDeleteResponse(UniversalBaseModel):
@@ -14,13 +12,7 @@ class MonitorDeleteResponse(UniversalBaseModel):
     Human-readable confirmation.
     """
 
-    trackers_deleted: typing_extensions.Annotated[
-        int,
-        FieldMetadata(alias="trackersDeleted"),
-        pydantic.Field(
-            alias="trackersDeleted", description="Number of trackers that were deleted along with the monitor."
-        ),
-    ]
+    trackers_deleted: int = pydantic.Field()
     """
     Number of trackers that were deleted along with the monitor.
     """

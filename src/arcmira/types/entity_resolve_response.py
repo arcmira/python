@@ -27,7 +27,7 @@ class EntityResolveResponse(UniversalBaseModel):
     """
 
     best: typing.Optional[ResolveCandidate] = None
-    suggested: ResolveSuggestion
+    suggested: typing.Optional[ResolveSuggestion] = None
     ask: typing.Optional[EntityResolveResponseAsk] = pydantic.Field(default=None)
     """
     Set when best and suggested are both null and several rows fit: show the options to the user, or check every option id against the data and answer per row.

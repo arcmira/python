@@ -11,7 +11,6 @@ from ..types.mention_list_response import MentionListResponse
 from .raw_client import AsyncRawMentionsClient, RawMentionsClient
 from .types.count_mentions_request_mode import CountMentionsRequestMode
 from .types.list_mentions_request_details import ListMentionsRequestDetails
-from .types.list_mentions_request_entity_type import ListMentionsRequestEntityType
 from .types.list_mentions_request_sentiment import ListMentionsRequestSentiment
 
 
@@ -33,40 +32,33 @@ class MentionsClient:
     def list(
         self,
         *,
+        entity_id: str,
         limit: typing.Optional[int] = None,
         cursor: typing.Optional[str] = None,
-        entity_id: typing.Optional[str] = None,
-        entity_name: typing.Optional[str] = None,
-        entity_type: typing.Optional[ListMentionsRequestEntityType] = None,
         channel_id: typing.Optional[str] = None,
-        channel_name: typing.Optional[str] = None,
         q: typing.Optional[str] = None,
         sentiment: typing.Optional[ListMentionsRequestSentiment] = None,
         is_appearance: typing.Optional[bool] = None,
-        date_from: typing.Optional[str] = None,
-        date_to: typing.Optional[str] = None,
+        after: typing.Optional[str] = None,
+        before: typing.Optional[str] = None,
         details: typing.Optional[ListMentionsRequestDetails] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[Mention, MentionListResponse]:
         """
-        Cursor-paginated mentions filtered by entity (entity_id or entity_name is required), channel, text query, sentiment, appearance flag, and date range. The signed continuation binds the route, filters, caller and visibility; invalid or old cursors return invalid_cursor. A first-page ID fence excludes later insertions, including old-date backfills. Edits and deletions to existing rows remain live. Read timestamps from start_seconds / end_seconds (integer seconds; 0 means full episode); the MM:SS (or HH:MM:SS) string fields are deprecated. is_appearance filtering applies to person entities only; passing is_appearance=true for any other type returns a 400 (appearances_person_only). details=full attaches per-mention commercial recommendations and requires a Pro+ plan.
+        Cursor-paginated mentions filtered by entity (entity_id is required; resolve a name first with GET /v1/entities/resolve, or the call answers 400 id_required naming the parameter), channel (channel_id), text query, sentiment, appearance flag, and publication window [after, before). The signed continuation binds the route, filters, caller and visibility; invalid or old cursors return invalid_cursor. A first-page ID fence excludes later insertions, including old-date backfills. Edits and deletions to existing rows remain live. Positions are start_seconds and end_seconds (integer seconds; 0 means full episode). is_appearance filtering applies to person entities only; passing is_appearance=true for any other type returns a 400 (appearances_person_only). details=full attaches per-mention commercial recommendations and requires a Pro+ plan.
 
         Parameters
         ----------
+        entity_id : str
+            The entity, as an id like ent_14. Required. Ids only: a name answers 400 id_required. Resolve names first with GET /v1/entities/resolve.
+
         limit : typing.Optional[int]
 
         cursor : typing.Optional[str]
             Signed continuation from next_cursor. Bound to this route, normalized query, caller and visibility; invalid or old tokens return invalid_cursor.
 
-        entity_id : typing.Optional[str]
-
-        entity_name : typing.Optional[str]
-
-        entity_type : typing.Optional[ListMentionsRequestEntityType]
-
         channel_id : typing.Optional[str]
-
-        channel_name : typing.Optional[str]
+            Only media from this YouTube channel id (UC plus 22 characters). Ids only: a name answers 400 id_required. Resolve names first with GET /v1/entities/resolve.
 
         q : typing.Optional[str]
 
@@ -74,9 +66,11 @@ class MentionsClient:
 
         is_appearance : typing.Optional[bool]
 
-        date_from : typing.Optional[str]
+        after : typing.Optional[str]
+            Only media published at or after this instant. An ISO 8601 date (2026-09-01) or datetime with offset (2026-09-01T00:00:00Z), read in UTC. The window is half-open: after is inclusive, before is exclusive.
 
-        date_to : typing.Optional[str]
+        before : typing.Optional[str]
+            Only media published before this instant, so before=2026-09-02 includes all of 2026-09-01. An ISO 8601 date (2026-09-01) or datetime with offset (2026-09-01T00:00:00Z), read in UTC. The window is half-open: after is inclusive, before is exclusive.
 
         details : typing.Optional[ListMentionsRequestDetails]
 
@@ -95,7 +89,9 @@ class MentionsClient:
         client = Arcmira(
             api_key="YOUR_API_KEY",
         )
-        response = client.mentions.list()
+        response = client.mentions.list(
+            entity_id="entity_id",
+        )
         for item in response:
             yield item
         # alternatively, you can paginate page-by-page
@@ -103,18 +99,15 @@ class MentionsClient:
             yield page
         """
         return self._raw_client.list(
+            entity_id=entity_id,
             limit=limit,
             cursor=cursor,
-            entity_id=entity_id,
-            entity_name=entity_name,
-            entity_type=entity_type,
             channel_id=channel_id,
-            channel_name=channel_name,
             q=q,
             sentiment=sentiment,
             is_appearance=is_appearance,
-            date_from=date_from,
-            date_to=date_to,
+            after=after,
+            before=before,
             details=details,
             request_options=request_options,
         )
@@ -127,13 +120,13 @@ class MentionsClient:
         video_ids: typing.Optional[str] = None,
         entity_types: typing.Optional[str] = None,
         mode: typing.Optional[CountMentionsRequestMode] = None,
-        published_after: typing.Optional[str] = None,
-        published_before: typing.Optional[str] = None,
+        after: typing.Optional[str] = None,
+        before: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> MentionCountsResponse:
         """
-        A small ranked table of entity and channel counts, all-time unless published_after is set. Pass channel_ids for what shows talk about and entity_types to match the question (topic for subjects, person for guests, organization,product for brands). Pass video_ids with one id from GET /v1/channels/{channel_id}/videos for what a single episode mentions. Two or more channel_ids also return shared, the entities on more than one of them ranked by the smallest per-channel count, which is true overlap. A published_after narrower than the plan's freshness gate is refused with freshness_requires_paid rather than widened. Bills one row per table row returned. Every gate is a typed error whose error.unlock.url names the plan that lifts it; pass src=mcp-tool only from the Arcmira MCP server.
+        A small ranked table of entity and channel counts, all-time unless after is set. Pass channel_ids for what shows talk about and entity_types to match the question (topic for subjects, person for guests, organization,product for brands). Pass video_ids with one id from GET /v1/channels/{channel_id}/videos for what a single episode mentions. Two or more channel_ids also return shared, the entities on more than one of them ranked by the smallest per-channel count, which is true overlap. An after later than the plan's freshness gate is refused with freshness_requires_paid rather than widened. Bills one row per table row returned. Every gate is a typed error whose error.unlock.url names the plan that lifts it; pass src=mcp-tool only from the Arcmira MCP server.
 
         Parameters
         ----------
@@ -152,11 +145,11 @@ class MentionsClient:
         mode : typing.Optional[CountMentionsRequestMode]
             mentions counts talk about an entity; appearances counts a person being present; both counts either. Default mentions.
 
-        published_after : typing.Optional[str]
-            ISO date. Counts are all-time without it. A window narrower than your plan's freshness gate is refused with freshness_requires_paid rather than widened.
+        after : typing.Optional[str]
+            Only media published at or after this instant. Counts are all-time without it. An after later than your plan's freshness gate is refused with freshness_requires_paid rather than widened. An ISO 8601 date (2026-09-01) or datetime with offset (2026-09-01T00:00:00Z), read in UTC. The window is half-open: after is inclusive, before is exclusive.
 
-        published_before : typing.Optional[str]
-            ISO date. Only media published before this day.
+        before : typing.Optional[str]
+            Only media published before this instant, so before=2026-09-02 includes all of 2026-09-01. An ISO 8601 date (2026-09-01) or datetime with offset (2026-09-01T00:00:00Z), read in UTC. The window is half-open: after is inclusive, before is exclusive.
 
         limit : typing.Optional[int]
             Rows in the ranked table, 1 to 40. Default 20.
@@ -184,8 +177,8 @@ class MentionsClient:
             video_ids=video_ids,
             entity_types=entity_types,
             mode=mode,
-            published_after=published_after,
-            published_before=published_before,
+            after=after,
+            before=before,
             limit=limit,
             request_options=request_options,
         )
@@ -210,40 +203,33 @@ class AsyncMentionsClient:
     async def list(
         self,
         *,
+        entity_id: str,
         limit: typing.Optional[int] = None,
         cursor: typing.Optional[str] = None,
-        entity_id: typing.Optional[str] = None,
-        entity_name: typing.Optional[str] = None,
-        entity_type: typing.Optional[ListMentionsRequestEntityType] = None,
         channel_id: typing.Optional[str] = None,
-        channel_name: typing.Optional[str] = None,
         q: typing.Optional[str] = None,
         sentiment: typing.Optional[ListMentionsRequestSentiment] = None,
         is_appearance: typing.Optional[bool] = None,
-        date_from: typing.Optional[str] = None,
-        date_to: typing.Optional[str] = None,
+        after: typing.Optional[str] = None,
+        before: typing.Optional[str] = None,
         details: typing.Optional[ListMentionsRequestDetails] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[Mention, MentionListResponse]:
         """
-        Cursor-paginated mentions filtered by entity (entity_id or entity_name is required), channel, text query, sentiment, appearance flag, and date range. The signed continuation binds the route, filters, caller and visibility; invalid or old cursors return invalid_cursor. A first-page ID fence excludes later insertions, including old-date backfills. Edits and deletions to existing rows remain live. Read timestamps from start_seconds / end_seconds (integer seconds; 0 means full episode); the MM:SS (or HH:MM:SS) string fields are deprecated. is_appearance filtering applies to person entities only; passing is_appearance=true for any other type returns a 400 (appearances_person_only). details=full attaches per-mention commercial recommendations and requires a Pro+ plan.
+        Cursor-paginated mentions filtered by entity (entity_id is required; resolve a name first with GET /v1/entities/resolve, or the call answers 400 id_required naming the parameter), channel (channel_id), text query, sentiment, appearance flag, and publication window [after, before). The signed continuation binds the route, filters, caller and visibility; invalid or old cursors return invalid_cursor. A first-page ID fence excludes later insertions, including old-date backfills. Edits and deletions to existing rows remain live. Positions are start_seconds and end_seconds (integer seconds; 0 means full episode). is_appearance filtering applies to person entities only; passing is_appearance=true for any other type returns a 400 (appearances_person_only). details=full attaches per-mention commercial recommendations and requires a Pro+ plan.
 
         Parameters
         ----------
+        entity_id : str
+            The entity, as an id like ent_14. Required. Ids only: a name answers 400 id_required. Resolve names first with GET /v1/entities/resolve.
+
         limit : typing.Optional[int]
 
         cursor : typing.Optional[str]
             Signed continuation from next_cursor. Bound to this route, normalized query, caller and visibility; invalid or old tokens return invalid_cursor.
 
-        entity_id : typing.Optional[str]
-
-        entity_name : typing.Optional[str]
-
-        entity_type : typing.Optional[ListMentionsRequestEntityType]
-
         channel_id : typing.Optional[str]
-
-        channel_name : typing.Optional[str]
+            Only media from this YouTube channel id (UC plus 22 characters). Ids only: a name answers 400 id_required. Resolve names first with GET /v1/entities/resolve.
 
         q : typing.Optional[str]
 
@@ -251,9 +237,11 @@ class AsyncMentionsClient:
 
         is_appearance : typing.Optional[bool]
 
-        date_from : typing.Optional[str]
+        after : typing.Optional[str]
+            Only media published at or after this instant. An ISO 8601 date (2026-09-01) or datetime with offset (2026-09-01T00:00:00Z), read in UTC. The window is half-open: after is inclusive, before is exclusive.
 
-        date_to : typing.Optional[str]
+        before : typing.Optional[str]
+            Only media published before this instant, so before=2026-09-02 includes all of 2026-09-01. An ISO 8601 date (2026-09-01) or datetime with offset (2026-09-01T00:00:00Z), read in UTC. The window is half-open: after is inclusive, before is exclusive.
 
         details : typing.Optional[ListMentionsRequestDetails]
 
@@ -277,7 +265,9 @@ class AsyncMentionsClient:
 
 
         async def main() -> None:
-            response = await client.mentions.list()
+            response = await client.mentions.list(
+                entity_id="entity_id",
+            )
             async for item in response:
                 yield item
 
@@ -289,18 +279,15 @@ class AsyncMentionsClient:
         asyncio.run(main())
         """
         return await self._raw_client.list(
+            entity_id=entity_id,
             limit=limit,
             cursor=cursor,
-            entity_id=entity_id,
-            entity_name=entity_name,
-            entity_type=entity_type,
             channel_id=channel_id,
-            channel_name=channel_name,
             q=q,
             sentiment=sentiment,
             is_appearance=is_appearance,
-            date_from=date_from,
-            date_to=date_to,
+            after=after,
+            before=before,
             details=details,
             request_options=request_options,
         )
@@ -313,13 +300,13 @@ class AsyncMentionsClient:
         video_ids: typing.Optional[str] = None,
         entity_types: typing.Optional[str] = None,
         mode: typing.Optional[CountMentionsRequestMode] = None,
-        published_after: typing.Optional[str] = None,
-        published_before: typing.Optional[str] = None,
+        after: typing.Optional[str] = None,
+        before: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> MentionCountsResponse:
         """
-        A small ranked table of entity and channel counts, all-time unless published_after is set. Pass channel_ids for what shows talk about and entity_types to match the question (topic for subjects, person for guests, organization,product for brands). Pass video_ids with one id from GET /v1/channels/{channel_id}/videos for what a single episode mentions. Two or more channel_ids also return shared, the entities on more than one of them ranked by the smallest per-channel count, which is true overlap. A published_after narrower than the plan's freshness gate is refused with freshness_requires_paid rather than widened. Bills one row per table row returned. Every gate is a typed error whose error.unlock.url names the plan that lifts it; pass src=mcp-tool only from the Arcmira MCP server.
+        A small ranked table of entity and channel counts, all-time unless after is set. Pass channel_ids for what shows talk about and entity_types to match the question (topic for subjects, person for guests, organization,product for brands). Pass video_ids with one id from GET /v1/channels/{channel_id}/videos for what a single episode mentions. Two or more channel_ids also return shared, the entities on more than one of them ranked by the smallest per-channel count, which is true overlap. An after later than the plan's freshness gate is refused with freshness_requires_paid rather than widened. Bills one row per table row returned. Every gate is a typed error whose error.unlock.url names the plan that lifts it; pass src=mcp-tool only from the Arcmira MCP server.
 
         Parameters
         ----------
@@ -338,11 +325,11 @@ class AsyncMentionsClient:
         mode : typing.Optional[CountMentionsRequestMode]
             mentions counts talk about an entity; appearances counts a person being present; both counts either. Default mentions.
 
-        published_after : typing.Optional[str]
-            ISO date. Counts are all-time without it. A window narrower than your plan's freshness gate is refused with freshness_requires_paid rather than widened.
+        after : typing.Optional[str]
+            Only media published at or after this instant. Counts are all-time without it. An after later than your plan's freshness gate is refused with freshness_requires_paid rather than widened. An ISO 8601 date (2026-09-01) or datetime with offset (2026-09-01T00:00:00Z), read in UTC. The window is half-open: after is inclusive, before is exclusive.
 
-        published_before : typing.Optional[str]
-            ISO date. Only media published before this day.
+        before : typing.Optional[str]
+            Only media published before this instant, so before=2026-09-02 includes all of 2026-09-01. An ISO 8601 date (2026-09-01) or datetime with offset (2026-09-01T00:00:00Z), read in UTC. The window is half-open: after is inclusive, before is exclusive.
 
         limit : typing.Optional[int]
             Rows in the ranked table, 1 to 40. Default 20.
@@ -378,8 +365,8 @@ class AsyncMentionsClient:
             video_ids=video_ids,
             entity_types=entity_types,
             mode=mode,
-            published_after=published_after,
-            published_before=published_before,
+            after=after,
+            before=before,
             limit=limit,
             request_options=request_options,
         )

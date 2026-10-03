@@ -6,48 +6,10 @@ import typing
 from importlib import import_module
 
 if typing.TYPE_CHECKING:
-    from . import guests, related, sponsors, videos
-    from .guests import ListGuestsRequestIsAppearance, ListGuestsRequestMode, ListGuestsRequestOrder
-    from .related import (
-        ChannelsRelatedRequestIsAppearance,
-        ChannelsRelatedRequestMode,
-        ChannelsRelatedRequestOrder,
-        OrganizationsRelatedRequestIsAppearance,
-        OrganizationsRelatedRequestMode,
-        OrganizationsRelatedRequestOrder,
-        PeopleRelatedRequestIsAppearance,
-        PeopleRelatedRequestMode,
-        PeopleRelatedRequestOrder,
-        ProductsRelatedRequestIsAppearance,
-        ProductsRelatedRequestMode,
-        ProductsRelatedRequestOrder,
-        TopicsRelatedRequestIsAppearance,
-        TopicsRelatedRequestMode,
-        TopicsRelatedRequestOrder,
-    )
+    from . import sponsors, videos
     from .sponsors import ListSponsorsRequestStatus
 _dynamic_imports: typing.Dict[str, str] = {
-    "ChannelsRelatedRequestIsAppearance": ".related",
-    "ChannelsRelatedRequestMode": ".related",
-    "ChannelsRelatedRequestOrder": ".related",
-    "ListGuestsRequestIsAppearance": ".guests",
-    "ListGuestsRequestMode": ".guests",
-    "ListGuestsRequestOrder": ".guests",
     "ListSponsorsRequestStatus": ".sponsors",
-    "OrganizationsRelatedRequestIsAppearance": ".related",
-    "OrganizationsRelatedRequestMode": ".related",
-    "OrganizationsRelatedRequestOrder": ".related",
-    "PeopleRelatedRequestIsAppearance": ".related",
-    "PeopleRelatedRequestMode": ".related",
-    "PeopleRelatedRequestOrder": ".related",
-    "ProductsRelatedRequestIsAppearance": ".related",
-    "ProductsRelatedRequestMode": ".related",
-    "ProductsRelatedRequestOrder": ".related",
-    "TopicsRelatedRequestIsAppearance": ".related",
-    "TopicsRelatedRequestMode": ".related",
-    "TopicsRelatedRequestOrder": ".related",
-    "guests": ".guests",
-    "related": ".related",
     "sponsors": ".sponsors",
     "videos": ".videos",
 }
@@ -74,28 +36,4 @@ def __dir__():
     return sorted(lazy_attrs)
 
 
-__all__ = [
-    "ChannelsRelatedRequestIsAppearance",
-    "ChannelsRelatedRequestMode",
-    "ChannelsRelatedRequestOrder",
-    "ListGuestsRequestIsAppearance",
-    "ListGuestsRequestMode",
-    "ListGuestsRequestOrder",
-    "ListSponsorsRequestStatus",
-    "OrganizationsRelatedRequestIsAppearance",
-    "OrganizationsRelatedRequestMode",
-    "OrganizationsRelatedRequestOrder",
-    "PeopleRelatedRequestIsAppearance",
-    "PeopleRelatedRequestMode",
-    "PeopleRelatedRequestOrder",
-    "ProductsRelatedRequestIsAppearance",
-    "ProductsRelatedRequestMode",
-    "ProductsRelatedRequestOrder",
-    "TopicsRelatedRequestIsAppearance",
-    "TopicsRelatedRequestMode",
-    "TopicsRelatedRequestOrder",
-    "guests",
-    "related",
-    "sponsors",
-    "videos",
-]
+__all__ = ["ListSponsorsRequestStatus", "sponsors", "videos"]

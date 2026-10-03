@@ -3,9 +3,11 @@
 import typing
 
 import pydantic
+import typing_extensions
 from ...core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
+from ...core.serialization import FieldMetadata
+from .submit_feedback_request_corrections_item_class import SubmitFeedbackRequestCorrectionsItemClass
 from .submit_feedback_request_corrections_item_issue_type import SubmitFeedbackRequestCorrectionsItemIssueType
-from .submit_feedback_request_corrections_item_mention_class import SubmitFeedbackRequestCorrectionsItemMentionClass
 from .submit_feedback_request_corrections_item_reason import SubmitFeedbackRequestCorrectionsItemReason
 from .submit_feedback_request_corrections_item_suggested_change import (
     SubmitFeedbackRequestCorrectionsItemSuggestedChange,
@@ -18,7 +20,18 @@ class SubmitFeedbackRequestCorrectionsItem(UniversalBaseModel):
     Public id of the row being corrected, from the response you received: men_* (mentions, appearances), com_* (recommendations), ent_* (entities, sponsors), or the alert row id (monitor_alert). Omit for missed_alert and missing_result corrections, which have no row to target.
     """
 
-    mention_class: typing.Optional[SubmitFeedbackRequestCorrectionsItemMentionClass] = None
+    class_: typing_extensions.Annotated[
+        typing.Optional[SubmitFeedbackRequestCorrectionsItemClass],
+        FieldMetadata(alias="class"),
+        pydantic.Field(
+            alias="class",
+            description="On recommendations feedback, the class the row should carry. Values: sponsored (an ad-style promotion heard at that moment: a paid sponsor read, promo code, affiliate plug, thanks for supplied goods or venue, or a show promoting its own product as an ad), organic (an unpaid personal recommendation), mention (a neutral commercial mention).",
+        ),
+    ] = None
+    """
+    On recommendations feedback, the class the row should carry. Values: sponsored (an ad-style promotion heard at that moment: a paid sponsor read, promo code, affiliate plug, thanks for supplied goods or venue, or a show promoting its own product as an ad), organic (an unpaid personal recommendation), mention (a neutral commercial mention).
+    """
+
     reason: typing.Optional[SubmitFeedbackRequestCorrectionsItemReason] = None
     issue_type: typing.Optional[SubmitFeedbackRequestCorrectionsItemIssueType] = pydantic.Field(default=None)
     """
