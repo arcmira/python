@@ -12,7 +12,7 @@ from .transcript_job_status import TranscriptJobStatus
 
 class TranscriptJob(UniversalBaseModel):
     """
-    Your open Premium purchase for this video, when captions were served while it prepares.
+    Your open Premium purchase for this video, when captions were served while it transcribes.
     """
 
     id: str = pydantic.Field()
@@ -77,7 +77,7 @@ class TranscriptJob(UniversalBaseModel):
 
     status_url: str = pydantic.Field()
     """
-    Absolute URL to read again for this job: GET /v1/transcripts/{video_id}?quality=premium, which answers 202 while it prepares, 200 ready once it is, and 200 failed if it failed.
+    Absolute URL to read again for this job: GET /v1/transcripts/{video_id}?quality=premium, which answers 202 while it transcribes, 200 ready once it is done, and 200 failed if it failed.
     """
 
     if IS_PYDANTIC_V2:
