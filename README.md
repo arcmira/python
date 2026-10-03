@@ -54,7 +54,11 @@ for _ in range(60):
     if read.data.state == "failed":
         raise RuntimeError(f"{read.data.last_attempt.status}: {read.data.last_attempt.error}")
     time.sleep(int(read.headers.get("retry-after") or read.data.job.next_poll_seconds or 10))
+else:
+    raise TimeoutError("Still processing. Resume the same Premium read later.")
 ```
+
+The timeout only stops this polling loop. It does not cancel the job. Resume with the same video id and `quality="premium"`; do not set `retry=True` while the job is pending.
 
 `read.data` is a `TranscriptResult`, discriminated on `state`. `ready` carries the transcript. `pending` carries `job`, with `eta_seconds`, `next_poll_seconds` and `charge`. `failed` means the last purchase failed or was refunded; it carries `job` and `last_attempt`, buys nothing, and `retry=True` buys it again. Without `with_raw_response`, `client.transcripts.get(...)` returns the same union without the status and headers.
 
