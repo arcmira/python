@@ -7,12 +7,9 @@ import typing
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.request_options import RequestOptions
 from ..types.channel_coverage_response import ChannelCoverageResponse
-from ..types.channel_page_response import ChannelPageResponse
 from .raw_client import AsyncRawChannelsClient, RawChannelsClient
 
 if typing.TYPE_CHECKING:
-    from .guests.client import AsyncGuestsClient, GuestsClient
-    from .related.client import AsyncRelatedClient, RelatedClient
     from .sponsors.client import AsyncSponsorsClient, SponsorsClient
     from .videos.client import AsyncVideosClient, VideosClient
 
@@ -23,8 +20,6 @@ class ChannelsClient:
         self._client_wrapper = client_wrapper
         self._sponsors: typing.Optional[SponsorsClient] = None
         self._videos: typing.Optional[VideosClient] = None
-        self._related: typing.Optional[RelatedClient] = None
-        self._guests: typing.Optional[GuestsClient] = None
 
     @property
     def with_raw_response(self) -> RawChannelsClient:
@@ -70,37 +65,6 @@ class ChannelsClient:
         _response = self._raw_client.coverage(channel_id, request_options=request_options)
         return _response.data
 
-    def get(self, slug: str, *, request_options: typing.Optional[RequestOptions] = None) -> ChannelPageResponse:
-        """
-        Channel pages include a recommendations_summary teaser: sponsor_count for all callers; top_sponsors additionally requires a Pro+ plan.
-
-        Parameters
-        ----------
-        slug : str
-            The entity slug: the last segment of its arcmira.com page URL, as EntityRef.slug carries it.
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        ChannelPageResponse
-            Success
-
-        Examples
-        --------
-        from arcmira import Arcmira
-
-        client = Arcmira(
-            api_key="YOUR_API_KEY",
-        )
-        client.channels.get(
-            slug="slug",
-        )
-        """
-        _response = self._raw_client.get(slug, request_options=request_options)
-        return _response.data
-
     @property
     def sponsors(self):
         if self._sponsors is None:
@@ -117,22 +81,6 @@ class ChannelsClient:
             self._videos = VideosClient(client_wrapper=self._client_wrapper)
         return self._videos
 
-    @property
-    def related(self):
-        if self._related is None:
-            from .related.client import RelatedClient  # noqa: E402
-
-            self._related = RelatedClient(client_wrapper=self._client_wrapper)
-        return self._related
-
-    @property
-    def guests(self):
-        if self._guests is None:
-            from .guests.client import GuestsClient  # noqa: E402
-
-            self._guests = GuestsClient(client_wrapper=self._client_wrapper)
-        return self._guests
-
 
 class AsyncChannelsClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
@@ -140,8 +88,6 @@ class AsyncChannelsClient:
         self._client_wrapper = client_wrapper
         self._sponsors: typing.Optional[AsyncSponsorsClient] = None
         self._videos: typing.Optional[AsyncVideosClient] = None
-        self._related: typing.Optional[AsyncRelatedClient] = None
-        self._guests: typing.Optional[AsyncGuestsClient] = None
 
     @property
     def with_raw_response(self) -> AsyncRawChannelsClient:
@@ -195,45 +141,6 @@ class AsyncChannelsClient:
         _response = await self._raw_client.coverage(channel_id, request_options=request_options)
         return _response.data
 
-    async def get(self, slug: str, *, request_options: typing.Optional[RequestOptions] = None) -> ChannelPageResponse:
-        """
-        Channel pages include a recommendations_summary teaser: sponsor_count for all callers; top_sponsors additionally requires a Pro+ plan.
-
-        Parameters
-        ----------
-        slug : str
-            The entity slug: the last segment of its arcmira.com page URL, as EntityRef.slug carries it.
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        ChannelPageResponse
-            Success
-
-        Examples
-        --------
-        import asyncio
-
-        from arcmira import AsyncArcmira
-
-        client = AsyncArcmira(
-            api_key="YOUR_API_KEY",
-        )
-
-
-        async def main() -> None:
-            await client.channels.get(
-                slug="slug",
-            )
-
-
-        asyncio.run(main())
-        """
-        _response = await self._raw_client.get(slug, request_options=request_options)
-        return _response.data
-
     @property
     def sponsors(self):
         if self._sponsors is None:
@@ -249,19 +156,3 @@ class AsyncChannelsClient:
 
             self._videos = AsyncVideosClient(client_wrapper=self._client_wrapper)
         return self._videos
-
-    @property
-    def related(self):
-        if self._related is None:
-            from .related.client import AsyncRelatedClient  # noqa: E402
-
-            self._related = AsyncRelatedClient(client_wrapper=self._client_wrapper)
-        return self._related
-
-    @property
-    def guests(self):
-        if self._guests is None:
-            from .guests.client import AsyncGuestsClient  # noqa: E402
-
-            self._guests = AsyncGuestsClient(client_wrapper=self._client_wrapper)
-        return self._guests

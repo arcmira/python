@@ -8,19 +8,19 @@ from .feedback_correction_result import FeedbackCorrectionResult
 
 
 class FeedbackResponse(UniversalBaseModel):
-    feedback_id: int = pydantic.Field()
+    feedback_id: str = pydantic.Field()
     """
-    Id of the persisted feedback record. Read it back via GET /v1/feedback/{feedback_id}.
+    Id of the persisted feedback record, fbk_ and digits. Read it back via GET /v1/feedback/{feedback_id}.
     """
 
     type: str = pydantic.Field()
     """
-    The feedback type you submitted. Values: recommendations, channel_sponsors, mentions, entities_search, entities, channels, monitor_alert, appearances, search.
+    The feedback type you submitted. Values: recommendations, channel_sponsors, mentions, entities_search, entities, channels, monitor_alert, appearances, search, experience.
     """
 
     query: typing.Dict[str, typing.Any] = pydantic.Field()
     """
-    The query object the feedback is attached to, echoed back.
+    The query object the feedback is attached to, echoed back. category and mcp_call_id, when sent, are recorded in it under those names.
     """
 
     applied: int = pydantic.Field()

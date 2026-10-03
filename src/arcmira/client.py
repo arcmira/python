@@ -12,19 +12,14 @@ from .environment import ArcmiraEnvironment
 
 if typing.TYPE_CHECKING:
     from .channels.client import AsyncChannelsClient, ChannelsClient
-    from .corrections.client import AsyncCorrectionsClient, CorrectionsClient
     from .entities.client import AsyncEntitiesClient, EntitiesClient
     from .feedback.client import AsyncFeedbackClient, FeedbackClient
     from .health.client import AsyncHealthClient, HealthClient
+    from .integrations.client import AsyncIntegrationsClient, IntegrationsClient
     from .me.client import AsyncMeClient, MeClient
     from .mentions.client import AsyncMentionsClient, MentionsClient
     from .monitors.client import AsyncMonitorsClient, MonitorsClient
-    from .organizations.client import AsyncOrganizationsClient, OrganizationsClient
-    from .people.client import AsyncPeopleClient, PeopleClient
-    from .products.client import AsyncProductsClient, ProductsClient
     from .recommendations.client import AsyncRecommendationsClient, RecommendationsClient
-    from .team.client import AsyncTeamClient, TeamClient
-    from .topics.client import AsyncTopicsClient, TopicsClient
     from .trackers.client import AsyncTrackersClient, TrackersClient
     from .transcripts.client import AsyncTranscriptsClient, TranscriptsClient
 
@@ -121,14 +116,9 @@ class Arcmira:
         self._feedback: typing.Optional[FeedbackClient] = None
         self._transcripts: typing.Optional[TranscriptsClient] = None
         self._channels: typing.Optional[ChannelsClient] = None
-        self._people: typing.Optional[PeopleClient] = None
-        self._topics: typing.Optional[TopicsClient] = None
-        self._organizations: typing.Optional[OrganizationsClient] = None
-        self._products: typing.Optional[ProductsClient] = None
         self._monitors: typing.Optional[MonitorsClient] = None
         self._trackers: typing.Optional[TrackersClient] = None
-        self._team: typing.Optional[TeamClient] = None
-        self._corrections: typing.Optional[CorrectionsClient] = None
+        self._integrations: typing.Optional[IntegrationsClient] = None
 
     @property
     def health(self):
@@ -195,38 +185,6 @@ class Arcmira:
         return self._channels
 
     @property
-    def people(self):
-        if self._people is None:
-            from .people.client import PeopleClient  # noqa: E402
-
-            self._people = PeopleClient(client_wrapper=self._client_wrapper)
-        return self._people
-
-    @property
-    def topics(self):
-        if self._topics is None:
-            from .topics.client import TopicsClient  # noqa: E402
-
-            self._topics = TopicsClient(client_wrapper=self._client_wrapper)
-        return self._topics
-
-    @property
-    def organizations(self):
-        if self._organizations is None:
-            from .organizations.client import OrganizationsClient  # noqa: E402
-
-            self._organizations = OrganizationsClient(client_wrapper=self._client_wrapper)
-        return self._organizations
-
-    @property
-    def products(self):
-        if self._products is None:
-            from .products.client import ProductsClient  # noqa: E402
-
-            self._products = ProductsClient(client_wrapper=self._client_wrapper)
-        return self._products
-
-    @property
     def monitors(self):
         if self._monitors is None:
             from .monitors.client import MonitorsClient  # noqa: E402
@@ -243,20 +201,12 @@ class Arcmira:
         return self._trackers
 
     @property
-    def team(self):
-        if self._team is None:
-            from .team.client import TeamClient  # noqa: E402
+    def integrations(self):
+        if self._integrations is None:
+            from .integrations.client import IntegrationsClient  # noqa: E402
 
-            self._team = TeamClient(client_wrapper=self._client_wrapper)
-        return self._team
-
-    @property
-    def corrections(self):
-        if self._corrections is None:
-            from .corrections.client import CorrectionsClient  # noqa: E402
-
-            self._corrections = CorrectionsClient(client_wrapper=self._client_wrapper)
-        return self._corrections
+            self._integrations = IntegrationsClient(client_wrapper=self._client_wrapper)
+        return self._integrations
 
 
 def _make_default_async_client(
@@ -372,14 +322,9 @@ class AsyncArcmira:
         self._feedback: typing.Optional[AsyncFeedbackClient] = None
         self._transcripts: typing.Optional[AsyncTranscriptsClient] = None
         self._channels: typing.Optional[AsyncChannelsClient] = None
-        self._people: typing.Optional[AsyncPeopleClient] = None
-        self._topics: typing.Optional[AsyncTopicsClient] = None
-        self._organizations: typing.Optional[AsyncOrganizationsClient] = None
-        self._products: typing.Optional[AsyncProductsClient] = None
         self._monitors: typing.Optional[AsyncMonitorsClient] = None
         self._trackers: typing.Optional[AsyncTrackersClient] = None
-        self._team: typing.Optional[AsyncTeamClient] = None
-        self._corrections: typing.Optional[AsyncCorrectionsClient] = None
+        self._integrations: typing.Optional[AsyncIntegrationsClient] = None
 
     @property
     def health(self):
@@ -446,38 +391,6 @@ class AsyncArcmira:
         return self._channels
 
     @property
-    def people(self):
-        if self._people is None:
-            from .people.client import AsyncPeopleClient  # noqa: E402
-
-            self._people = AsyncPeopleClient(client_wrapper=self._client_wrapper)
-        return self._people
-
-    @property
-    def topics(self):
-        if self._topics is None:
-            from .topics.client import AsyncTopicsClient  # noqa: E402
-
-            self._topics = AsyncTopicsClient(client_wrapper=self._client_wrapper)
-        return self._topics
-
-    @property
-    def organizations(self):
-        if self._organizations is None:
-            from .organizations.client import AsyncOrganizationsClient  # noqa: E402
-
-            self._organizations = AsyncOrganizationsClient(client_wrapper=self._client_wrapper)
-        return self._organizations
-
-    @property
-    def products(self):
-        if self._products is None:
-            from .products.client import AsyncProductsClient  # noqa: E402
-
-            self._products = AsyncProductsClient(client_wrapper=self._client_wrapper)
-        return self._products
-
-    @property
     def monitors(self):
         if self._monitors is None:
             from .monitors.client import AsyncMonitorsClient  # noqa: E402
@@ -494,20 +407,12 @@ class AsyncArcmira:
         return self._trackers
 
     @property
-    def team(self):
-        if self._team is None:
-            from .team.client import AsyncTeamClient  # noqa: E402
+    def integrations(self):
+        if self._integrations is None:
+            from .integrations.client import AsyncIntegrationsClient  # noqa: E402
 
-            self._team = AsyncTeamClient(client_wrapper=self._client_wrapper)
-        return self._team
-
-    @property
-    def corrections(self):
-        if self._corrections is None:
-            from .corrections.client import AsyncCorrectionsClient  # noqa: E402
-
-            self._corrections = AsyncCorrectionsClient(client_wrapper=self._client_wrapper)
-        return self._corrections
+            self._integrations = AsyncIntegrationsClient(client_wrapper=self._client_wrapper)
+        return self._integrations
 
 
 def _get_base_url(*, base_url: typing.Optional[str] = None, environment: ArcmiraEnvironment) -> str:

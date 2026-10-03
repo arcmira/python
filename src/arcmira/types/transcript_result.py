@@ -10,10 +10,6 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 from .caption_track import CaptionTrack
 from .transcript_job import TranscriptJob
 from .transcript_pending_quality import TranscriptPendingQuality
-from .transcript_preparation_required_action import TranscriptPreparationRequiredAction
-from .transcript_preparation_required_last_attempt import TranscriptPreparationRequiredLastAttempt
-from .transcript_preparation_required_quality import TranscriptPreparationRequiredQuality
-from .transcript_preparation_required_quote import TranscriptPreparationRequiredQuote
 from .transcript_response_access import TranscriptResponseAccess
 from .transcript_response_lines_item import TranscriptResponseLinesItem
 from .transcript_response_paragraphs_item import TranscriptResponseParagraphsItem
@@ -52,24 +48,6 @@ class TranscriptResult_Ready(UniversalBaseModel):
             extra = pydantic.Extra.allow
 
 
-class TranscriptResult_PreparationRequired(UniversalBaseModel):
-    state: typing.Literal["preparation_required"] = "preparation_required"
-    quality: TranscriptPreparationRequiredQuality
-    video_id: str
-    quote: typing.Optional[TranscriptPreparationRequiredQuote] = None
-    action: TranscriptPreparationRequiredAction
-    last_attempt: typing.Optional[TranscriptPreparationRequiredLastAttempt] = None
-
-    if IS_PYDANTIC_V2:
-        model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
-    else:
-
-        class Config:
-            frozen = True
-            smart_union = True
-            extra = pydantic.Extra.allow
-
-
 class TranscriptResult_Pending(UniversalBaseModel):
     state: typing.Literal["pending"] = "pending"
     quality: TranscriptPendingQuality
@@ -87,6 +65,5 @@ class TranscriptResult_Pending(UniversalBaseModel):
 
 
 TranscriptResult = typing_extensions.Annotated[
-    typing.Union[TranscriptResult_Ready, TranscriptResult_PreparationRequired, TranscriptResult_Pending],
-    pydantic.Field(discriminator="state"),
+    typing.Union[TranscriptResult_Ready, TranscriptResult_Pending], pydantic.Field(discriminator="state")
 ]

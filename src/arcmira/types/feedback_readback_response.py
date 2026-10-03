@@ -9,14 +9,14 @@ from .feedback_readback_response_status import FeedbackReadbackResponseStatus
 
 
 class FeedbackReadbackResponse(UniversalBaseModel):
-    feedback_id: int = pydantic.Field()
+    feedback_id: str = pydantic.Field()
     """
-    Id of the feedback record.
+    Id of the feedback record, fbk_ and digits.
     """
 
     type: str = pydantic.Field()
     """
-    The feedback type as submitted. Values: recommendations, channel_sponsors, mentions, entities_search, entities, channels, monitor_alert, appearances, search.
+    The feedback type as submitted. Values: recommendations, channel_sponsors, mentions, entities_search, entities, channels, monitor_alert, appearances, search, experience.
     """
 
     status: FeedbackReadbackResponseStatus = pydantic.Field()

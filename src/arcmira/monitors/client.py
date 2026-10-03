@@ -16,6 +16,7 @@ from .types.update_monitors_request_notify_frequency import UpdateMonitorsReques
 
 if typing.TYPE_CHECKING:
     from .alerts.client import AlertsClient, AsyncAlertsClient
+    from .entities.client import AsyncEntitiesClient, EntitiesClient
     from .trackers.client import AsyncTrackersClient, TrackersClient
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -27,6 +28,7 @@ class MonitorsClient:
         self._client_wrapper = client_wrapper
         self._trackers: typing.Optional[TrackersClient] = None
         self._alerts: typing.Optional[AlertsClient] = None
+        self._entities: typing.Optional[EntitiesClient] = None
 
     @property
     def with_raw_response(self) -> RawMonitorsClient:
@@ -79,10 +81,11 @@ class MonitorsClient:
         notify_slack: typing.Optional[bool] = OMIT,
         slack_integration_id: typing.Optional[str] = OMIT,
         slack_channel_id: typing.Optional[str] = OMIT,
+        team_id: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> MonitorMutationResponse:
         """
-        Creating with notifyWebhook: true and a webhookUrl enables HMAC-signed webhook delivery and returns the signing secret (monitor.webhookSecret) in this response. Store it securely. A retry with the original Idempotency-Key recovers the same secret for up to 24 hours while it remains the current secret or the valid previous secret. An expired or displaced secret returns 409 idempotency_result_expired without rotating again. Reads do not expose the secret. All subsequent reads expose only webhookSecretSet and webhookSecretHint.
+        Creating with notify_webhook: true and a webhook_url enables HMAC-signed webhook delivery and returns the signing secret (monitor.webhook_secret) in this response. Store it securely. A retry with the original Idempotency-Key recovers the same secret for up to 24 hours while it remains the current secret or the valid previous secret. An expired or displaced secret returns 409 idempotency_result_expired without rotating again. Reads do not expose the secret. All subsequent reads expose only webhook_secret_set and webhook_secret_hint.
 
         Parameters
         ----------
@@ -105,7 +108,7 @@ class MonitorsClient:
             Digest send hour as HH:MM (account timezone). Default "09:00". Applies to daily digests.
 
         notify_webhook : typing.Optional[bool]
-            Enable HMAC-signed webhook delivery (paid plans). When enabled together with webhookUrl, the response returns the signing secret (monitor.webhookSecret), recoverable with the original Idempotency-Key during the valid recovery window. PATCHing true also re-enables an auto-disabled webhook and resets its failure counter.
+            Enable HMAC-signed webhook delivery (paid plans). When enabled together with webhook_url, the response returns the signing secret (monitor.webhook_secret), recoverable with the original Idempotency-Key during the valid recovery window. PATCHing true also re-enables an auto-disabled webhook and resets its failure counter.
 
         webhook_url : typing.Optional[str]
             Destination URL for webhook alert deliveries.
@@ -118,6 +121,9 @@ class MonitorsClient:
 
         slack_channel_id : typing.Optional[str]
             Slack channel id to deliver to.
+
+        team_id : typing.Optional[str]
+            Create the monitor in this team, which the caller must belong to. The team owner pays for it and its plan sets the limits. A member may not set a webhook. Create only.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -151,6 +157,7 @@ class MonitorsClient:
             notify_slack=notify_slack,
             slack_integration_id=slack_integration_id,
             slack_channel_id=slack_channel_id,
+            team_id=team_id,
             request_options=request_options,
         )
         return _response.data
@@ -163,7 +170,7 @@ class MonitorsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> MonitorDeleteResponse:
         """
-        Deletes the monitor AND every tracker inside it (trackersDeleted reports how many). Cannot be undone. Retrying with the original Idempotency-Key returns the original deleted count without deleting again.
+        Deletes the monitor AND every tracker inside it (trackers_deleted reports how many). Cannot be undone. Retrying with the original Idempotency-Key returns the original deleted count without deleting again.
 
         Parameters
         ----------
@@ -211,13 +218,11 @@ class MonitorsClient:
         notify_slack: typing.Optional[bool] = OMIT,
         slack_integration_id: typing.Optional[str] = OMIT,
         slack_channel_id: typing.Optional[str] = OMIT,
-        is_paused: typing.Optional[bool] = OMIT,
-        is_collapsed: typing.Optional[bool] = OMIT,
-        sort_order: typing.Optional[int] = OMIT,
+        paused: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> MonitorMutationResponse:
         """
-        A PATCH that newly enables webhook signing (turns notifyWebhook on, or sets a webhookUrl where no secret existed before) returns the signing secret (monitor.webhookSecret) in this response. Store it securely. A retry with the original Idempotency-Key recovers the same secret for up to 24 hours while it remains the current secret or the valid previous secret. An expired or displaced secret returns 409 idempotency_result_expired without rotating again. Reads do not expose the secret. Unrelated PATCHes expose only webhookSecretSet and webhookSecretHint. PATCHing notifyWebhook: true also re-enables a webhook that was auto-disabled after repeated failures and resets its failure counter.
+        A PATCH that newly enables webhook signing (turns notify_webhook on, or sets a webhook_url where no secret existed before) returns the signing secret (monitor.webhook_secret) in this response. Store it securely. A retry with the original Idempotency-Key recovers the same secret for up to 24 hours while it remains the current secret or the valid previous secret. An expired or displaced secret returns 409 idempotency_result_expired without rotating again. Reads do not expose the secret. Unrelated PATCHes expose only webhook_secret_set and webhook_secret_hint. PATCHing notify_webhook: true also re-enables a webhook that was auto-disabled after repeated failures and resets its failure counter.
 
         Parameters
         ----------
@@ -243,7 +248,7 @@ class MonitorsClient:
             Digest send hour as HH:MM (account timezone). Default "09:00". Applies to daily digests.
 
         notify_webhook : typing.Optional[bool]
-            Enable HMAC-signed webhook delivery (paid plans). When enabled together with webhookUrl, the response returns the signing secret (monitor.webhookSecret), recoverable with the original Idempotency-Key during the valid recovery window. PATCHing true also re-enables an auto-disabled webhook and resets its failure counter.
+            Enable HMAC-signed webhook delivery (paid plans). When enabled together with webhook_url, the response returns the signing secret (monitor.webhook_secret), recoverable with the original Idempotency-Key during the valid recovery window. PATCHing true also re-enables an auto-disabled webhook and resets its failure counter.
 
         webhook_url : typing.Optional[str]
             Destination URL for webhook alert deliveries.
@@ -257,14 +262,8 @@ class MonitorsClient:
         slack_channel_id : typing.Optional[str]
             Slack channel id to deliver to.
 
-        is_paused : typing.Optional[bool]
+        paused : typing.Optional[bool]
             Paused monitors accept config changes but do not deliver; alerts that would have fired are not queued.
-
-        is_collapsed : typing.Optional[bool]
-            Dashboard display state.
-
-        sort_order : typing.Optional[int]
-            Dashboard sort position.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -299,9 +298,7 @@ class MonitorsClient:
             notify_slack=notify_slack,
             slack_integration_id=slack_integration_id,
             slack_channel_id=slack_channel_id,
-            is_paused=is_paused,
-            is_collapsed=is_collapsed,
-            sort_order=sort_order,
+            paused=paused,
             request_options=request_options,
         )
         return _response.data
@@ -314,7 +311,7 @@ class MonitorsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> WebhookSecretRotateResponse:
         """
-        Generates a new signing secret and returns it in this response. Store it securely. A retry with the original Idempotency-Key recovers the same secret for up to 24 hours while it remains the current secret or the valid previous secret. An expired or displaced secret returns 409 idempotency_result_expired without rotating again. Reads do not expose the secret. Zero-downtime overlap: the previous secret remains valid until previousSecretExpiresAt (24 hours); during the window every delivery carries an additional X-Arcmira-Signature-Previous header computed with the old secret over the same {timestamp}.{payload} string, so you can verify with either secret while you roll. After the window the old secret is dropped and the extra header disappears. Rotating again during the window replaces the previous secret and resets the window. Requires a configured webhook (webhookUrl set); otherwise 409 with code webhook_not_configured. Auto-disable interplay: rotation resets webhook_failures but never re-enables a webhook that was auto-disabled after repeated failures; to resume delivery, also PATCH the monitor with notifyWebhook: true. Requires the monitors:write scope.
+        Generates a new signing secret and returns it in this response. Store it securely. A retry with the original Idempotency-Key recovers the same secret for up to 24 hours while it remains the current secret or the valid previous secret. An expired or displaced secret returns 409 idempotency_result_expired without rotating again. Reads do not expose the secret. Zero-downtime overlap: the previous secret remains valid until previous_secret_expires_at (24 hours); during the window every delivery carries an additional X-Arcmira-Signature-Previous header computed with the old secret over the same {timestamp}.{payload} string, so you can verify with either secret while you roll. After the window the old secret is dropped and the extra header disappears. Rotating again during the window replaces the previous secret and resets the window. Requires a configured webhook (webhook_url set); otherwise 409 with code webhook_not_configured. Auto-disable interplay: rotation resets webhook_failures but never re-enables a webhook that was auto-disabled after repeated failures; to resume delivery, also PATCH the monitor with notify_webhook: true. Requires the monitors:write scope.
 
         Parameters
         ----------
@@ -365,6 +362,14 @@ class MonitorsClient:
             self._alerts = AlertsClient(client_wrapper=self._client_wrapper)
         return self._alerts
 
+    @property
+    def entities(self):
+        if self._entities is None:
+            from .entities.client import EntitiesClient  # noqa: E402
+
+            self._entities = EntitiesClient(client_wrapper=self._client_wrapper)
+        return self._entities
+
 
 class AsyncMonitorsClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
@@ -372,6 +377,7 @@ class AsyncMonitorsClient:
         self._client_wrapper = client_wrapper
         self._trackers: typing.Optional[AsyncTrackersClient] = None
         self._alerts: typing.Optional[AsyncAlertsClient] = None
+        self._entities: typing.Optional[AsyncEntitiesClient] = None
 
     @property
     def with_raw_response(self) -> AsyncRawMonitorsClient:
@@ -432,10 +438,11 @@ class AsyncMonitorsClient:
         notify_slack: typing.Optional[bool] = OMIT,
         slack_integration_id: typing.Optional[str] = OMIT,
         slack_channel_id: typing.Optional[str] = OMIT,
+        team_id: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> MonitorMutationResponse:
         """
-        Creating with notifyWebhook: true and a webhookUrl enables HMAC-signed webhook delivery and returns the signing secret (monitor.webhookSecret) in this response. Store it securely. A retry with the original Idempotency-Key recovers the same secret for up to 24 hours while it remains the current secret or the valid previous secret. An expired or displaced secret returns 409 idempotency_result_expired without rotating again. Reads do not expose the secret. All subsequent reads expose only webhookSecretSet and webhookSecretHint.
+        Creating with notify_webhook: true and a webhook_url enables HMAC-signed webhook delivery and returns the signing secret (monitor.webhook_secret) in this response. Store it securely. A retry with the original Idempotency-Key recovers the same secret for up to 24 hours while it remains the current secret or the valid previous secret. An expired or displaced secret returns 409 idempotency_result_expired without rotating again. Reads do not expose the secret. All subsequent reads expose only webhook_secret_set and webhook_secret_hint.
 
         Parameters
         ----------
@@ -458,7 +465,7 @@ class AsyncMonitorsClient:
             Digest send hour as HH:MM (account timezone). Default "09:00". Applies to daily digests.
 
         notify_webhook : typing.Optional[bool]
-            Enable HMAC-signed webhook delivery (paid plans). When enabled together with webhookUrl, the response returns the signing secret (monitor.webhookSecret), recoverable with the original Idempotency-Key during the valid recovery window. PATCHing true also re-enables an auto-disabled webhook and resets its failure counter.
+            Enable HMAC-signed webhook delivery (paid plans). When enabled together with webhook_url, the response returns the signing secret (monitor.webhook_secret), recoverable with the original Idempotency-Key during the valid recovery window. PATCHing true also re-enables an auto-disabled webhook and resets its failure counter.
 
         webhook_url : typing.Optional[str]
             Destination URL for webhook alert deliveries.
@@ -471,6 +478,9 @@ class AsyncMonitorsClient:
 
         slack_channel_id : typing.Optional[str]
             Slack channel id to deliver to.
+
+        team_id : typing.Optional[str]
+            Create the monitor in this team, which the caller must belong to. The team owner pays for it and its plan sets the limits. A member may not set a webhook. Create only.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -512,6 +522,7 @@ class AsyncMonitorsClient:
             notify_slack=notify_slack,
             slack_integration_id=slack_integration_id,
             slack_channel_id=slack_channel_id,
+            team_id=team_id,
             request_options=request_options,
         )
         return _response.data
@@ -524,7 +535,7 @@ class AsyncMonitorsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> MonitorDeleteResponse:
         """
-        Deletes the monitor AND every tracker inside it (trackersDeleted reports how many). Cannot be undone. Retrying with the original Idempotency-Key returns the original deleted count without deleting again.
+        Deletes the monitor AND every tracker inside it (trackers_deleted reports how many). Cannot be undone. Retrying with the original Idempotency-Key returns the original deleted count without deleting again.
 
         Parameters
         ----------
@@ -580,13 +591,11 @@ class AsyncMonitorsClient:
         notify_slack: typing.Optional[bool] = OMIT,
         slack_integration_id: typing.Optional[str] = OMIT,
         slack_channel_id: typing.Optional[str] = OMIT,
-        is_paused: typing.Optional[bool] = OMIT,
-        is_collapsed: typing.Optional[bool] = OMIT,
-        sort_order: typing.Optional[int] = OMIT,
+        paused: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> MonitorMutationResponse:
         """
-        A PATCH that newly enables webhook signing (turns notifyWebhook on, or sets a webhookUrl where no secret existed before) returns the signing secret (monitor.webhookSecret) in this response. Store it securely. A retry with the original Idempotency-Key recovers the same secret for up to 24 hours while it remains the current secret or the valid previous secret. An expired or displaced secret returns 409 idempotency_result_expired without rotating again. Reads do not expose the secret. Unrelated PATCHes expose only webhookSecretSet and webhookSecretHint. PATCHing notifyWebhook: true also re-enables a webhook that was auto-disabled after repeated failures and resets its failure counter.
+        A PATCH that newly enables webhook signing (turns notify_webhook on, or sets a webhook_url where no secret existed before) returns the signing secret (monitor.webhook_secret) in this response. Store it securely. A retry with the original Idempotency-Key recovers the same secret for up to 24 hours while it remains the current secret or the valid previous secret. An expired or displaced secret returns 409 idempotency_result_expired without rotating again. Reads do not expose the secret. Unrelated PATCHes expose only webhook_secret_set and webhook_secret_hint. PATCHing notify_webhook: true also re-enables a webhook that was auto-disabled after repeated failures and resets its failure counter.
 
         Parameters
         ----------
@@ -612,7 +621,7 @@ class AsyncMonitorsClient:
             Digest send hour as HH:MM (account timezone). Default "09:00". Applies to daily digests.
 
         notify_webhook : typing.Optional[bool]
-            Enable HMAC-signed webhook delivery (paid plans). When enabled together with webhookUrl, the response returns the signing secret (monitor.webhookSecret), recoverable with the original Idempotency-Key during the valid recovery window. PATCHing true also re-enables an auto-disabled webhook and resets its failure counter.
+            Enable HMAC-signed webhook delivery (paid plans). When enabled together with webhook_url, the response returns the signing secret (monitor.webhook_secret), recoverable with the original Idempotency-Key during the valid recovery window. PATCHing true also re-enables an auto-disabled webhook and resets its failure counter.
 
         webhook_url : typing.Optional[str]
             Destination URL for webhook alert deliveries.
@@ -626,14 +635,8 @@ class AsyncMonitorsClient:
         slack_channel_id : typing.Optional[str]
             Slack channel id to deliver to.
 
-        is_paused : typing.Optional[bool]
+        paused : typing.Optional[bool]
             Paused monitors accept config changes but do not deliver; alerts that would have fired are not queued.
-
-        is_collapsed : typing.Optional[bool]
-            Dashboard display state.
-
-        sort_order : typing.Optional[int]
-            Dashboard sort position.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -676,9 +679,7 @@ class AsyncMonitorsClient:
             notify_slack=notify_slack,
             slack_integration_id=slack_integration_id,
             slack_channel_id=slack_channel_id,
-            is_paused=is_paused,
-            is_collapsed=is_collapsed,
-            sort_order=sort_order,
+            paused=paused,
             request_options=request_options,
         )
         return _response.data
@@ -691,7 +692,7 @@ class AsyncMonitorsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> WebhookSecretRotateResponse:
         """
-        Generates a new signing secret and returns it in this response. Store it securely. A retry with the original Idempotency-Key recovers the same secret for up to 24 hours while it remains the current secret or the valid previous secret. An expired or displaced secret returns 409 idempotency_result_expired without rotating again. Reads do not expose the secret. Zero-downtime overlap: the previous secret remains valid until previousSecretExpiresAt (24 hours); during the window every delivery carries an additional X-Arcmira-Signature-Previous header computed with the old secret over the same {timestamp}.{payload} string, so you can verify with either secret while you roll. After the window the old secret is dropped and the extra header disappears. Rotating again during the window replaces the previous secret and resets the window. Requires a configured webhook (webhookUrl set); otherwise 409 with code webhook_not_configured. Auto-disable interplay: rotation resets webhook_failures but never re-enables a webhook that was auto-disabled after repeated failures; to resume delivery, also PATCH the monitor with notifyWebhook: true. Requires the monitors:write scope.
+        Generates a new signing secret and returns it in this response. Store it securely. A retry with the original Idempotency-Key recovers the same secret for up to 24 hours while it remains the current secret or the valid previous secret. An expired or displaced secret returns 409 idempotency_result_expired without rotating again. Reads do not expose the secret. Zero-downtime overlap: the previous secret remains valid until previous_secret_expires_at (24 hours); during the window every delivery carries an additional X-Arcmira-Signature-Previous header computed with the old secret over the same {timestamp}.{payload} string, so you can verify with either secret while you roll. After the window the old secret is dropped and the extra header disappears. Rotating again during the window replaces the previous secret and resets the window. Requires a configured webhook (webhook_url set); otherwise 409 with code webhook_not_configured. Auto-disable interplay: rotation resets webhook_failures but never re-enables a webhook that was auto-disabled after repeated failures; to resume delivery, also PATCH the monitor with notify_webhook: true. Requires the monitors:write scope.
 
         Parameters
         ----------
@@ -749,3 +750,11 @@ class AsyncMonitorsClient:
 
             self._alerts = AsyncAlertsClient(client_wrapper=self._client_wrapper)
         return self._alerts
+
+    @property
+    def entities(self):
+        if self._entities is None:
+            from .entities.client import AsyncEntitiesClient  # noqa: E402
+
+            self._entities = AsyncEntitiesClient(client_wrapper=self._client_wrapper)
+        return self._entities

@@ -33,8 +33,8 @@ class RawVideosClient:
         *,
         limit: typing.Optional[int] = None,
         cursor: typing.Optional[str] = None,
-        published_after: typing.Optional[str] = None,
-        published_before: typing.Optional[str] = None,
+        after: typing.Optional[str] = None,
+        before: typing.Optional[str] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[ChannelVideosResponseEpisodesItem, ChannelVideosResponse]:
         """
@@ -51,11 +51,11 @@ class RawVideosClient:
         cursor : typing.Optional[str]
             Opaque continuation from next_cursor. Bound to the channel, filters, caller, and visibility; limit may change between pages. Invalid or old tokens return invalid_cursor.
 
-        published_after : typing.Optional[str]
-            ISO date. Only videos published on or after this day.
+        after : typing.Optional[str]
+            Only media published at or after this instant. An ISO 8601 date (2026-09-01) or datetime with offset (2026-09-01T00:00:00Z), read in UTC. The window is half-open: after is inclusive, before is exclusive.
 
-        published_before : typing.Optional[str]
-            ISO date. Only videos published before this day.
+        before : typing.Optional[str]
+            Only media published before this instant, so before=2026-09-02 includes all of 2026-09-01. An ISO 8601 date (2026-09-01) or datetime with offset (2026-09-01T00:00:00Z), read in UTC. The window is half-open: after is inclusive, before is exclusive.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -71,8 +71,8 @@ class RawVideosClient:
             params={
                 "limit": limit,
                 "cursor": cursor,
-                "published_after": published_after,
-                "published_before": published_before,
+                "after": after,
+                "before": before,
             },
             request_options=request_options,
         )
@@ -92,8 +92,8 @@ class RawVideosClient:
                     channel_id,
                     limit=limit,
                     cursor=_parsed_next,
-                    published_after=published_after,
-                    published_before=published_before,
+                    after=after,
+                    before=before,
                     request_options=request_options,
                 )
                 return SyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
@@ -194,8 +194,8 @@ class AsyncRawVideosClient:
         *,
         limit: typing.Optional[int] = None,
         cursor: typing.Optional[str] = None,
-        published_after: typing.Optional[str] = None,
-        published_before: typing.Optional[str] = None,
+        after: typing.Optional[str] = None,
+        before: typing.Optional[str] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[ChannelVideosResponseEpisodesItem, ChannelVideosResponse]:
         """
@@ -212,11 +212,11 @@ class AsyncRawVideosClient:
         cursor : typing.Optional[str]
             Opaque continuation from next_cursor. Bound to the channel, filters, caller, and visibility; limit may change between pages. Invalid or old tokens return invalid_cursor.
 
-        published_after : typing.Optional[str]
-            ISO date. Only videos published on or after this day.
+        after : typing.Optional[str]
+            Only media published at or after this instant. An ISO 8601 date (2026-09-01) or datetime with offset (2026-09-01T00:00:00Z), read in UTC. The window is half-open: after is inclusive, before is exclusive.
 
-        published_before : typing.Optional[str]
-            ISO date. Only videos published before this day.
+        before : typing.Optional[str]
+            Only media published before this instant, so before=2026-09-02 includes all of 2026-09-01. An ISO 8601 date (2026-09-01) or datetime with offset (2026-09-01T00:00:00Z), read in UTC. The window is half-open: after is inclusive, before is exclusive.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -232,8 +232,8 @@ class AsyncRawVideosClient:
             params={
                 "limit": limit,
                 "cursor": cursor,
-                "published_after": published_after,
-                "published_before": published_before,
+                "after": after,
+                "before": before,
             },
             request_options=request_options,
         )
@@ -255,8 +255,8 @@ class AsyncRawVideosClient:
                         channel_id,
                         limit=limit,
                         cursor=_parsed_next,
-                        published_after=published_after,
-                        published_before=published_before,
+                        after=after,
+                        before=before,
                         request_options=request_options,
                     )
 

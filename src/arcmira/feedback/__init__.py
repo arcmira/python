@@ -7,18 +7,20 @@ from importlib import import_module
 
 if typing.TYPE_CHECKING:
     from .types import (
+        SubmitFeedbackRequestCategory,
         SubmitFeedbackRequestCorrectionsItem,
+        SubmitFeedbackRequestCorrectionsItemClass,
         SubmitFeedbackRequestCorrectionsItemIssueType,
-        SubmitFeedbackRequestCorrectionsItemMentionClass,
         SubmitFeedbackRequestCorrectionsItemReason,
         SubmitFeedbackRequestCorrectionsItemSuggestedChange,
         SubmitFeedbackRequestMethod,
         SubmitFeedbackRequestType,
     )
 _dynamic_imports: typing.Dict[str, str] = {
+    "SubmitFeedbackRequestCategory": ".types",
     "SubmitFeedbackRequestCorrectionsItem": ".types",
+    "SubmitFeedbackRequestCorrectionsItemClass": ".types",
     "SubmitFeedbackRequestCorrectionsItemIssueType": ".types",
-    "SubmitFeedbackRequestCorrectionsItemMentionClass": ".types",
     "SubmitFeedbackRequestCorrectionsItemReason": ".types",
     "SubmitFeedbackRequestCorrectionsItemSuggestedChange": ".types",
     "SubmitFeedbackRequestMethod": ".types",
@@ -48,9 +50,10 @@ def __dir__():
 
 
 __all__ = [
+    "SubmitFeedbackRequestCategory",
     "SubmitFeedbackRequestCorrectionsItem",
+    "SubmitFeedbackRequestCorrectionsItemClass",
     "SubmitFeedbackRequestCorrectionsItemIssueType",
-    "SubmitFeedbackRequestCorrectionsItemMentionClass",
     "SubmitFeedbackRequestCorrectionsItemReason",
     "SubmitFeedbackRequestCorrectionsItemSuggestedChange",
     "SubmitFeedbackRequestMethod",

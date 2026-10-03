@@ -65,7 +65,7 @@ class TrackersClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> MonitorAddTrackersResponse:
         """
-        Attaches EXISTING trackers to the monitor by id ({ trackerIds: ["trk_..."] }). It does not create trackers: create them first via POST /v1/trackers, then attach. Attached trackers use the monitor's delivery settings. Supply 1 to 90 IDs. Duplicate IDs count once. Every ID must belong to the account; a missing or foreign ID returns tracker_not_found and none are attached. attachedCount reports the unique attached count.
+        Attaches EXISTING trackers to the monitor by id ({ tracker_ids: ["trk_..."] }). It does not create trackers: create them first via POST /v1/trackers, then attach. Attached trackers use the monitor's delivery settings. Supply 1 to 90 IDs. Duplicate IDs count once. Every ID must belong to the account; a missing or foreign ID returns tracker_not_found and none are attached. attached_count reports the unique attached count.
 
         Parameters
         ----------
@@ -96,7 +96,7 @@ class TrackersClient:
         client.monitors.trackers.add(
             id="id",
             idempotency_key="8b2f6c3e-4d1a-4e7b-9c05-2f6a1b7d3e90",
-            tracker_ids=["trackerIds"],
+            tracker_ids=["tracker_ids"],
         )
         """
         _response = self._raw_client.add(
@@ -168,7 +168,7 @@ class AsyncTrackersClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> MonitorAddTrackersResponse:
         """
-        Attaches EXISTING trackers to the monitor by id ({ trackerIds: ["trk_..."] }). It does not create trackers: create them first via POST /v1/trackers, then attach. Attached trackers use the monitor's delivery settings. Supply 1 to 90 IDs. Duplicate IDs count once. Every ID must belong to the account; a missing or foreign ID returns tracker_not_found and none are attached. attachedCount reports the unique attached count.
+        Attaches EXISTING trackers to the monitor by id ({ tracker_ids: ["trk_..."] }). It does not create trackers: create them first via POST /v1/trackers, then attach. Attached trackers use the monitor's delivery settings. Supply 1 to 90 IDs. Duplicate IDs count once. Every ID must belong to the account; a missing or foreign ID returns tracker_not_found and none are attached. attached_count reports the unique attached count.
 
         Parameters
         ----------
@@ -204,7 +204,7 @@ class AsyncTrackersClient:
             await client.monitors.trackers.add(
                 id="id",
                 idempotency_key="8b2f6c3e-4d1a-4e7b-9c05-2f6a1b7d3e90",
-                tracker_ids=["trackerIds"],
+                tracker_ids=["tracker_ids"],
             )
 
 

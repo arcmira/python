@@ -3,44 +3,21 @@
 import typing
 
 import pydantic
-import typing_extensions
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
-from ..core.serialization import FieldMetadata
 
 
 class WebhookSecretRotateResponse(UniversalBaseModel):
-    webhook_secret: typing_extensions.Annotated[
-        str,
-        FieldMetadata(alias="webhookSecret"),
-        pydantic.Field(
-            alias="webhookSecret",
-            description='The NEW webhook signing secret ("whsec_..."). Store it securely. The same Idempotency-Key can recover it for up to 24 hours while it remains the current or valid previous secret. A displaced or expired secret returns idempotency_result_expired without rotating again.',
-        ),
-    ]
+    webhook_secret: str = pydantic.Field()
     """
     The NEW webhook signing secret ("whsec_..."). Store it securely. The same Idempotency-Key can recover it for up to 24 hours while it remains the current or valid previous secret. A displaced or expired secret returns idempotency_result_expired without rotating again.
     """
 
-    webhook_secret_hint: typing_extensions.Annotated[
-        str,
-        FieldMetadata(alias="webhookSecretHint"),
-        pydantic.Field(
-            alias="webhookSecretHint",
-            description="Last 4 characters of the new secret, for identifying which secret you hold.",
-        ),
-    ]
+    webhook_secret_hint: str = pydantic.Field()
     """
     Last 4 characters of the new secret, for identifying which secret you hold.
     """
 
-    previous_secret_expires_at: typing_extensions.Annotated[
-        typing.Optional[str],
-        FieldMetadata(alias="previousSecretExpiresAt"),
-        pydantic.Field(
-            alias="previousSecretExpiresAt",
-            description="End of the 24-hour overlap window. Until then, deliveries carry an additional X-Arcmira-Signature-Previous header computed with the previous secret over the same {timestamp}.{payload} string, so you can verify with either secret while you roll. Null when the monitor had no previous secret (nothing to overlap).",
-        ),
-    ] = None
+    previous_secret_expires_at: typing.Optional[str] = pydantic.Field(default=None)
     """
     End of the 24-hour overlap window. Until then, deliveries carry an additional X-Arcmira-Signature-Previous header computed with the previous secret over the same {timestamp}.{payload} string, so you can verify with either secret while you roll. Null when the monitor had no previous secret (nothing to overlap).
     """

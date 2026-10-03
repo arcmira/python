@@ -3,10 +3,10 @@
 import typing
 
 import pydantic
-import typing_extensions
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
-from ..core.serialization import FieldMetadata
+from .monitor_access import MonitorAccess
 from .monitor_email_recipients_item import MonitorEmailRecipientsItem
+from .monitor_team import MonitorTeam
 
 
 class Monitor(UniversalBaseModel):
@@ -20,214 +20,109 @@ class Monitor(UniversalBaseModel):
     Monitor name.
     """
 
-    is_collapsed: typing_extensions.Annotated[
-        bool,
-        FieldMetadata(alias="isCollapsed"),
-        pydantic.Field(alias="isCollapsed", description="True when the monitor is collapsed in the dashboard UI."),
-    ]
-    """
-    True when the monitor is collapsed in the dashboard UI.
-    """
-
-    is_paused: typing_extensions.Annotated[
-        bool,
-        FieldMetadata(alias="isPaused"),
-        pydantic.Field(
-            alias="isPaused",
-            description="True when delivery is paused for all trackers in this monitor. New alerts are not queued, and queued email delivery checks the pause state again before sending. Use PATCH /v1/trackers/{id} with paused: true to pause one tracker.",
-        ),
-    ]
+    paused: bool = pydantic.Field()
     """
     True when delivery is paused for all trackers in this monitor. New alerts are not queued, and queued email delivery checks the pause state again before sending. Use PATCH /v1/trackers/{id} with paused: true to pause one tracker.
     """
 
-    sort_order: typing_extensions.Annotated[
-        int, FieldMetadata(alias="sortOrder"), pydantic.Field(alias="sortOrder", description="Dashboard sort position.")
-    ]
-    """
-    Dashboard sort position.
-    """
-
-    notify_emails: typing_extensions.Annotated[
-        typing.List[str],
-        FieldMetadata(alias="notifyEmails"),
-        pydantic.Field(
-            alias="notifyEmails",
-            description="Configured email recipients. External recipients must confirm before delivery. Free includes one additional recipient per monitor.",
-        ),
-    ]
+    notify_emails: typing.List[str] = pydantic.Field()
     """
     Configured email recipients. External recipients must confirm before delivery. Free includes one additional recipient per monitor.
     """
 
-    email_recipients: typing_extensions.Annotated[
-        typing.Optional[typing.List[MonitorEmailRecipientsItem]],
-        FieldMetadata(alias="emailRecipients"),
-        pydantic.Field(
-            alias="emailRecipients",
-            description="Recipient consent and invitation state. An account is not required to accept.",
-        ),
-    ] = None
+    email_recipients: typing.Optional[typing.List[MonitorEmailRecipientsItem]] = pydantic.Field(default=None)
     """
-    Recipient consent and invitation state. An account is not required to accept.
+    Every address the monitor reaches, with consent and invitation state. An account is not required to accept.
     """
 
-    notify_frequency: typing_extensions.Annotated[
-        typing.Optional[str],
-        FieldMetadata(alias="notifyFrequency"),
-        pydantic.Field(
-            alias="notifyFrequency",
-            description="Delivery cadence. Values: realtime (deliver immediately), hourly (hourly digest), daily (daily digest). Free tier is limited to daily.",
-        ),
-    ] = None
+    notify_frequency: typing.Optional[str] = pydantic.Field(default=None)
     """
     Delivery cadence. Values: realtime (deliver immediately), hourly (hourly digest), daily (daily digest). Free tier is limited to daily.
     """
 
-    digest_day: typing_extensions.Annotated[
-        typing.Optional[str],
-        FieldMetadata(alias="digestDay"),
-        pydantic.Field(alias="digestDay", description="Day of week for digest delivery."),
-    ] = None
+    digest_day: typing.Optional[str] = pydantic.Field(default=None)
     """
     Day of week for digest delivery.
     """
 
-    digest_time: typing_extensions.Annotated[
-        typing.Optional[str],
-        FieldMetadata(alias="digestTime"),
-        pydantic.Field(alias="digestTime", description="Time of day (HH:MM) for digest delivery."),
-    ] = None
+    digest_time: typing.Optional[str] = pydantic.Field(default=None)
     """
     Time of day (HH:MM) for digest delivery.
     """
 
-    notify_webhook: typing_extensions.Annotated[
-        bool,
-        FieldMetadata(alias="notifyWebhook"),
-        pydantic.Field(alias="notifyWebhook", description="True when webhook delivery is enabled."),
-    ]
+    notify_webhook: bool = pydantic.Field()
     """
     True when webhook delivery is enabled.
     """
 
-    webhook_url: typing_extensions.Annotated[
-        typing.Optional[str],
-        FieldMetadata(alias="webhookUrl"),
-        pydantic.Field(alias="webhookUrl", description="Webhook destination URL. Null when no webhook is configured."),
-    ] = None
+    webhook_url: typing.Optional[str] = pydantic.Field(default=None)
     """
-    Webhook destination URL. Null when no webhook is configured.
+    Webhook destination URL. Null when no webhook is configured. Absent when access is member: only the team owner sees the webhook.
     """
 
-    webhook_secret_set: typing_extensions.Annotated[
-        bool,
-        FieldMetadata(alias="webhookSecretSet"),
-        pydantic.Field(
-            alias="webhookSecretSet",
-            description="True when a webhook signing secret exists for this monitor. The secret itself is never returned on reads; enablement and rotation responses support recovery with the original Idempotency-Key during the valid recovery window.",
-        ),
-    ]
+    webhook_secret_set: typing.Optional[bool] = pydantic.Field(default=None)
     """
-    True when a webhook signing secret exists for this monitor. The secret itself is never returned on reads; enablement and rotation responses support recovery with the original Idempotency-Key during the valid recovery window.
+    True when a webhook signing secret exists for this monitor. The secret itself is never returned on reads; enablement and rotation responses support recovery with the original Idempotency-Key during the valid recovery window. Absent when access is member.
     """
 
-    webhook_secret_hint: typing_extensions.Annotated[
-        typing.Optional[str],
-        FieldMetadata(alias="webhookSecretHint"),
-        pydantic.Field(
-            alias="webhookSecretHint",
-            description="Last 4 characters of the current signing secret, for identifying which secret you hold. Null until a secret exists.",
-        ),
-    ] = None
+    webhook_secret_hint: typing.Optional[str] = pydantic.Field(default=None)
     """
-    Last 4 characters of the current signing secret, for identifying which secret you hold. Null until a secret exists.
+    Last 4 characters of the current signing secret, for identifying which secret you hold. Null until a secret exists. Absent when access is member.
     """
 
-    webhook_failures: typing_extensions.Annotated[
-        typing.Optional[int],
-        FieldMetadata(alias="webhookFailures"),
-        pydantic.Field(
-            alias="webhookFailures",
-            description="Consecutive webhook delivery failures recorded for this monitor. Reset by a secret rotation or PATCHing notifyWebhook: true; 10 consecutive failures auto-disable a webhook. Note: the delivery pipeline currently accrues failures on the tracker that fired, so this monitor-level counter can lag.",
-        ),
-    ] = None
+    webhook_failures: typing.Optional[int] = pydantic.Field(default=None)
     """
-    Consecutive webhook delivery failures recorded for this monitor. Reset by a secret rotation or PATCHing notifyWebhook: true; 10 consecutive failures auto-disable a webhook. Note: the delivery pipeline currently accrues failures on the tracker that fired, so this monitor-level counter can lag.
+    Consecutive webhook delivery failures recorded for this monitor. Reset by a secret rotation or PATCHing notify_webhook: true; 10 consecutive failures auto-disable a webhook. Note: the delivery pipeline currently accrues failures on the tracker that fired, so this monitor-level counter can lag.
     """
 
-    webhook_disabled_at: typing_extensions.Annotated[
-        typing.Optional[str],
-        FieldMetadata(alias="webhookDisabledAt"),
-        pydantic.Field(
-            alias="webhookDisabledAt",
-            description="When the webhook was auto-disabled after repeated failures. Null while delivery is enabled. Re-enable by PATCHing notifyWebhook: true; rotation alone never re-enables.",
-        ),
-    ] = None
+    webhook_disabled_at: typing.Optional[str] = pydantic.Field(default=None)
     """
-    When the webhook was auto-disabled after repeated failures. Null while delivery is enabled. Re-enable by PATCHing notifyWebhook: true; rotation alone never re-enables.
+    When the webhook was auto-disabled after repeated failures. Null while delivery is enabled. Re-enable by PATCHing notify_webhook: true; rotation alone never re-enables.
     """
 
-    webhook_disabled_reason: typing_extensions.Annotated[
-        typing.Optional[str],
-        FieldMetadata(alias="webhookDisabledReason"),
-        pydantic.Field(
-            alias="webhookDisabledReason",
-            description="Why the webhook was auto-disabled. Null while delivery is enabled.",
-        ),
-    ] = None
+    webhook_disabled_reason: typing.Optional[str] = pydantic.Field(default=None)
     """
     Why the webhook was auto-disabled. Null while delivery is enabled.
     """
 
-    notify_slack: typing_extensions.Annotated[
-        bool,
-        FieldMetadata(alias="notifySlack"),
-        pydantic.Field(alias="notifySlack", description="True when Slack delivery is enabled."),
-    ]
+    notify_slack: bool = pydantic.Field()
     """
     True when Slack delivery is enabled.
     """
 
-    slack_integration_id: typing_extensions.Annotated[
-        typing.Optional[str],
-        FieldMetadata(alias="slackIntegrationId"),
-        pydantic.Field(
-            alias="slackIntegrationId",
-            description="Slack integration used for delivery. Null when Slack is not configured.",
-        ),
-    ] = None
+    slack_integration_id: typing.Optional[str] = pydantic.Field(default=None)
     """
     Slack integration used for delivery. Null when Slack is not configured.
     """
 
-    slack_channel_id: typing_extensions.Annotated[
-        typing.Optional[str],
-        FieldMetadata(alias="slackChannelId"),
-        pydantic.Field(
-            alias="slackChannelId", description="Slack channel to deliver to. Null when Slack is not configured."
-        ),
-    ] = None
+    slack_channel_id: typing.Optional[str] = pydantic.Field(default=None)
     """
     Slack channel to deliver to. Null when Slack is not configured.
     """
 
-    created_at: typing_extensions.Annotated[
-        str,
-        FieldMetadata(alias="createdAt"),
-        pydantic.Field(alias="createdAt", description="When the monitor was created."),
-    ]
+    created_at: str = pydantic.Field()
     """
     When the monitor was created.
     """
 
-    updated_at: typing_extensions.Annotated[
-        str,
-        FieldMetadata(alias="updatedAt"),
-        pydantic.Field(alias="updatedAt", description="When the monitor was last updated."),
-    ]
+    updated_at: str = pydantic.Field()
     """
     When the monitor was last updated.
+    """
+
+    team: typing.Optional[MonitorTeam] = pydantic.Field(default=None)
+    """
+    The team the monitor is shared with. Null for a personal monitor.
+    """
+
+    access: MonitorAccess = pydantic.Field()
+    """
+    account: the caller pays for the monitor, as its personal owner or the team owner. member: the caller is another member of its team, who may edit it but not its webhook, and may not delete it.
+    """
+
+    muted: bool = pydantic.Field()
+    """
+    True when the caller muted this team monitor for themselves. Always false on a personal monitor.
     """
 
     if IS_PYDANTIC_V2:

@@ -7,11 +7,14 @@ from importlib import import_module
 
 if typing.TYPE_CHECKING:
     from .types import CreateMonitorsRequestNotifyFrequency, UpdateMonitorsRequestNotifyFrequency
-    from . import alerts, trackers
+    from . import alerts, entities, trackers
+    from .entities import AddEntitiesRequestPersonMatchMode
 _dynamic_imports: typing.Dict[str, str] = {
+    "AddEntitiesRequestPersonMatchMode": ".entities",
     "CreateMonitorsRequestNotifyFrequency": ".types",
     "UpdateMonitorsRequestNotifyFrequency": ".types",
     "alerts": ".alerts",
+    "entities": ".entities",
     "trackers": ".trackers",
 }
 
@@ -37,4 +40,11 @@ def __dir__():
     return sorted(lazy_attrs)
 
 
-__all__ = ["CreateMonitorsRequestNotifyFrequency", "UpdateMonitorsRequestNotifyFrequency", "alerts", "trackers"]
+__all__ = [
+    "AddEntitiesRequestPersonMatchMode",
+    "CreateMonitorsRequestNotifyFrequency",
+    "UpdateMonitorsRequestNotifyFrequency",
+    "alerts",
+    "entities",
+    "trackers",
+]

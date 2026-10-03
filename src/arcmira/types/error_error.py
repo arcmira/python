@@ -4,6 +4,7 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
+from .error_error_details import ErrorErrorDetails
 from .error_error_gate import ErrorErrorGate
 from .error_error_reason import ErrorErrorReason
 from .error_error_type import ErrorErrorType
@@ -61,6 +62,11 @@ class ErrorError(UniversalBaseModel):
     expected_seq: typing.Optional[int] = pydantic.Field(default=None)
     """
     On sequence_mismatch (HTTP 412), the seq the server expects next for this video. Rebase local counters onto it and resend under the same key.
+    """
+
+    details: typing.Optional[ErrorErrorDetails] = pydantic.Field(default=None)
+    """
+    Machine data the refusal carries for you to act on. Present only on the codes that name a field here.
     """
 
     doc_url: str

@@ -6,89 +6,151 @@ The official Python client for the [Arcmira API](https://arcmira.com/docs), with
 pip install arcmira
 ```
 
-Set `ARCMIRA_API_KEY` or pass `api_key` to the client.
+Set `ARCMIRA_API_KEY` before you import the client, or pass `api_key` to it.
 
-## Premium quickstart
+## First call
+
+Reads take ids. Resolve a name to an id, then read with the id.
 
 ```python
 from arcmira import Arcmira
 
-transcript = Arcmira().transcripts.prepare_and_wait("dQw4w9WgXcQ")
-print(transcript.lines)
-```
-
-`prepare_and_wait(video_id, *, max_on_demand_cents=0, timeout_seconds=300)` reads the Premium transcript and returns it. When your account does not own it yet, the call posts `{video_id}` to `/v1/transcriptions` once, polls the job at the pace the API sets with `Retry-After` and `next_poll_seconds`, and reads the finished transcript. The default spends included credits only and sends no `Idempotency-Key`. Preparation purchases the whole video, even if you only read a window.
-
-`AsyncArcmira` has the same method: `await client.transcripts.prepare_and_wait(video_id)`.
-
-Errors you can handle:
-
-- `PreparationTimeoutError` when the job outlasts `timeout_seconds`. It carries `.job`, and the job keeps running.
-- `PreparationFailedError` when the job fails or is refunded. It carries `.job`.
-- `PremiumUnavailableError` when the plan has no Premium. The read returned captions, and they are never returned as Premium.
-- `ApiError` for any API refusal, such as `quota_exceeded`, with the public error and recovery URLs in `body`.
-
-To spend money, pass a cents ceiling you have approved. The call then sends the quoted `max_rows` and a generated `Idempotency-Key`.
-
-```python
 client = Arcmira()
-transcript = client.transcripts.prepare_and_wait("dQw4w9WgXcQ", max_on_demand_cents=25)
+match = client.entities.resolve(q="Ramp", type="organization")
+ramp = match.best or match.suggested
+if ramp is None:
+    raise LookupError(match.note)
+for mention in client.mentions.list(entity_id=ramp.id, after="2026-09-01", before="2026-10-01"):
+    print(mention.media.video_id, mention.start_seconds, mention.description)
 ```
 
-## Lower-level calls
+`entities.resolve` answers one of three ways. `best` is a certain match. `suggested` is the likeliest row, with a reason, when no row is certain. `ask` lists the options when several rows fit, and `best` and `suggested` are both `None`. For a show, pass `type="channel"` and use `best.youtube_channel_id` as `channel_id`.
 
-A quote is free. GET never purchases Premium, and each state is typed.
+A name where an id belongs raises `BadRequestError` with the code `id_required`. Its message names the parameter and the resolve call.
+
+## Dates
+
+Every dated read takes `after` and `before`. The window is half-open, `[after, before)`. Each accepts an ISO date (`2026-09-01`) or a datetime with an offset (`2026-09-01T00:00:00Z`), read in UTC. Each dated read echoes the window it applied in `window`.
+
+## Premium transcripts
+
+A Premium read is one call. It answers 200 `ready` when the account owns the transcript. Otherwise it buys the whole video within the account's plan and answers 202 `pending` with the job. Included credits are spent first, then the account's on-demand budget. The budget is the approval, so the call takes no price ceiling.
+
+Read again after `Retry-After`. Repeated reads join the same purchase and never buy twice.
 
 ```python
+import time
+from arcmira import Arcmira
+
 client = Arcmira()
-quote = client.transcripts.quote(video_id="dQw4w9WgXcQ")
-print(quote.quote.rows, quote.charge)
-
-result = client.transcripts.with_raw_response.get(video_id="dQw4w9WgXcQ", quality="premium")
-if result.data.state == "ready":
-    print(result.data.lines)
-elif result.data.state == "preparation_required":
-    print(result.data.quote, result.data.action)
-else:
-    print(result.data.job.status_url, result.data.job.next_poll_seconds)
-print(result.status_code, result.headers)
+for _ in range(60):
+    read = client.transcripts.with_raw_response.get("dQw4w9WgXcQ", quality="premium")
+    if read.data.state == "ready":
+        for line in read.data.lines:
+            print(line.start, line.text)
+        break
+    time.sleep(int(read.headers.get("retry-after") or read.data.job.next_poll_seconds or 10))
 ```
 
-To prepare without waiting, post the purchase and poll the job yourself. Every purchase answers one `Job`. `idempotency_key` is optional while `max_on_demand_cents` is 0: without one, a purchase already open or owned for the video is returned with `existing: true`. `max_on_demand_cents` defaults to zero. A positive amount requires both `idempotency_key` and `max_rows`, and a retry with the same saved key and exact input returns the same job with the `Idempotency-Replayed` header.
+`read.data` is a `TranscriptResult`, discriminated on `state`. `ready` carries the transcript. `pending` carries `job`, with `eta_seconds`, `next_poll_seconds` and `charge`. Without `with_raw_response`, `client.transcripts.get(...)` returns the same union without the status and headers.
+
+A quote is free and changes nothing.
 
 ```python
-order = client.transcripts.with_raw_response.request(video_id="dQw4w9WgXcQ")
-print(order.status_code, order.data.job.state)
-job = client.transcripts.status(order.data.job.id)
+quote = client.transcripts.quote("dQw4w9WgXcQ")
+print(quote.quote.rows, quote.charge.amount, quote.charge.from_, quote.max_on_demand_cents)
 ```
 
-A refusal raises a typed error derived from `arcmira.core.api_error.ApiError`. Its `body` retains the public error, quote, and recovery URLs. `refund_pending` is unfinished; a refund is complete only when the job reports `refunded`.
+`client.transcripts.list_requests()` lists past purchases with their state.
+
+A read without `quality="premium"` returns captions and buys nothing.
+
+## Errors
+
+A refusal raises a typed error from `arcmira.errors`. Each derives from `arcmira.core.api_error.ApiError` and carries `status_code`, `headers` and `body`. `body.error` holds `type`, `code`, `message`, `param`, `gate`, `unlock`, `details`, `doc_url` and `request_id`. Switch on `type` and `gate` first. Codes inside a type can grow.
+
+| Status | Error | Example codes |
+|---|---|---|
+| 400 | `BadRequestError` | `invalid_query`, `id_required`, `invalid_cursor` |
+| 401 | `UnauthorizedError` | `invalid_api_key` |
+| 402 | `PaymentRequiredError` | `quota_exceeded`, `spend_limit_exceeded` |
+| 403 | `ForbiddenError` | `paid_plan_required`, `freshness_requires_paid` |
+| 404 | `NotFoundError` | `entity_not_found` |
+| 409 | `ConflictError` | `tracker_already_exists` |
+| 429 | `TooManyRequestsError` | `rate_limited` |
+| 500, 503 | `InternalServerError`, `ServiceUnavailableError` | |
+
+A priced refusal carries the price in `error.details.quote`. Nothing is charged.
 
 ```python
-for job in client.transcripts.list_requests(limit=10):
-    print(job.id, job.state)
-for episode in client.channels.videos.list(channel_id="UC-DRzaGnL_vtBUpCFH5M0tg", limit=10):
+from arcmira.errors import ForbiddenError, PaymentRequiredError
+
+try:
+    client.transcripts.get("dQw4w9WgXcQ", quality="premium")
+except (PaymentRequiredError, ForbiddenError) as refusal:
+    error = refusal.body.error
+    print(error.code, error.details.quote.rows, error.unlock.url)
+```
+
+`str(refusal)` reads `402 quota_exceeded: <message>`. A duplicate tracker carries the existing id in `error.details.existing_id`.
+
+## Pagination
+
+`mentions.list`, `recommendations.list`, `channels.videos.list` and `transcripts.list_requests` return pagers. Iterate them and they follow `next_cursor` for you. Cursors are opaque. Keep the filters the same between pages.
+
+```python
+for episode in client.channels.videos.list("UC-DRzaGnL_vtBUpCFH5M0tg", limit=10):
     print(episode.video_id)
 ```
 
-Pagination follows the actual `requests` and `episodes` arrays. Cursors remain opaque and filters stay the same between pages.
+Each page body names its rows: `mentions`, `recommendations`, `episodes` or `requests`. The alert lists (`monitors.alerts.list`, `trackers.alerts.list`) return one page of `alerts`, newest first. Pass a larger `limit` to read further.
 
-For asynchronous calls, use `AsyncArcmira` and await the same methods. Paginated methods return async iterators after awaiting the initial page.
+## Async
+
+`AsyncArcmira` has the same methods to await. Paginated methods return async iterators after you await the first page.
 
 ```python
 from arcmira import AsyncArcmira
 
-async def history():
+async def ramp_sponsorships():
     client = AsyncArcmira()
-    async for request in await client.transcripts.list_requests(limit=10):
-        print(request.id)
+    async for row in await client.recommendations.list(entity_id="ent_14", class_="sponsored"):
+        print(row.class_, row.media.video_id, row.start_seconds)
 ```
 
-See the [generated reference](reference.md) for all endpoints.
+`class` is a Python keyword, so the parameter and the field are spelled `class_`. The wire name stays `class`.
+
+## Methods
+
+Each method has the full parameter list in the [generated reference](reference.md).
+
+| Group | Methods |
+|---|---|
+| `entities` | `resolve`, `get`, `momentum` |
+| `mentions` | `list`, `count` |
+| `recommendations` | `list` |
+| `transcripts` | `search`, `get`, `quote`, `list_requests` |
+| `channels` | `coverage`, `videos.list`, `sponsors.list` |
+| `monitors` | `list`, `create`, `update`, `delete`, `rotate_webhook_secret`, `trackers.list`, `trackers.add`, `entities.add`, `alerts.list` |
+| `trackers` | `list`, `create`, `update`, `delete`, `alerts.list` |
+| `integrations` | `slack.list` |
+| `feedback` | `submit`, `get` |
+| `me` | `get`, `update_settings` |
+| `health` | `check` |
+
+`transcripts.search` returns spoken passages from `GET /v1/search`. Its filters take ids too.
+
+To follow an entity you have an id for, call `monitors.entities.add(monitor_id, entity_ids=["ent_14"])`. To watch an exact name before it is indexed, call `trackers.create(entity_name="Ramp", entity_type="organization")`. A channel tracker takes the YouTube channel id as `entity_name`.
+
+See [CHANGELOG.md](CHANGELOG.md) for what changed from 0.3.
+
+## Agents
+
+The [Arcmira MCP server](https://github.com/arcmira/mcp) gives AI agents the same data at `https://mcp.arcmira.com/mcp`. [llms.txt](llms.txt) describes this package for agents.
 
 ## Regenerate and verify
 
-Run `bash scripts/generate.sh` with Node 22 or newer, Python 3, Docker, and Fern access for the `arcmira` organization. Generation pins Fern CLI 5.131.1 and Python generator 5.31.0, disables CLI version redirection and telemetry, and reads `fern/openapi.json`. The overlay combines distinct success schemas and rejects unknown or ambiguous cursor collections. Generated source is never edited by hand. `scripts/overrides/` holds the hand-written pieces the installer copies back after every generation: the `ApiError` text and `prepare_and_wait`.
+Run `bash scripts/generate.sh` with Node 22 or newer, Python 3, Docker, and Fern access for the `arcmira` organization. Generation pins Fern CLI 5.131.1 and Python generator 5.31.0, disables CLI version redirection and telemetry, and reads `fern/openapi.json`. `fern/method-names.json` names the group and method of every operation by operationId. An operation without a name, or a name for an operation the document lacks, fails the build. The overlay combines the transcript read's success schemas into `TranscriptResult` and rejects unknown or ambiguous cursor collections. Generated source is never edited by hand. `scripts/overrides/api_error.py` holds the `ApiError` text, and the installer copies it back after every generation.
 
 ```sh
 uv sync
@@ -96,9 +158,7 @@ uv run python -m unittest discover -s tests -v
 uv build
 ```
 
-The tests use a local HTTP server that returns the bodies the API sends. They check both client variants, state discrimination, `prepare_and_wait`, response status, quotes, refusals, replay input, and opaque pagination. No live API key or purchase is required.
-
-Version 0.3.0 replaces the earlier URL-only placeholder with a usable SDK. The public URL constants remain available.
+The tests use a local HTTP server that returns the bodies the API sends. They check both client variants, the ready and pending reads, typed refusals with their quote, the query and body each call sends, and opaque pagination. No live API key or purchase is required.
 
 ## License
 

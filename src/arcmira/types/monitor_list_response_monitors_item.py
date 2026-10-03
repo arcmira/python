@@ -3,43 +3,23 @@
 import typing
 
 import pydantic
-import typing_extensions
 from ..core.pydantic_utilities import IS_PYDANTIC_V2
-from ..core.serialization import FieldMetadata
 from .monitor import Monitor
 from .monitor_list_response_monitors_item_slack_integration import MonitorListResponseMonitorsItemSlackIntegration
 
 
 class MonitorListResponseMonitorsItem(Monitor):
-    tracker_count: typing_extensions.Annotated[
-        int,
-        FieldMetadata(alias="trackerCount"),
-        pydantic.Field(alias="trackerCount", description="Number of trackers in the monitor."),
-    ]
+    tracker_count: int = pydantic.Field()
     """
     Number of trackers in the monitor.
     """
 
-    alerts_this_month: typing_extensions.Annotated[
-        int,
-        FieldMetadata(alias="alertsThisMonth"),
-        pydantic.Field(
-            alias="alertsThisMonth",
-            description="Alert deliveries written for this monitor since the start of the calendar month.",
-        ),
-    ]
+    alerts_this_month: int = pydantic.Field()
     """
     Alert deliveries written for this monitor since the start of the calendar month.
     """
 
-    slack_integration: typing_extensions.Annotated[
-        typing.Optional[MonitorListResponseMonitorsItemSlackIntegration],
-        FieldMetadata(alias="slackIntegration"),
-        pydantic.Field(
-            alias="slackIntegration",
-            description="Display metadata for the connected Slack integration. Null/absent when Slack is not configured.",
-        ),
-    ] = None
+    slack_integration: typing.Optional[MonitorListResponseMonitorsItemSlackIntegration] = pydantic.Field(default=None)
     """
     Display metadata for the connected Slack integration. Null/absent when Slack is not configured.
     """

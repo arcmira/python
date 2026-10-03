@@ -3,7 +3,10 @@
 import typing
 
 import pydantic
+import typing_extensions
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
+from ..core.serialization import FieldMetadata
+from .recommendation_enrichment_item_class import RecommendationEnrichmentItemClass
 
 
 class RecommendationEnrichmentItem(UniversalBaseModel):
@@ -12,9 +15,16 @@ class RecommendationEnrichmentItem(UniversalBaseModel):
     Public recommendation id in the form "com_{n}".
     """
 
-    mention_class: str = pydantic.Field()
+    class_: typing_extensions.Annotated[
+        RecommendationEnrichmentItemClass,
+        FieldMetadata(alias="class"),
+        pydantic.Field(
+            alias="class",
+            description="Commercial class. Values: sponsored (an ad-style promotion heard at that moment: a paid sponsor read, promo code, affiliate plug, thanks for supplied goods or venue, or a show promoting its own product as an ad), organic (an unpaid personal recommendation), mention (a neutral commercial mention).",
+        ),
+    ]
     """
-    Commercial mention classification. Values: ad_read (an ad-style promotion heard at that moment: a paid sponsor read, promo code, affiliate plug, thanks for supplied goods or venue, or a show promoting its own product as an ad), endorsement (an unpaid personal recommendation), mention (a neutral commercial mention).
+    Commercial class. Values: sponsored (an ad-style promotion heard at that moment: a paid sponsor read, promo code, affiliate plug, thanks for supplied goods or venue, or a show promoting its own product as an ad), organic (an unpaid personal recommendation), mention (a neutral commercial mention).
     """
 
     verbatim_quote: typing.Optional[str] = pydantic.Field(default=None)
@@ -37,24 +47,14 @@ class RecommendationEnrichmentItem(UniversalBaseModel):
     Classifier confidence between 0 and 1.
     """
 
-    start_timestamp: str = pydantic.Field()
-    """
-    DEPRECATED: prefer the numeric sibling field. This "MM:SS" (or "HH:MM:SS") string remains until a dated, changelog-announced removal (see /requests#versioning-and-deprecation). Use start_seconds.
-    """
-
-    end_timestamp: str = pydantic.Field()
-    """
-    DEPRECATED: prefer the numeric sibling field. This "MM:SS" (or "HH:MM:SS") string remains until a dated, changelog-announced removal (see /requests#versioning-and-deprecation). Use end_seconds.
-    """
-
     start_seconds: typing.Optional[int] = pydantic.Field(default=None)
     """
-    Start position in the video in integer SECONDS, parsed from start_timestamp. 0 means "full episode / no specific moment" (the string sentinel "00:00"). Null when the string timestamp is null or unparseable.
+    Start position in the video in integer seconds. 0 means "full episode / no specific moment". Null when the analyzer could not place it in time.
     """
 
     end_seconds: typing.Optional[int] = pydantic.Field(default=None)
     """
-    End position in the video in integer SECONDS, parsed from end_timestamp. 0 means "full episode / no specific moment" (the string sentinel "00:00"). Null when the string timestamp is null or unparseable.
+    End position in the video in integer seconds. 0 means "full episode / no specific moment". Null when the analyzer could not place it in time.
     """
 
     if IS_PYDANTIC_V2:
