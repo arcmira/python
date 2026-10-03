@@ -6,6 +6,7 @@ import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 from .channel_videos_response_channel import ChannelVideosResponseChannel
 from .channel_videos_response_episodes_item import ChannelVideosResponseEpisodesItem
+from .publication_window import PublicationWindow
 
 
 class ChannelVideosResponse(UniversalBaseModel):
@@ -26,6 +27,7 @@ class ChannelVideosResponse(UniversalBaseModel):
     Signed continuation for the next page. Null on the last page.
     """
 
+    window: PublicationWindow
     indexed_through: typing.Optional[str] = pydantic.Field(default=None)
     """
     Newest publish date among every indexed video of the channel, whatever window was asked for. Null when nothing is indexed.

@@ -42,7 +42,7 @@ class MeResponse(UniversalBaseModel):
 
     tier: str = pydantic.Field()
     """
-    Plan tier, e.g. free, hobby, pro, teams, enterprise.
+    Plan tier, e.g. free, hobby, pro, enterprise.
     """
 
     scopes: typing.List[str] = pydantic.Field()
@@ -52,7 +52,7 @@ class MeResponse(UniversalBaseModel):
 
     rate_limit: int = pydantic.Field()
     """
-    Requests allowed per 60-second window for this key: 600 for enterprise/teams, 240 for other paid tiers, 60 for free, unless a per-key override is set.
+    Requests allowed per 60-second window for this key: 600 for enterprise, 240 for other paid tiers, 60 for free, unless a per-key override is set.
     """
 
     recommendations_api_enabled: bool = pydantic.Field()

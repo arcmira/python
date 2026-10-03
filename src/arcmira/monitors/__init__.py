@@ -7,11 +7,22 @@ from importlib import import_module
 
 if typing.TYPE_CHECKING:
     from .types import CreateMonitorsRequestNotifyFrequency, UpdateMonitorsRequestNotifyFrequency
-    from . import alerts, trackers
+    from . import alerts, entities, trackers
+    from .entities import (
+        AddEntitiesRequestNamesItem,
+        AddEntitiesRequestNamesItemPersonMatchMode,
+        AddEntitiesRequestNamesItemType,
+        AddEntitiesRequestPersonMatchMode,
+    )
 _dynamic_imports: typing.Dict[str, str] = {
+    "AddEntitiesRequestNamesItem": ".entities",
+    "AddEntitiesRequestNamesItemPersonMatchMode": ".entities",
+    "AddEntitiesRequestNamesItemType": ".entities",
+    "AddEntitiesRequestPersonMatchMode": ".entities",
     "CreateMonitorsRequestNotifyFrequency": ".types",
     "UpdateMonitorsRequestNotifyFrequency": ".types",
     "alerts": ".alerts",
+    "entities": ".entities",
     "trackers": ".trackers",
 }
 
@@ -37,4 +48,14 @@ def __dir__():
     return sorted(lazy_attrs)
 
 
-__all__ = ["CreateMonitorsRequestNotifyFrequency", "UpdateMonitorsRequestNotifyFrequency", "alerts", "trackers"]
+__all__ = [
+    "AddEntitiesRequestNamesItem",
+    "AddEntitiesRequestNamesItemPersonMatchMode",
+    "AddEntitiesRequestNamesItemType",
+    "AddEntitiesRequestPersonMatchMode",
+    "CreateMonitorsRequestNotifyFrequency",
+    "UpdateMonitorsRequestNotifyFrequency",
+    "alerts",
+    "entities",
+    "trackers",
+]

@@ -4,13 +4,18 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
+from .entity import Entity
 from .mention import Mention
-from .mention_list_response_entity import MentionListResponseEntity
 from .mention_list_response_unlock import MentionListResponseUnlock
+from .publication_window import PublicationWindow
 
 
 class MentionListResponse(UniversalBaseModel):
-    data: typing.List[Mention]
+    mentions: typing.List[Mention] = pydantic.Field()
+    """
+    Newest first.
+    """
+
     has_more: bool = pydantic.Field()
     """
     True when more rows exist past this page.
@@ -21,11 +26,8 @@ class MentionListResponse(UniversalBaseModel):
     Opaque cursor for the next page. Null on the last page.
     """
 
-    entity: MentionListResponseEntity = pydantic.Field()
-    """
-    The resolved entity the mentions belong to.
-    """
-
+    entity: Entity
+    window: PublicationWindow
     note: typing.Optional[str] = pydantic.Field(default=None)
     """
     Present on a free preview page: where the list stops and the plan that lifts it. Say so rather than calling this every mention.

@@ -13,6 +13,7 @@ SubmitFeedbackRequestType = typing.Union[
         "monitor_alert",
         "appearances",
         "search",
+        "experience",
     ],
     typing.Any,
 ]

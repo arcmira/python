@@ -6,14 +6,8 @@ import typing
 from importlib import import_module
 
 if typing.TYPE_CHECKING:
-    from .lookup_entities_request_type import LookupEntitiesRequestType
     from .resolve_entities_request_type import ResolveEntitiesRequestType
-    from .search_entities_request_type import SearchEntitiesRequestType
-_dynamic_imports: typing.Dict[str, str] = {
-    "LookupEntitiesRequestType": ".lookup_entities_request_type",
-    "ResolveEntitiesRequestType": ".resolve_entities_request_type",
-    "SearchEntitiesRequestType": ".search_entities_request_type",
-}
+_dynamic_imports: typing.Dict[str, str] = {"ResolveEntitiesRequestType": ".resolve_entities_request_type"}
 
 
 def __getattr__(attr_name: str) -> typing.Any:
@@ -37,4 +31,4 @@ def __dir__():
     return sorted(lazy_attrs)
 
 
-__all__ = ["LookupEntitiesRequestType", "ResolveEntitiesRequestType", "SearchEntitiesRequestType"]
+__all__ = ["ResolveEntitiesRequestType"]

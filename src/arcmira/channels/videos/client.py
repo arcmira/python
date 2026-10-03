@@ -31,8 +31,8 @@ class VideosClient:
         *,
         limit: typing.Optional[int] = None,
         cursor: typing.Optional[str] = None,
-        published_after: typing.Optional[str] = None,
-        published_before: typing.Optional[str] = None,
+        after: typing.Optional[str] = None,
+        before: typing.Optional[str] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[ChannelVideosResponseEpisodesItem, ChannelVideosResponse]:
         """
@@ -49,11 +49,11 @@ class VideosClient:
         cursor : typing.Optional[str]
             Opaque continuation from next_cursor. Bound to the channel, filters, caller, and visibility; limit may change between pages. Invalid or old tokens return invalid_cursor.
 
-        published_after : typing.Optional[str]
-            ISO date. Only videos published on or after this day.
+        after : typing.Optional[str]
+            Only media published at or after this instant. An ISO 8601 date (2026-09-01) or datetime with offset (2026-09-01T00:00:00Z), read in UTC. The window is half-open: after is inclusive, before is exclusive.
 
-        published_before : typing.Optional[str]
-            ISO date. Only videos published before this day.
+        before : typing.Optional[str]
+            Only media published before this instant, so before=2026-09-02 includes all of 2026-09-01. An ISO 8601 date (2026-09-01) or datetime with offset (2026-09-01T00:00:00Z), read in UTC. The window is half-open: after is inclusive, before is exclusive.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -80,12 +80,7 @@ class VideosClient:
             yield page
         """
         return self._raw_client.list(
-            channel_id,
-            limit=limit,
-            cursor=cursor,
-            published_after=published_after,
-            published_before=published_before,
-            request_options=request_options,
+            channel_id, limit=limit, cursor=cursor, after=after, before=before, request_options=request_options
         )
 
 
@@ -110,8 +105,8 @@ class AsyncVideosClient:
         *,
         limit: typing.Optional[int] = None,
         cursor: typing.Optional[str] = None,
-        published_after: typing.Optional[str] = None,
-        published_before: typing.Optional[str] = None,
+        after: typing.Optional[str] = None,
+        before: typing.Optional[str] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[ChannelVideosResponseEpisodesItem, ChannelVideosResponse]:
         """
@@ -128,11 +123,11 @@ class AsyncVideosClient:
         cursor : typing.Optional[str]
             Opaque continuation from next_cursor. Bound to the channel, filters, caller, and visibility; limit may change between pages. Invalid or old tokens return invalid_cursor.
 
-        published_after : typing.Optional[str]
-            ISO date. Only videos published on or after this day.
+        after : typing.Optional[str]
+            Only media published at or after this instant. An ISO 8601 date (2026-09-01) or datetime with offset (2026-09-01T00:00:00Z), read in UTC. The window is half-open: after is inclusive, before is exclusive.
 
-        published_before : typing.Optional[str]
-            ISO date. Only videos published before this day.
+        before : typing.Optional[str]
+            Only media published before this instant, so before=2026-09-02 includes all of 2026-09-01. An ISO 8601 date (2026-09-01) or datetime with offset (2026-09-01T00:00:00Z), read in UTC. The window is half-open: after is inclusive, before is exclusive.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -168,10 +163,5 @@ class AsyncVideosClient:
         asyncio.run(main())
         """
         return await self._raw_client.list(
-            channel_id,
-            limit=limit,
-            cursor=cursor,
-            published_after=published_after,
-            published_before=published_before,
-            request_options=request_options,
+            channel_id, limit=limit, cursor=cursor, after=after, before=before, request_options=request_options
         )

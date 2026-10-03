@@ -17,9 +17,9 @@ class TranscriptResponseSpeakersItem(UniversalBaseModel):
     The identified person, or Speaker 1, Speaker 2 and so on for a voice nobody has identified yet.
     """
 
-    entity_id: typing.Optional[int] = pydantic.Field(default=None)
+    entity_id: typing.Optional[str] = pydantic.Field(default=None)
     """
-    Raw entity id of the identified person. Null when the speaker is unidentified.
+    Public entity id ("ent_{n}") of the identified person. Null when the speaker is unidentified.
     """
 
     confidence: typing.Optional[str] = pydantic.Field(default=None)

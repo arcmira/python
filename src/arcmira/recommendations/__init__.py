@@ -6,11 +6,8 @@ import typing
 from importlib import import_module
 
 if typing.TYPE_CHECKING:
-    from .types import ListRecommendationsRequestEntityType, ListRecommendationsRequestMentionClass
-_dynamic_imports: typing.Dict[str, str] = {
-    "ListRecommendationsRequestEntityType": ".types",
-    "ListRecommendationsRequestMentionClass": ".types",
-}
+    from .types import ListRecommendationsRequestClass
+_dynamic_imports: typing.Dict[str, str] = {"ListRecommendationsRequestClass": ".types"}
 
 
 def __getattr__(attr_name: str) -> typing.Any:
@@ -34,4 +31,4 @@ def __dir__():
     return sorted(lazy_attrs)
 
 
-__all__ = ["ListRecommendationsRequestEntityType", "ListRecommendationsRequestMentionClass"]
+__all__ = ["ListRecommendationsRequestClass"]

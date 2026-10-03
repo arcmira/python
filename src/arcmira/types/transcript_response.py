@@ -55,7 +55,7 @@ class TranscriptResponse(UniversalBaseModel):
 
     revision: typing.Optional[str] = pydantic.Field(default=None)
     """
-    Premium reads only. Opaque id of the transcript you were served, the approved corrections on it, and who speaks each line. Echo it on every correction; a 409 means it changed underneath you, so read again.
+    Premium reads only. Opaque id of the transcript you were served, the approved corrections on it, and who speaks each line. It changes when any of those change.
     """
 
     range: typing.Optional[TranscriptResponseRange] = pydantic.Field(default=None)

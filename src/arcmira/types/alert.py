@@ -35,14 +35,9 @@ class Alert(UniversalBaseModel):
     Public id ("men_{n}") of the mention/appearance row that triggered the alert. Joins directly against mention rows (e.g. /v1/mentions). Null when not appearance-scoped.
     """
 
-    media_id: typing.Optional[int] = pydantic.Field(default=None)
+    video_id: typing.Optional[str] = pydantic.Field(default=None)
     """
-    Media row that triggered the alert. A raw integer database id, matching the numeric media ids used elsewhere in the API (e.g. mention media.id). Null when not media-scoped.
-    """
-
-    appearance_id: typing.Optional[int] = pydantic.Field(default=None)
-    """
-    Appearance row that triggered the alert. A raw integer database id, matching the numeric appearance_id on mention rows (same number as in mention_id). Null when not appearance-scoped.
+    YouTube video id (11 characters) of the video that triggered the alert. Null when not media-scoped.
     """
 
     excerpt_id: typing.Optional[str] = pydantic.Field(default=None)

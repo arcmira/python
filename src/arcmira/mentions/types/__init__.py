@@ -8,12 +8,10 @@ from importlib import import_module
 if typing.TYPE_CHECKING:
     from .count_mentions_request_mode import CountMentionsRequestMode
     from .list_mentions_request_details import ListMentionsRequestDetails
-    from .list_mentions_request_entity_type import ListMentionsRequestEntityType
     from .list_mentions_request_sentiment import ListMentionsRequestSentiment
 _dynamic_imports: typing.Dict[str, str] = {
     "CountMentionsRequestMode": ".count_mentions_request_mode",
     "ListMentionsRequestDetails": ".list_mentions_request_details",
-    "ListMentionsRequestEntityType": ".list_mentions_request_entity_type",
     "ListMentionsRequestSentiment": ".list_mentions_request_sentiment",
 }
 
@@ -39,9 +37,4 @@ def __dir__():
     return sorted(lazy_attrs)
 
 
-__all__ = [
-    "CountMentionsRequestMode",
-    "ListMentionsRequestDetails",
-    "ListMentionsRequestEntityType",
-    "ListMentionsRequestSentiment",
-]
+__all__ = ["CountMentionsRequestMode", "ListMentionsRequestDetails", "ListMentionsRequestSentiment"]

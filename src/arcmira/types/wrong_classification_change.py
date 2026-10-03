@@ -3,8 +3,10 @@
 import typing
 
 import pydantic
+import typing_extensions
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
-from .wrong_classification_change_mention_class import WrongClassificationChangeMentionClass
+from ..core.serialization import FieldMetadata
+from .wrong_classification_change_class import WrongClassificationChangeClass
 
 
 class WrongClassificationChange(UniversalBaseModel):
@@ -12,9 +14,16 @@ class WrongClassificationChange(UniversalBaseModel):
     For issue_type wrong_classification: the commercial class the row should carry.
     """
 
-    mention_class: typing.Optional[WrongClassificationChangeMentionClass] = pydantic.Field(default=None)
+    class_: typing_extensions.Annotated[
+        typing.Optional[WrongClassificationChangeClass],
+        FieldMetadata(alias="class"),
+        pydantic.Field(
+            alias="class",
+            description="The correct commercial class. Values: sponsored (an ad-style promotion heard at that moment: a paid sponsor read, promo code, affiliate plug, thanks for supplied goods or venue, or a show promoting its own product as an ad), organic (an unpaid personal recommendation), mention (a neutral commercial mention).",
+        ),
+    ] = None
     """
-    The correct commercial classification. Values: ad_read (an ad-style promotion heard at that moment: a paid sponsor read, promo code, affiliate plug, thanks for supplied goods or venue, or a show promoting its own product as an ad), endorsement (an unpaid personal recommendation), mention (a neutral commercial mention).
+    The correct commercial class. Values: sponsored (an ad-style promotion heard at that moment: a paid sponsor read, promo code, affiliate plug, thanks for supplied goods or venue, or a show promoting its own product as an ad), organic (an unpaid personal recommendation), mention (a neutral commercial mention).
     """
 
     if IS_PYDANTIC_V2:

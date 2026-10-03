@@ -3,9 +3,7 @@
 import typing
 
 import pydantic
-import typing_extensions
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
-from ..core.serialization import FieldMetadata
 
 
 class MonitorTrackersResponseTrackersItem(UniversalBaseModel):
@@ -14,83 +12,47 @@ class MonitorTrackersResponseTrackersItem(UniversalBaseModel):
     Tracker id.
     """
 
-    entity_name: typing_extensions.Annotated[
-        str, FieldMetadata(alias="entityName"), pydantic.Field(alias="entityName", description="Tracked entity name.")
-    ]
+    entity_name: str = pydantic.Field()
     """
     Tracked entity name.
     """
 
-    entity_type: typing_extensions.Annotated[
-        str, FieldMetadata(alias="entityType"), pydantic.Field(alias="entityType", description="Tracked entity type.")
-    ]
+    entity_type: str = pydantic.Field()
     """
     Tracked entity type.
     """
 
-    display_name: typing_extensions.Annotated[
-        str,
-        FieldMetadata(alias="displayName"),
-        pydantic.Field(
-            alias="displayName", description="User-facing display name. Falls back to entityName when not customized."
-        ),
-    ]
+    display_name: str = pydantic.Field()
     """
-    User-facing display name. Falls back to entityName when not customized.
+    User-facing display name. Falls back to entity_name when not customized.
     """
 
-    is_paused: typing_extensions.Annotated[
-        bool,
-        FieldMetadata(alias="isPaused"),
-        pydantic.Field(alias="isPaused", description="True when the tracker is paused."),
-    ]
+    paused: bool = pydantic.Field()
     """
     True when the tracker is paused.
     """
 
-    paused_at: typing_extensions.Annotated[
-        typing.Optional[str],
-        FieldMetadata(alias="pausedAt"),
-        pydantic.Field(alias="pausedAt", description="When the tracker was paused. Null unless paused."),
-    ] = None
+    paused_at: typing.Optional[str] = pydantic.Field(default=None)
     """
     When the tracker was paused. Null unless paused.
     """
 
-    last_notified_at: typing_extensions.Annotated[
-        typing.Optional[str],
-        FieldMetadata(alias="lastNotifiedAt"),
-        pydantic.Field(
-            alias="lastNotifiedAt", description="When the tracker last produced an alert. Null until the first alert."
-        ),
-    ] = None
+    last_notified_at: typing.Optional[str] = pydantic.Field(default=None)
     """
     When the tracker last produced an alert. Null until the first alert.
     """
 
-    created_at: typing_extensions.Annotated[
-        str,
-        FieldMetadata(alias="createdAt"),
-        pydantic.Field(alias="createdAt", description="When the tracker was created."),
-    ]
+    created_at: str = pydantic.Field()
     """
     When the tracker was created.
     """
 
-    updated_at: typing_extensions.Annotated[
-        typing.Optional[str],
-        FieldMetadata(alias="updatedAt"),
-        pydantic.Field(alias="updatedAt", description="When the tracker was last updated."),
-    ] = None
+    updated_at: typing.Optional[str] = pydantic.Field(default=None)
     """
     When the tracker was last updated.
     """
 
-    monitor_id: typing_extensions.Annotated[
-        str,
-        FieldMetadata(alias="monitorId"),
-        pydantic.Field(alias="monitorId", description="The monitor id from the request path."),
-    ]
+    monitor_id: str = pydantic.Field()
     """
     The monitor id from the request path.
     """

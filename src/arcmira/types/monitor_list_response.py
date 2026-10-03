@@ -10,7 +10,7 @@ from .monitor_list_response_monitors_item import MonitorListResponseMonitorsItem
 class MonitorListResponse(UniversalBaseModel):
     monitors: typing.List[MonitorListResponseMonitorsItem] = pydantic.Field()
     """
-    All monitors for the account, ordered by dashboard sort position, then name.
+    The account's personal monitors and the monitors of every team it belongs to, ordered by dashboard sort position, then name.
     """
 
     if IS_PYDANTIC_V2:

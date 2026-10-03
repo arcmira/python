@@ -3,42 +3,22 @@
 import typing
 
 import pydantic
-import typing_extensions
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
-from ..core.serialization import FieldMetadata
 from .named_entity_ref import NamedEntityRef
+from .transcript_search_response_filters_kind_item import TranscriptSearchResponseFiltersKindItem
 
 
 class TranscriptSearchResponseFilters(UniversalBaseModel):
-    channel_ids: typing_extensions.Annotated[
-        typing.List[str],
-        FieldMetadata(alias="channelIds"),
-        pydantic.Field(
-            alias="channelIds", description="Channel ids the search was scoped to, after entity_ids were expanded."
-        ),
-    ]
+    channel_ids: typing.List[str] = pydantic.Field()
     """
     Channel ids the search was scoped to, after entity_ids were expanded.
     """
 
-    entity_ids: typing_extensions.Annotated[
-        typing.List[str],
-        FieldMetadata(alias="entityIds"),
-        pydantic.Field(
-            alias="entityIds",
-            description="Exact explicit entity_ids accepted for this search. Every id was resolved; an unknown id is refused.",
-        ),
-    ]
+    entity_ids: typing.List[str] = pydantic.Field()
     """
     Exact explicit entity_ids accepted for this search. Every id was resolved; an unknown id is refused.
     """
 
-    published_after: typing_extensions.Annotated[
-        typing.Optional[str], FieldMetadata(alias="publishedAfter"), pydantic.Field(alias="publishedAfter")
-    ] = None
-    published_before: typing_extensions.Annotated[
-        typing.Optional[str], FieldMetadata(alias="publishedBefore"), pydantic.Field(alias="publishedBefore")
-    ] = None
     about: typing.List[NamedEntityRef] = pydantic.Field()
     """
     The about ids, each with its name and type.
@@ -49,9 +29,9 @@ class TranscriptSearchResponseFilters(UniversalBaseModel):
     The by ids, each with its name and type.
     """
 
-    kind: typing.List[str] = pydantic.Field()
+    kind: typing.List[TranscriptSearchResponseFiltersKindItem] = pydantic.Field()
     """
-    The kind values applied.
+    The passage classes applied.
     """
 
     if IS_PYDANTIC_V2:

@@ -12,30 +12,52 @@ pip install arcmira
 
 Set `ARCMIRA_API_KEY` or pass `api_key` to the client.
 
-## Premium transcript quickstart
+## Ids first
+
+Reads take ids, never names. Resolve a name, then read with the id.
 
 ```python
 from arcmira import Arcmira
 
-transcript = Arcmira().transcripts.prepare_and_wait("dQw4w9WgXcQ")
-print(transcript.lines)
+client = Arcmira()
+match = client.entities.resolve(q="Ramp", type="organization", context="the corporate card")
+ramp = match.best or match.suggested
+for mention in client.mentions.list(entity_id=ramp.id, after="2026-09-01", before="2026-10-01"):
+    print(mention.media.video_id, mention.start_seconds)
 ```
 
-`prepare_and_wait(video_id, *, max_on_demand_cents=0, timeout_seconds=300)` reads the Premium transcript. When the account does not own it, the call posts the purchase once, polls the job at the pace the API sets and returns the transcript. The default spends included credits only. Pass `max_on_demand_cents` only for an amount the user approved.
+- `entities.resolve` answers `best` (certain), `suggested` (likeliest, with a reason; tell the user you assumed it) or `ask` (several fit; show `ask.options`).
+- Entity ids look like `ent_14`. Channel ids are YouTube ids, `UC` plus 22 characters. For a show, pass `type="channel"` and use `best.youtube_channel_id`.
+- A name where an id belongs raises `BadRequestError` with code `id_required`, naming the parameter.
+- Dates are `after` and `before`, half-open `[after, before)`, as an ISO date or a datetime with offset. The body echoes them in `window`.
 
-## Clients
+## Premium transcripts
 
-- `Arcmira` is synchronous. `AsyncArcmira` has the same methods to await, for example `await client.transcripts.prepare_and_wait(video_id)`.
-- `client.transcripts.with_raw_response` returns the status code and headers beside the typed data.
-- Every Premium purchase answers one `Job`: `client.transcripts.request(video_id=...)` submits it and `client.transcripts.status(job_id)` polls it.
-
-## Pagination
-
-List methods such as `client.transcripts.list_requests(limit=10)` and `client.channels.videos.list(channel_id=..., limit=10)` return iterators that follow `next_cursor` for you. Cursors are opaque. Keep filters the same between pages. Async clients return async iterators after awaiting the first page.
+`client.transcripts.get(video_id, quality="premium")` is one read. It answers `state == "ready"` (200) with the transcript, or `state == "pending"` (202) with `job` and a `Retry-After` header. Read again after `Retry-After` or `job.next_poll_seconds`. Repeated reads join the same purchase and never buy twice. The read spends included credits first, then the account's on-demand budget. `client.transcripts.quote(video_id)` is free and shows the price. Use `client.transcripts.with_raw_response.get(...)` for the status code and headers.
 
 ## Errors
 
-An API refusal raises a typed error derived from `arcmira.core.api_error.ApiError`. Its `body` holds the public error, quote and recovery URLs. `prepare_and_wait` also raises `PreparationTimeoutError` and `PreparationFailedError`, both carrying `.job`, and `PremiumUnavailableError` when the plan has no Premium. Captions are never returned as Premium.
+A refusal raises a typed error from `arcmira.errors` (`BadRequestError`, `PaymentRequiredError`, `ForbiddenError`, `NotFoundError`, `ConflictError`, `TooManyRequestsError` and others), each derived from `arcmira.core.api_error.ApiError`. `body.error` holds `type`, `code`, `message`, `param`, `gate`, `unlock` and `details`. A priced refusal (402 `quota_exceeded` or `spend_limit_exceeded`, 403 `paid_plan_required`) carries the price in `error.details.quote` and charges nothing.
+
+## Methods
+
+- `entities`: `resolve`, `get`, `momentum`.
+- `mentions`: `list` (requires `entity_id`), `count`.
+- `recommendations`: `list` (requires `entity_id`; `class_` is `sponsored`, `organic` or `mention`).
+- `transcripts`: `search` (spoken passages, `GET /v1/search`), `get`, `quote`, `list_requests`.
+- `channels`: `coverage`, `videos.list`, `sponsors.list`.
+- `monitors`: `list`, `create`, `update`, `delete`, `rotate_webhook_secret`, `trackers.list`, `trackers.add`, `entities.add`, `alerts.list`.
+- `trackers`: `list`, `create`, `update`, `delete`, `alerts.list`.
+- `integrations`: `slack.list`.
+- `feedback`: `submit`, `get`.
+- `me`: `get`, `update_settings`. `health`: `check`.
+
+Follow an entity you have an id for with `monitors.entities.add(monitor_id, entity_ids=[...])`. Watch an exact name before it is indexed with `trackers.create(entity_name=..., entity_type=...)`.
+
+## Clients and pagination
+
+- `Arcmira` is synchronous. `AsyncArcmira` has the same methods to await.
+- `mentions.list`, `recommendations.list`, `channels.videos.list` and `transcripts.list_requests` return pagers that follow `next_cursor`. Cursors are opaque. Keep filters the same between pages. Async pagers are async iterators after you await the first page.
 
 ## Canonical
 
@@ -48,7 +70,6 @@ An API refusal raises a typed error derived from `arcmira.core.api_error.ApiErro
 - [Homepage](https://arcmira.com)
 - [Pricing](https://arcmira.com/pricing)
 - [Contact](mailto:hi@arcmira.com): hi@arcmira.com
-
-The MCP server ships from https://github.com/arcmira/mcp.
+- [Changelog](CHANGELOG.md): What changed from 0.3, method by method.
 
 Apache-2.0. See LICENSE.

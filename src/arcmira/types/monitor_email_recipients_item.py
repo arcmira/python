@@ -3,21 +3,30 @@
 import typing
 
 import pydantic
-import typing_extensions
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
-from ..core.serialization import FieldMetadata
 from .monitor_email_recipients_item_invitation_status import MonitorEmailRecipientsItemInvitationStatus
+from .monitor_email_recipients_item_role import MonitorEmailRecipientsItemRole
 from .monitor_email_recipients_item_status import MonitorEmailRecipientsItemStatus
 
 
 class MonitorEmailRecipientsItem(UniversalBaseModel):
     email: str
-    status: MonitorEmailRecipientsItemStatus
-    invitation_status: typing_extensions.Annotated[
-        typing.Optional[MonitorEmailRecipientsItemInvitationStatus],
-        FieldMetadata(alias="invitationStatus"),
-        pydantic.Field(alias="invitationStatus"),
-    ] = None
+    role: MonitorEmailRecipientsItemRole = pydantic.Field()
+    """
+    owner: the paying account. member: a member of the monitor's team, who receives its alerts without an invitation and does not count toward the recipient limits. external: anyone else, who must confirm first.
+    """
+
+    user_id: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    The Arcmira user behind an owner or member address. Null for external recipients.
+    """
+
+    status: MonitorEmailRecipientsItemStatus = pydantic.Field()
+    """
+    muted: a team member muted this monitor for themselves.
+    """
+
+    invitation_status: typing.Optional[MonitorEmailRecipientsItemInvitationStatus] = None
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

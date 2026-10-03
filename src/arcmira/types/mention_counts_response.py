@@ -3,12 +3,11 @@
 import typing
 
 import pydantic
-import typing_extensions
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
-from ..core.serialization import FieldMetadata
 from .mention_counts_response_mode import MentionCountsResponseMode
 from .mention_counts_response_rows_item import MentionCountsResponseRowsItem
 from .mention_counts_response_shared_item import MentionCountsResponseSharedItem
+from .publication_window import PublicationWindow
 
 
 class MentionCountsResponse(UniversalBaseModel):
@@ -17,26 +16,13 @@ class MentionCountsResponse(UniversalBaseModel):
     The mode applied.
     """
 
-    published_after: typing_extensions.Annotated[
-        typing.Optional[str], FieldMetadata(alias="publishedAfter"), pydantic.Field(alias="publishedAfter")
-    ] = None
-    published_before: typing_extensions.Annotated[
-        typing.Optional[str], FieldMetadata(alias="publishedBefore"), pydantic.Field(alias="publishedBefore")
-    ] = None
-    channel_ids: typing_extensions.Annotated[
-        typing.List[str],
-        FieldMetadata(alias="channelIds"),
-        pydantic.Field(alias="channelIds", description="The channel ids counted."),
-    ]
+    window: PublicationWindow
+    channel_ids: typing.List[str] = pydantic.Field()
     """
     The channel ids counted.
     """
 
-    video_ids: typing_extensions.Annotated[
-        typing.List[str],
-        FieldMetadata(alias="videoIds"),
-        pydantic.Field(alias="videoIds", description="The video ids the count was scoped to. Empty when it was not."),
-    ]
+    video_ids: typing.List[str] = pydantic.Field()
     """
     The video ids the count was scoped to. Empty when it was not.
     """

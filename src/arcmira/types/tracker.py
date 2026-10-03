@@ -3,9 +3,7 @@
 import typing
 
 import pydantic
-import typing_extensions
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
-from ..core.serialization import FieldMetadata
 
 
 class Tracker(UniversalBaseModel):
@@ -14,99 +12,47 @@ class Tracker(UniversalBaseModel):
     Tracker id in the form "trk_{hex}".
     """
 
-    entity_name: typing_extensions.Annotated[
-        str,
-        FieldMetadata(alias="entityName"),
-        pydantic.Field(alias="entityName", description="The tracked entity name, as submitted."),
-    ]
+    entity_name: str = pydantic.Field()
     """
     The tracked entity name, as submitted.
     """
 
-    entity_type: typing_extensions.Annotated[
-        str,
-        FieldMetadata(alias="entityType"),
-        pydantic.Field(
-            alias="entityType",
-            description="The tracked entity type. Values: person, organization, product, topic, channel.",
-        ),
-    ]
+    entity_type: str = pydantic.Field()
     """
     The tracked entity type. Values: person, organization, product, topic, channel.
     """
 
-    display_name: typing_extensions.Annotated[
-        str,
-        FieldMetadata(alias="displayName"),
-        pydantic.Field(
-            alias="displayName", description="User-facing display name. Falls back to entityName when not customized."
-        ),
-    ]
+    display_name: str = pydantic.Field()
     """
-    User-facing display name. Falls back to entityName when not customized.
+    User-facing display name. Falls back to entity_name when not customized.
     """
 
-    notify_email: typing_extensions.Annotated[
-        bool,
-        FieldMetadata(alias="notifyEmail"),
-        pydantic.Field(
-            alias="notifyEmail", description="True when this tracker delivers by email (default true at creation)."
-        ),
-    ]
+    notify_email: bool = pydantic.Field()
     """
     True when this tracker delivers by email (default true at creation).
     """
 
-    notify_webhook: typing_extensions.Annotated[
-        bool,
-        FieldMetadata(alias="notifyWebhook"),
-        pydantic.Field(
-            alias="notifyWebhook", description="True when this tracker has a per-tracker webhook override enabled."
-        ),
-    ]
+    notify_webhook: bool = pydantic.Field()
     """
     True when this tracker has a per-tracker webhook override enabled.
     """
 
-    notify_slack: typing_extensions.Annotated[
-        bool,
-        FieldMetadata(alias="notifySlack"),
-        pydantic.Field(
-            alias="notifySlack", description="True when this tracker has a per-tracker Slack override enabled."
-        ),
-    ]
+    notify_slack: bool = pydantic.Field()
     """
     True when this tracker has a per-tracker Slack override enabled.
     """
 
-    webhook_url: typing_extensions.Annotated[
-        typing.Optional[str],
-        FieldMetadata(alias="webhookUrl"),
-        pydantic.Field(
-            alias="webhookUrl",
-            description="Per-tracker webhook destination override. Null when the tracker uses its monitor's delivery settings.",
-        ),
-    ] = None
+    webhook_url: typing.Optional[str] = pydantic.Field(default=None)
     """
-    Per-tracker webhook destination override. Null when the tracker uses its monitor's delivery settings.
+    Per-tracker webhook destination override. Null when the tracker uses its monitor's delivery settings. Absent when the tracker is in a team monitor the caller does not own.
     """
 
-    slack_channel_id: typing_extensions.Annotated[
-        typing.Optional[str],
-        FieldMetadata(alias="slackChannelId"),
-        pydantic.Field(alias="slackChannelId", description="Per-tracker Slack channel override. Null when not set."),
-    ] = None
+    slack_channel_id: typing.Optional[str] = pydantic.Field(default=None)
     """
     Per-tracker Slack channel override. Null when not set.
     """
 
-    slack_integration_id: typing_extensions.Annotated[
-        typing.Optional[str],
-        FieldMetadata(alias="slackIntegrationId"),
-        pydantic.Field(
-            alias="slackIntegrationId", description="Per-tracker Slack integration override. Null when not set."
-        ),
-    ] = None
+    slack_integration_id: typing.Optional[str] = pydantic.Field(default=None)
     """
     Per-tracker Slack integration override. Null when not set.
     """
@@ -116,87 +62,47 @@ class Tracker(UniversalBaseModel):
     Optional matching filters as submitted. Null when none were set.
     """
 
-    is_paused: typing_extensions.Annotated[
-        bool,
-        FieldMetadata(alias="isPaused"),
-        pydantic.Field(alias="isPaused", description="True when the tracker is paused."),
-    ]
+    paused: bool = pydantic.Field()
     """
     True when the tracker is paused.
     """
 
-    paused_at: typing_extensions.Annotated[
-        typing.Optional[str],
-        FieldMetadata(alias="pausedAt"),
-        pydantic.Field(alias="pausedAt", description="When the tracker was paused. Null unless paused."),
-    ] = None
+    paused_at: typing.Optional[str] = pydantic.Field(default=None)
     """
     When the tracker was paused. Null unless paused.
     """
 
-    last_notified_at: typing_extensions.Annotated[
-        typing.Optional[str],
-        FieldMetadata(alias="lastNotifiedAt"),
-        pydantic.Field(
-            alias="lastNotifiedAt", description="When the tracker last produced an alert. Null until the first alert."
-        ),
-    ] = None
+    last_notified_at: typing.Optional[str] = pydantic.Field(default=None)
     """
     When the tracker last produced an alert. Null until the first alert.
     """
 
-    created_at: typing_extensions.Annotated[
-        str,
-        FieldMetadata(alias="createdAt"),
-        pydantic.Field(alias="createdAt", description="When the tracker was created."),
-    ]
+    created_at: str = pydantic.Field()
     """
     When the tracker was created.
     """
 
-    updated_at: typing_extensions.Annotated[
-        typing.Optional[str],
-        FieldMetadata(alias="updatedAt"),
-        pydantic.Field(alias="updatedAt", description="When the tracker was last updated."),
-    ] = None
+    updated_at: typing.Optional[str] = pydantic.Field(default=None)
     """
     When the tracker was last updated.
     """
 
-    monitor_id: typing_extensions.Annotated[
-        typing.Optional[str],
-        FieldMetadata(alias="monitorId"),
-        pydantic.Field(
-            alias="monitorId", description="The monitor this tracker belongs to. Absent for standalone trackers."
-        ),
-    ] = None
+    monitor_id: typing.Optional[str] = pydantic.Field(default=None)
     """
     The monitor this tracker belongs to. Absent for standalone trackers.
     """
 
-    email_delivery_count: typing_extensions.Annotated[
-        int,
-        FieldMetadata(alias="emailDeliveryCount"),
-        pydantic.Field(alias="emailDeliveryCount", description="Email deliveries in the current billing period."),
-    ]
+    email_delivery_count: int = pydantic.Field()
     """
     Email deliveries in the current billing period.
     """
 
-    webhook_delivery_count: typing_extensions.Annotated[
-        int,
-        FieldMetadata(alias="webhookDeliveryCount"),
-        pydantic.Field(alias="webhookDeliveryCount", description="Webhook deliveries in the current billing period."),
-    ]
+    webhook_delivery_count: int = pydantic.Field()
     """
     Webhook deliveries in the current billing period.
     """
 
-    slack_delivery_count: typing_extensions.Annotated[
-        int,
-        FieldMetadata(alias="slackDeliveryCount"),
-        pydantic.Field(alias="slackDeliveryCount", description="Slack deliveries in the current billing period."),
-    ]
+    slack_delivery_count: int = pydantic.Field()
     """
     Slack deliveries in the current billing period.
     """

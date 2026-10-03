@@ -3,5 +3,5 @@
 import typing
 
 CreateTrackersRequestEntityType = typing.Union[
-    typing.Literal["person", "organization", "product", "topic", "channel"], typing.Any
+    typing.Literal["person", "organization", "org", "product", "topic", "channel"], typing.Any
 ]

@@ -17,39 +17,11 @@ if typing.TYPE_CHECKING:
     from .channel_coverage_response import ChannelCoverageResponse
     from .channel_coverage_response_channel import ChannelCoverageResponseChannel
     from .channel_coverage_response_channel_source_mix import ChannelCoverageResponseChannelSourceMix
-    from .channel_guest_list_response import ChannelGuestListResponse
-    from .channel_guest_list_response_export_capabilities import ChannelGuestListResponseExportCapabilities
-    from .channel_guest_list_response_items_item import ChannelGuestListResponseItemsItem
-    from .channel_guest_list_response_items_item_sentiment import ChannelGuestListResponseItemsItemSentiment
-    from .channel_page_response import ChannelPageResponse
-    from .channel_page_response_channel_info import ChannelPageResponseChannelInfo
-    from .channel_page_response_entity import ChannelPageResponseEntity
-    from .channel_page_response_entity_owner import ChannelPageResponseEntityOwner
-    from .channel_page_response_entity_type import ChannelPageResponseEntityType
-    from .channel_page_response_episodes_by_month_item import ChannelPageResponseEpisodesByMonthItem
-    from .channel_page_response_episodes_item import ChannelPageResponseEpisodesItem
-    from .channel_page_response_episodes_item_platform import ChannelPageResponseEpisodesItemPlatform
-    from .channel_page_response_episodes_item_sentiment import ChannelPageResponseEpisodesItemSentiment
-    from .channel_page_response_episodes_item_timestamp import ChannelPageResponseEpisodesItemTimestamp
-    from .channel_page_response_episodes_item_type import ChannelPageResponseEpisodesItemType
-    from .channel_page_response_guests_item import ChannelPageResponseGuestsItem
-    from .channel_page_response_guests_item_role import ChannelPageResponseGuestsItemRole
-    from .channel_page_response_guests_item_sentiment import ChannelPageResponseGuestsItemSentiment
-    from .channel_page_response_hosts_detailed_item import ChannelPageResponseHostsDetailedItem
-    from .channel_page_response_hosts_detailed_item_sentiment import ChannelPageResponseHostsDetailedItemSentiment
-    from .channel_page_response_organizations_item import ChannelPageResponseOrganizationsItem
-    from .channel_page_response_organizations_item_sentiment import ChannelPageResponseOrganizationsItemSentiment
-    from .channel_page_response_products_item import ChannelPageResponseProductsItem
-    from .channel_page_response_products_item_sentiment import ChannelPageResponseProductsItemSentiment
-    from .channel_page_response_recommendations_summary import ChannelPageResponseRecommendationsSummary
-    from .channel_page_response_stats import ChannelPageResponseStats
-    from .channel_page_response_topics_item import ChannelPageResponseTopicsItem
-    from .channel_page_response_topics_item_sentiment import ChannelPageResponseTopicsItemSentiment
     from .channel_sponsor import ChannelSponsor
-    from .channel_sponsor_entity import ChannelSponsorEntity
     from .channel_sponsor_sponsor_status import ChannelSponsorSponsorStatus
     from .channel_sponsors_response import ChannelSponsorsResponse
     from .channel_sponsors_response_access import ChannelSponsorsResponseAccess
+    from .channel_sponsors_response_access_details import ChannelSponsorsResponseAccessDetails
     from .channel_sponsors_response_access_gate import ChannelSponsorsResponseAccessGate
     from .channel_sponsors_response_access_reason import ChannelSponsorsResponseAccessReason
     from .channel_sponsors_response_access_type import ChannelSponsorsResponseAccessType
@@ -60,21 +32,14 @@ if typing.TYPE_CHECKING:
     from .channel_videos_response import ChannelVideosResponse
     from .channel_videos_response_channel import ChannelVideosResponseChannel
     from .channel_videos_response_episodes_item import ChannelVideosResponseEpisodesItem
-    from .correction_accepted_response import CorrectionAcceptedResponse
-    from .correction_accepted_response_kind import CorrectionAcceptedResponseKind
     from .delivery_issue_change import DeliveryIssueChange
     from .delivery_issue_change_channel import DeliveryIssueChangeChannel
     from .entity import Entity
-    from .entity_card import EntityCard
-    from .entity_cards_response import EntityCardsResponse
-    from .entity_channel_list_response import EntityChannelListResponse
-    from .entity_channel_list_response_export_capabilities import EntityChannelListResponseExportCapabilities
-    from .entity_channel_list_response_items_item import EntityChannelListResponseItemsItem
     from .entity_detail_recommendations_summary import EntityDetailRecommendationsSummary
     from .entity_detail_response import EntityDetailResponse
-    from .entity_lookup_response import EntityLookupResponse
     from .entity_momentum_response import EntityMomentumResponse
     from .entity_momentum_response_access import EntityMomentumResponseAccess
+    from .entity_momentum_response_access_details import EntityMomentumResponseAccessDetails
     from .entity_momentum_response_access_gate import EntityMomentumResponseAccessGate
     from .entity_momentum_response_access_reason import EntityMomentumResponseAccessReason
     from .entity_momentum_response_access_type import EntityMomentumResponseAccessType
@@ -84,48 +49,19 @@ if typing.TYPE_CHECKING:
     from .entity_momentum_response_top_shows_item import EntityMomentumResponseTopShowsItem
     from .entity_momentum_response_verdict import EntityMomentumResponseVerdict
     from .entity_momentum_response_volume import EntityMomentumResponseVolume
-    from .entity_organization_list_response import EntityOrganizationListResponse
-    from .entity_organization_list_response_export_capabilities import EntityOrganizationListResponseExportCapabilities
-    from .entity_organization_list_response_items_item import EntityOrganizationListResponseItemsItem
-    from .entity_organization_list_response_items_item_sentiment import EntityOrganizationListResponseItemsItemSentiment
-    from .entity_page_mention import EntityPageMention
-    from .entity_page_mention_excerpt import EntityPageMentionExcerpt
-    from .entity_page_mention_excerpt_public_source_class import EntityPageMentionExcerptPublicSourceClass
-    from .entity_page_mention_platform import EntityPageMentionPlatform
-    from .entity_page_mention_sentiment import EntityPageMentionSentiment
-    from .entity_page_mention_type import EntityPageMentionType
-    from .entity_people_list_response import EntityPeopleListResponse
-    from .entity_people_list_response_export_capabilities import EntityPeopleListResponseExportCapabilities
-    from .entity_people_list_response_items_item import EntityPeopleListResponseItemsItem
-    from .entity_people_list_response_items_item_sentiment import EntityPeopleListResponseItemsItemSentiment
-    from .entity_people_list_response_people_mode import EntityPeopleListResponsePeopleMode
-    from .entity_product_list_response import EntityProductListResponse
-    from .entity_product_list_response_export_capabilities import EntityProductListResponseExportCapabilities
-    from .entity_product_list_response_items_item import EntityProductListResponseItemsItem
-    from .entity_product_list_response_items_item_sentiment import EntityProductListResponseItemsItemSentiment
     from .entity_ref import EntityRef
     from .entity_resolve_response import EntityResolveResponse
     from .entity_resolve_response_ask import EntityResolveResponseAsk
     from .entity_resolve_response_ask_options_item import EntityResolveResponseAskOptionsItem
     from .entity_resolve_response_confidence import EntityResolveResponseConfidence
-    from .entity_search_response import EntitySearchResponse
-    from .entity_search_result import EntitySearchResult
-    from .entity_search_result_recommendations_summary import EntitySearchResultRecommendationsSummary
-    from .entity_topic_list_response import EntityTopicListResponse
-    from .entity_topic_list_response_export_capabilities import EntityTopicListResponseExportCapabilities
-    from .entity_topic_list_response_items_item import EntityTopicListResponseItemsItem
-    from .entity_topic_list_response_items_item_sentiment import EntityTopicListResponseItemsItemSentiment
     from .error import Error
     from .error_error import ErrorError
+    from .error_error_details import ErrorErrorDetails
     from .error_error_gate import ErrorErrorGate
     from .error_error_reason import ErrorErrorReason
     from .error_error_type import ErrorErrorType
     from .error_error_unlock import ErrorErrorUnlock
     from .error_error_unlock_action import ErrorErrorUnlockAction
-    from .error_quote import ErrorQuote
-    from .error_quote_charge import ErrorQuoteCharge
-    from .error_quote_charge_from import ErrorQuoteChargeFrom
-    from .error_quote_charge_unit import ErrorQuoteChargeUnit
     from .error_resource import (
         ErrorResource,
         ErrorResource_Chart,
@@ -160,49 +96,7 @@ if typing.TYPE_CHECKING:
     from .error_resource_rows import ErrorResourceRows
     from .error_resource_sidebar_rows import ErrorResourceSidebarRows
     from .error_resource_sidebar_rows_section import ErrorResourceSidebarRowsSection
-    from .exposure_meta import ExposureMeta
-    from .exposure_meta_access import ExposureMetaAccess
-    from .exposure_meta_access_chart import ExposureMetaAccessChart
-    from .exposure_meta_access_cls import ExposureMetaAccessCls
-    from .exposure_meta_access_freshness import ExposureMetaAccessFreshness
-    from .exposure_meta_access_ladder import ExposureMetaAccessLadder
-    from .exposure_meta_access_rows import ExposureMetaAccessRows
-    from .exposure_meta_access_rows_entities import ExposureMetaAccessRowsEntities
-    from .exposure_meta_access_rows_media import ExposureMetaAccessRowsMedia
-    from .exposure_meta_access_rows_topics import ExposureMetaAccessRowsTopics
-    from .exposure_meta_access_unlock import ExposureMetaAccessUnlock
-    from .exposure_meta_access_unlock_limit_action import ExposureMetaAccessUnlockLimitAction
-    from .exposure_meta_access_unlock_src import ExposureMetaAccessUnlockSrc
-    from .exposure_meta_access_view import ExposureMetaAccessView
-    from .exposure_meta_access_withheld_item import ExposureMetaAccessWithheldItem
-    from .exposure_meta_access_withheld_item_kind import ExposureMetaAccessWithheldItemKind
-    from .exposure_meta_access_withheld_item_param import ExposureMetaAccessWithheldItemParam
-    from .exposure_meta_access_withheld_item_section import ExposureMetaAccessWithheldItemSection
-    from .exposure_meta_access_withheld_item_what import ExposureMetaAccessWithheldItemWhat
-    from .exposure_meta_credits import ExposureMetaCredits
-    from .exposure_meta_credits_on_demand import ExposureMetaCreditsOnDemand
-    from .exposure_meta_credits_plan import ExposureMetaCreditsPlan
-    from .exposure_meta_free_limit import ExposureMetaFreeLimit
-    from .exposure_meta_limit_action import ExposureMetaLimitAction
-    from .exposure_meta_limits import ExposureMetaLimits
-    from .exposure_meta_recent_preview import ExposureMetaRecentPreview
-    from .exposure_meta_recent_preview_experiment import ExposureMetaRecentPreviewExperiment
-    from .exposure_meta_recent_preview_mentions import ExposureMetaRecentPreviewMentions
-    from .exposure_meta_recent_preview_mentions_experiment import ExposureMetaRecentPreviewMentionsExperiment
-    from .exposure_meta_recent_preview_mentions_subject import ExposureMetaRecentPreviewMentionsSubject
-    from .exposure_meta_recent_preview_mentions_teaser_items_item import (
-        ExposureMetaRecentPreviewMentionsTeaserItemsItem,
-    )
-    from .exposure_meta_recent_preview_subject import ExposureMetaRecentPreviewSubject
-    from .exposure_meta_recent_preview_teaser_items_item import ExposureMetaRecentPreviewTeaserItemsItem
-    from .exposure_meta_totals import ExposureMetaTotals
-    from .exposure_meta_usage_limit_type import ExposureMetaUsageLimitType
     from .feedback_correction_result import FeedbackCorrectionResult
-    from .feedback_correction_result_recommendation import FeedbackCorrectionResultRecommendation
-    from .feedback_correction_result_recommendation_media import FeedbackCorrectionResultRecommendationMedia
-    from .feedback_correction_result_recommendation_media_source_channel import (
-        FeedbackCorrectionResultRecommendationMediaSourceChannel,
-    )
     from .feedback_correction_result_status import FeedbackCorrectionResultStatus
     from .feedback_readback_correction import FeedbackReadbackCorrection
     from .feedback_readback_correction_status import FeedbackReadbackCorrectionStatus
@@ -219,7 +113,6 @@ if typing.TYPE_CHECKING:
     from .me_response_usage_credits import MeResponseUsageCredits
     from .me_response_usage_credits_on_demand import MeResponseUsageCreditsOnDemand
     from .me_response_usage_credits_plan import MeResponseUsageCreditsPlan
-    from .me_response_usage_hits import MeResponseUsageHits
     from .me_settings_response import MeSettingsResponse
     from .mention import Mention
     from .mention_counts_response import MentionCountsResponse
@@ -228,7 +121,6 @@ if typing.TYPE_CHECKING:
     from .mention_counts_response_shared_item import MentionCountsResponseSharedItem
     from .mention_counts_response_shared_item_by_channel_item import MentionCountsResponseSharedItemByChannelItem
     from .mention_list_response import MentionListResponse
-    from .mention_list_response_entity import MentionListResponseEntity
     from .mention_list_response_unlock import MentionListResponseUnlock
     from .mention_media import MentionMedia
     from .mention_media_source_channel import MentionMediaSourceChannel
@@ -239,16 +131,23 @@ if typing.TYPE_CHECKING:
     from .missed_alert_change import MissedAlertChange
     from .missing_result_change import MissingResultChange
     from .monitor import Monitor
+    from .monitor_access import MonitorAccess
+    from .monitor_add_entities_response import MonitorAddEntitiesResponse
     from .monitor_add_trackers_response import MonitorAddTrackersResponse
     from .monitor_delete_response import MonitorDeleteResponse
     from .monitor_email_recipients_item import MonitorEmailRecipientsItem
     from .monitor_email_recipients_item_invitation_status import MonitorEmailRecipientsItemInvitationStatus
+    from .monitor_email_recipients_item_role import MonitorEmailRecipientsItemRole
     from .monitor_email_recipients_item_status import MonitorEmailRecipientsItemStatus
+    from .monitor_entity_result import MonitorEntityResult
+    from .monitor_entity_result_reason import MonitorEntityResultReason
+    from .monitor_entity_result_type import MonitorEntityResultType
     from .monitor_list_response import MonitorListResponse
     from .monitor_list_response_monitors_item import MonitorListResponseMonitorsItem
     from .monitor_list_response_monitors_item_slack_integration import MonitorListResponseMonitorsItemSlackIntegration
     from .monitor_mutation_response import MonitorMutationResponse
     from .monitor_mutation_response_monitor import MonitorMutationResponseMonitor
+    from .monitor_team import MonitorTeam
     from .monitor_trackers_response import MonitorTrackersResponse
     from .monitor_trackers_response_trackers_item import MonitorTrackersResponseTrackersItem
     from .named_entity_ref import NamedEntityRef
@@ -256,139 +155,40 @@ if typing.TYPE_CHECKING:
     from .open_api_document_info import OpenApiDocumentInfo
     from .open_api_document_info_contact import OpenApiDocumentInfoContact
     from .open_api_document_servers_item import OpenApiDocumentServersItem
-    from .organization_page_response import OrganizationPageResponse
-    from .organization_page_response_channels_item import OrganizationPageResponseChannelsItem
-    from .organization_page_response_channels_item_sentiment import OrganizationPageResponseChannelsItemSentiment
-    from .organization_page_response_entity import OrganizationPageResponseEntity
-    from .organization_page_response_entity_owned_channels_item import OrganizationPageResponseEntityOwnedChannelsItem
-    from .organization_page_response_entity_owned_products_item import OrganizationPageResponseEntityOwnedProductsItem
-    from .organization_page_response_entity_type import OrganizationPageResponseEntityType
-    from .organization_page_response_mentions_by_month_item import OrganizationPageResponseMentionsByMonthItem
-    from .organization_page_response_people_item import OrganizationPageResponsePeopleItem
-    from .organization_page_response_people_item_sentiment import OrganizationPageResponsePeopleItemSentiment
-    from .organization_page_response_products_item import OrganizationPageResponseProductsItem
-    from .organization_page_response_products_item_sentiment import OrganizationPageResponseProductsItemSentiment
-    from .organization_page_response_role_edge import OrganizationPageResponseRoleEdge
-    from .organization_page_response_role_edge_label import OrganizationPageResponseRoleEdgeLabel
-    from .organization_page_response_role_edge_people_item import OrganizationPageResponseRoleEdgePeopleItem
-    from .organization_page_response_role_edge_recent_appearances_item import (
-        OrganizationPageResponseRoleEdgeRecentAppearancesItem,
-    )
-    from .organization_page_response_role_edge_role import OrganizationPageResponseRoleEdgeRole
-    from .organization_page_response_stats import OrganizationPageResponseStats
-    from .organization_page_response_topics_item import OrganizationPageResponseTopicsItem
-    from .organization_page_response_topics_item_sentiment import OrganizationPageResponseTopicsItemSentiment
-    from .person_appearance_list_response import PersonAppearanceListResponse
-    from .person_appearance_list_response_items_item import PersonAppearanceListResponseItemsItem
-    from .person_appearance_list_response_items_item_platform import PersonAppearanceListResponseItemsItemPlatform
-    from .person_appearance_list_response_items_item_sentiment import PersonAppearanceListResponseItemsItemSentiment
-    from .person_appearance_list_response_items_item_type import PersonAppearanceListResponseItemsItemType
-    from .person_page_response import PersonPageResponse
-    from .person_page_response_appearances_by_month_item import PersonPageResponseAppearancesByMonthItem
-    from .person_page_response_appearances_item import PersonPageResponseAppearancesItem
-    from .person_page_response_appearances_item_platform import PersonPageResponseAppearancesItemPlatform
-    from .person_page_response_appearances_item_sentiment import PersonPageResponseAppearancesItemSentiment
-    from .person_page_response_appearances_item_type import PersonPageResponseAppearancesItemType
-    from .person_page_response_brands_item import PersonPageResponseBrandsItem
-    from .person_page_response_brands_item_sentiment import PersonPageResponseBrandsItemSentiment
-    from .person_page_response_entity import PersonPageResponseEntity
-    from .person_page_response_entity_owned_channels_item import PersonPageResponseEntityOwnedChannelsItem
-    from .person_page_response_entity_owned_products_item import PersonPageResponseEntityOwnedProductsItem
-    from .person_page_response_mentions_by_month_item import PersonPageResponseMentionsByMonthItem
-    from .person_page_response_mentions_item import PersonPageResponseMentionsItem
-    from .person_page_response_mentions_item_platform import PersonPageResponseMentionsItemPlatform
-    from .person_page_response_mentions_item_sentiment import PersonPageResponseMentionsItemSentiment
-    from .person_page_response_mentions_item_type import PersonPageResponseMentionsItemType
-    from .person_page_response_people_item import PersonPageResponsePeopleItem
-    from .person_page_response_people_item_role import PersonPageResponsePeopleItemRole
-    from .person_page_response_people_item_sentiment import PersonPageResponsePeopleItemSentiment
-    from .person_page_response_products_item import PersonPageResponseProductsItem
-    from .person_page_response_products_item_sentiment import PersonPageResponseProductsItemSentiment
-    from .person_page_response_role_edge import PersonPageResponseRoleEdge
-    from .person_page_response_role_edge_label import PersonPageResponseRoleEdgeLabel
-    from .person_page_response_role_edge_role import PersonPageResponseRoleEdgeRole
-    from .person_page_response_stats import PersonPageResponseStats
-    from .person_page_response_topics_item import PersonPageResponseTopicsItem
-    from .person_page_response_topics_item_sentiment import PersonPageResponseTopicsItemSentiment
-    from .product_page_response import ProductPageResponse
-    from .product_page_response_channels_item import ProductPageResponseChannelsItem
-    from .product_page_response_channels_item_sentiment import ProductPageResponseChannelsItemSentiment
-    from .product_page_response_entity import ProductPageResponseEntity
-    from .product_page_response_entity_owner import ProductPageResponseEntityOwner
-    from .product_page_response_entity_parent_org import ProductPageResponseEntityParentOrg
-    from .product_page_response_entity_type import ProductPageResponseEntityType
-    from .product_page_response_mentions_by_month_item import ProductPageResponseMentionsByMonthItem
-    from .product_page_response_opportunities import ProductPageResponseOpportunities
-    from .product_page_response_organizations_item import ProductPageResponseOrganizationsItem
-    from .product_page_response_organizations_item_sentiment import ProductPageResponseOrganizationsItemSentiment
-    from .product_page_response_people_item import ProductPageResponsePeopleItem
-    from .product_page_response_people_item_sentiment import ProductPageResponsePeopleItemSentiment
-    from .product_page_response_stats import ProductPageResponseStats
-    from .product_page_response_topics_item import ProductPageResponseTopicsItem
-    from .product_page_response_topics_item_sentiment import ProductPageResponseTopicsItemSentiment
-    from .published_excerpt import PublishedExcerpt
-    from .published_excerpt_public_source_class import PublishedExcerptPublicSourceClass
+    from .publication_window import PublicationWindow
     from .recommendation import Recommendation
+    from .recommendation_class import RecommendationClass
     from .recommendation_enrichment_item import RecommendationEnrichmentItem
+    from .recommendation_enrichment_item_class import RecommendationEnrichmentItemClass
     from .recommendation_list_response import RecommendationListResponse
-    from .recommendation_list_response_entity import RecommendationListResponseEntity
     from .recommendation_media import RecommendationMedia
     from .recommendation_media_source_channel import RecommendationMediaSourceChannel
+    from .refused_quote import RefusedQuote
+    from .refused_quote_charge import RefusedQuoteCharge
+    from .refused_quote_charge_from import RefusedQuoteChargeFrom
+    from .refused_quote_charge_unit import RefusedQuoteChargeUnit
     from .resolve_candidate import ResolveCandidate
     from .resolve_candidate_match import ResolveCandidateMatch
     from .resolve_suggestion import ResolveSuggestion
     from .resolve_suggestion_match import ResolveSuggestionMatch
     from .resolve_suggestion_reason import ResolveSuggestionReason
-    from .search_resolve_response import SearchResolveResponse
-    from .search_resolve_response_entity import SearchResolveResponseEntity
     from .signup_sent_response import SignupSentResponse
     from .signup_sent_response_next import SignupSentResponseNext
     from .signup_sent_response_next_method import SignupSentResponseNextMethod
     from .signup_verified_response import SignupVerifiedResponse
-    from .speaker_identification_submitted_response import SpeakerIdentificationSubmittedResponse
-    from .speaker_identification_submitted_response_identification import (
-        SpeakerIdentificationSubmittedResponseIdentification,
-    )
-    from .speaker_identification_submitted_response_identification_entity import (
-        SpeakerIdentificationSubmittedResponseIdentificationEntity,
-    )
-    from .speaker_identification_submitted_response_identification_status import (
-        SpeakerIdentificationSubmittedResponseIdentificationStatus,
+    from .slack_integration_list_response import SlackIntegrationListResponse
+    from .slack_integration_list_response_integrations_item import SlackIntegrationListResponseIntegrationsItem
+    from .slack_integration_list_response_integrations_item_channels_item import (
+        SlackIntegrationListResponseIntegrationsItemChannelsItem,
     )
     from .stale_metadata_change import StaleMetadataChange
-    from .team_member import TeamMember
-    from .team_member_role import TeamMemberRole
-    from .team_member_seat_type import TeamMemberSeatType
-    from .team_member_spend import TeamMemberSpend
-    from .team_member_spend_role import TeamMemberSpendRole
-    from .team_member_spend_seat_type import TeamMemberSpendSeatType
-    from .team_members_response import TeamMembersResponse
-    from .team_members_response_team import TeamMembersResponseTeam
-    from .team_spend_response import TeamSpendResponse
-    from .team_usage_event import TeamUsageEvent
-    from .team_usage_events_response import TeamUsageEventsResponse
-    from .topic_page_response import TopicPageResponse
-    from .topic_page_response_channels_item import TopicPageResponseChannelsItem
-    from .topic_page_response_channels_item_sentiment import TopicPageResponseChannelsItemSentiment
-    from .topic_page_response_companies_item import TopicPageResponseCompaniesItem
-    from .topic_page_response_companies_item_sentiment import TopicPageResponseCompaniesItemSentiment
-    from .topic_page_response_entity import TopicPageResponseEntity
-    from .topic_page_response_entity_type import TopicPageResponseEntityType
-    from .topic_page_response_mentions_by_month_item import TopicPageResponseMentionsByMonthItem
-    from .topic_page_response_products_item import TopicPageResponseProductsItem
-    from .topic_page_response_products_item_sentiment import TopicPageResponseProductsItemSentiment
-    from .topic_page_response_related_topics_item import TopicPageResponseRelatedTopicsItem
-    from .topic_page_response_related_topics_item_sentiment import TopicPageResponseRelatedTopicsItemSentiment
-    from .topic_page_response_stats import TopicPageResponseStats
-    from .topic_page_response_voices_item import TopicPageResponseVoicesItem
-    from .topic_page_response_voices_item_role import TopicPageResponseVoicesItemRole
-    from .topic_page_response_voices_item_sentiment import TopicPageResponseVoicesItemSentiment
     from .tracker import Tracker
     from .tracker_list_response import TrackerListResponse
     from .tracker_mutation_response import TrackerMutationResponse
-    from .transcript_edit_submitted_response import TranscriptEditSubmittedResponse
-    from .transcript_edit_submitted_response_edit import TranscriptEditSubmittedResponseEdit
-    from .transcript_edit_submitted_response_edit_status import TranscriptEditSubmittedResponseEditStatus
+    from .transcript_failed import TranscriptFailed
+    from .transcript_failed_last_attempt import TranscriptFailedLastAttempt
+    from .transcript_failed_last_attempt_status import TranscriptFailedLastAttemptStatus
+    from .transcript_failed_quality import TranscriptFailedQuality
     from .transcript_job import TranscriptJob
     from .transcript_job_charge import TranscriptJobCharge
     from .transcript_job_charge_from import TranscriptJobChargeFrom
@@ -398,16 +198,6 @@ if typing.TYPE_CHECKING:
     from .transcript_job_status import TranscriptJobStatus
     from .transcript_pending import TranscriptPending
     from .transcript_pending_quality import TranscriptPendingQuality
-    from .transcript_preparation_required import TranscriptPreparationRequired
-    from .transcript_preparation_required_action import TranscriptPreparationRequiredAction
-    from .transcript_preparation_required_action_body import TranscriptPreparationRequiredActionBody
-    from .transcript_preparation_required_action_method import TranscriptPreparationRequiredActionMethod
-    from .transcript_preparation_required_last_attempt import TranscriptPreparationRequiredLastAttempt
-    from .transcript_preparation_required_quality import TranscriptPreparationRequiredQuality
-    from .transcript_preparation_required_quote import TranscriptPreparationRequiredQuote
-    from .transcript_preparation_required_quote_charge import TranscriptPreparationRequiredQuoteCharge
-    from .transcript_preparation_required_quote_charge_from import TranscriptPreparationRequiredQuoteChargeFrom
-    from .transcript_preparation_required_quote_charge_unit import TranscriptPreparationRequiredQuoteChargeUnit
     from .transcript_purchase_quote import TranscriptPurchaseQuote
     from .transcript_purchase_quote_billing_scope import TranscriptPurchaseQuoteBillingScope
     from .transcript_purchase_quote_charge import TranscriptPurchaseQuoteCharge
@@ -417,9 +207,9 @@ if typing.TYPE_CHECKING:
     from .transcript_quote import TranscriptQuote
     from .transcript_request_list_response import TranscriptRequestListResponse
     from .transcript_request_list_response_requests_item import TranscriptRequestListResponseRequestsItem
-    from .transcript_request_submit_response import TranscriptRequestSubmitResponse
     from .transcript_response import TranscriptResponse
     from .transcript_response_access import TranscriptResponseAccess
+    from .transcript_response_access_details import TranscriptResponseAccessDetails
     from .transcript_response_access_gate import TranscriptResponseAccessGate
     from .transcript_response_access_reason import TranscriptResponseAccessReason
     from .transcript_response_access_type import TranscriptResponseAccessType
@@ -433,35 +223,30 @@ if typing.TYPE_CHECKING:
     from .transcript_response_speakers_item import TranscriptResponseSpeakersItem
     from .transcript_result import (
         TranscriptResult,
+        TranscriptResult_Failed,
         TranscriptResult_Pending,
-        TranscriptResult_PreparationRequired,
         TranscriptResult_Ready,
     )
     from .transcript_search_chunk import TranscriptSearchChunk
     from .transcript_search_response import TranscriptSearchResponse
     from .transcript_search_response_access import TranscriptSearchResponseAccess
+    from .transcript_search_response_access_details import TranscriptSearchResponseAccessDetails
     from .transcript_search_response_access_gate import TranscriptSearchResponseAccessGate
     from .transcript_search_response_access_reason import TranscriptSearchResponseAccessReason
     from .transcript_search_response_access_type import TranscriptSearchResponseAccessType
     from .transcript_search_response_access_unlock import TranscriptSearchResponseAccessUnlock
     from .transcript_search_response_access_unlock_action import TranscriptSearchResponseAccessUnlockAction
     from .transcript_search_response_filters import TranscriptSearchResponseFilters
+    from .transcript_search_response_filters_kind_item import TranscriptSearchResponseFiltersKindItem
     from .transcript_search_response_search_index import TranscriptSearchResponseSearchIndex
     from .transcript_search_response_search_index_state import TranscriptSearchResponseSearchIndexState
+    from .transcript_search_response_unlock import TranscriptSearchResponseUnlock
     from .transcript_settings import TranscriptSettings
     from .transcript_settings_quality import TranscriptSettingsQuality
     from .transcript_video import TranscriptVideo
-    from .video_captions_response import VideoCaptionsResponse
-    from .video_merge_list_response import VideoMergeListResponse
-    from .video_merge_list_response_merges_item import VideoMergeListResponseMergesItem
-    from .video_merge_list_response_merges_item_status import VideoMergeListResponseMergesItemStatus
-    from .video_merge_submitted_response import VideoMergeSubmittedResponse
-    from .video_merge_submitted_response_merge import VideoMergeSubmittedResponseMerge
-    from .video_merge_submitted_response_merge_status import VideoMergeSubmittedResponseMergeStatus
     from .webhook_secret_rotate_response import WebhookSecretRotateResponse
-    from .withdrawn_response import WithdrawnResponse
     from .wrong_classification_change import WrongClassificationChange
-    from .wrong_classification_change_mention_class import WrongClassificationChangeMentionClass
+    from .wrong_classification_change_class import WrongClassificationChangeClass
     from .wrong_entity_change import WrongEntityChange
     from .wrong_entity_type_change import WrongEntityTypeChange
     from .wrong_entity_type_change_field import WrongEntityTypeChangeField
@@ -477,39 +262,11 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ChannelCoverageResponse": ".channel_coverage_response",
     "ChannelCoverageResponseChannel": ".channel_coverage_response_channel",
     "ChannelCoverageResponseChannelSourceMix": ".channel_coverage_response_channel_source_mix",
-    "ChannelGuestListResponse": ".channel_guest_list_response",
-    "ChannelGuestListResponseExportCapabilities": ".channel_guest_list_response_export_capabilities",
-    "ChannelGuestListResponseItemsItem": ".channel_guest_list_response_items_item",
-    "ChannelGuestListResponseItemsItemSentiment": ".channel_guest_list_response_items_item_sentiment",
-    "ChannelPageResponse": ".channel_page_response",
-    "ChannelPageResponseChannelInfo": ".channel_page_response_channel_info",
-    "ChannelPageResponseEntity": ".channel_page_response_entity",
-    "ChannelPageResponseEntityOwner": ".channel_page_response_entity_owner",
-    "ChannelPageResponseEntityType": ".channel_page_response_entity_type",
-    "ChannelPageResponseEpisodesByMonthItem": ".channel_page_response_episodes_by_month_item",
-    "ChannelPageResponseEpisodesItem": ".channel_page_response_episodes_item",
-    "ChannelPageResponseEpisodesItemPlatform": ".channel_page_response_episodes_item_platform",
-    "ChannelPageResponseEpisodesItemSentiment": ".channel_page_response_episodes_item_sentiment",
-    "ChannelPageResponseEpisodesItemTimestamp": ".channel_page_response_episodes_item_timestamp",
-    "ChannelPageResponseEpisodesItemType": ".channel_page_response_episodes_item_type",
-    "ChannelPageResponseGuestsItem": ".channel_page_response_guests_item",
-    "ChannelPageResponseGuestsItemRole": ".channel_page_response_guests_item_role",
-    "ChannelPageResponseGuestsItemSentiment": ".channel_page_response_guests_item_sentiment",
-    "ChannelPageResponseHostsDetailedItem": ".channel_page_response_hosts_detailed_item",
-    "ChannelPageResponseHostsDetailedItemSentiment": ".channel_page_response_hosts_detailed_item_sentiment",
-    "ChannelPageResponseOrganizationsItem": ".channel_page_response_organizations_item",
-    "ChannelPageResponseOrganizationsItemSentiment": ".channel_page_response_organizations_item_sentiment",
-    "ChannelPageResponseProductsItem": ".channel_page_response_products_item",
-    "ChannelPageResponseProductsItemSentiment": ".channel_page_response_products_item_sentiment",
-    "ChannelPageResponseRecommendationsSummary": ".channel_page_response_recommendations_summary",
-    "ChannelPageResponseStats": ".channel_page_response_stats",
-    "ChannelPageResponseTopicsItem": ".channel_page_response_topics_item",
-    "ChannelPageResponseTopicsItemSentiment": ".channel_page_response_topics_item_sentiment",
     "ChannelSponsor": ".channel_sponsor",
-    "ChannelSponsorEntity": ".channel_sponsor_entity",
     "ChannelSponsorSponsorStatus": ".channel_sponsor_sponsor_status",
     "ChannelSponsorsResponse": ".channel_sponsors_response",
     "ChannelSponsorsResponseAccess": ".channel_sponsors_response_access",
+    "ChannelSponsorsResponseAccessDetails": ".channel_sponsors_response_access_details",
     "ChannelSponsorsResponseAccessGate": ".channel_sponsors_response_access_gate",
     "ChannelSponsorsResponseAccessReason": ".channel_sponsors_response_access_reason",
     "ChannelSponsorsResponseAccessType": ".channel_sponsors_response_access_type",
@@ -520,21 +277,14 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ChannelVideosResponse": ".channel_videos_response",
     "ChannelVideosResponseChannel": ".channel_videos_response_channel",
     "ChannelVideosResponseEpisodesItem": ".channel_videos_response_episodes_item",
-    "CorrectionAcceptedResponse": ".correction_accepted_response",
-    "CorrectionAcceptedResponseKind": ".correction_accepted_response_kind",
     "DeliveryIssueChange": ".delivery_issue_change",
     "DeliveryIssueChangeChannel": ".delivery_issue_change_channel",
     "Entity": ".entity",
-    "EntityCard": ".entity_card",
-    "EntityCardsResponse": ".entity_cards_response",
-    "EntityChannelListResponse": ".entity_channel_list_response",
-    "EntityChannelListResponseExportCapabilities": ".entity_channel_list_response_export_capabilities",
-    "EntityChannelListResponseItemsItem": ".entity_channel_list_response_items_item",
     "EntityDetailRecommendationsSummary": ".entity_detail_recommendations_summary",
     "EntityDetailResponse": ".entity_detail_response",
-    "EntityLookupResponse": ".entity_lookup_response",
     "EntityMomentumResponse": ".entity_momentum_response",
     "EntityMomentumResponseAccess": ".entity_momentum_response_access",
+    "EntityMomentumResponseAccessDetails": ".entity_momentum_response_access_details",
     "EntityMomentumResponseAccessGate": ".entity_momentum_response_access_gate",
     "EntityMomentumResponseAccessReason": ".entity_momentum_response_access_reason",
     "EntityMomentumResponseAccessType": ".entity_momentum_response_access_type",
@@ -544,48 +294,19 @@ _dynamic_imports: typing.Dict[str, str] = {
     "EntityMomentumResponseTopShowsItem": ".entity_momentum_response_top_shows_item",
     "EntityMomentumResponseVerdict": ".entity_momentum_response_verdict",
     "EntityMomentumResponseVolume": ".entity_momentum_response_volume",
-    "EntityOrganizationListResponse": ".entity_organization_list_response",
-    "EntityOrganizationListResponseExportCapabilities": ".entity_organization_list_response_export_capabilities",
-    "EntityOrganizationListResponseItemsItem": ".entity_organization_list_response_items_item",
-    "EntityOrganizationListResponseItemsItemSentiment": ".entity_organization_list_response_items_item_sentiment",
-    "EntityPageMention": ".entity_page_mention",
-    "EntityPageMentionExcerpt": ".entity_page_mention_excerpt",
-    "EntityPageMentionExcerptPublicSourceClass": ".entity_page_mention_excerpt_public_source_class",
-    "EntityPageMentionPlatform": ".entity_page_mention_platform",
-    "EntityPageMentionSentiment": ".entity_page_mention_sentiment",
-    "EntityPageMentionType": ".entity_page_mention_type",
-    "EntityPeopleListResponse": ".entity_people_list_response",
-    "EntityPeopleListResponseExportCapabilities": ".entity_people_list_response_export_capabilities",
-    "EntityPeopleListResponseItemsItem": ".entity_people_list_response_items_item",
-    "EntityPeopleListResponseItemsItemSentiment": ".entity_people_list_response_items_item_sentiment",
-    "EntityPeopleListResponsePeopleMode": ".entity_people_list_response_people_mode",
-    "EntityProductListResponse": ".entity_product_list_response",
-    "EntityProductListResponseExportCapabilities": ".entity_product_list_response_export_capabilities",
-    "EntityProductListResponseItemsItem": ".entity_product_list_response_items_item",
-    "EntityProductListResponseItemsItemSentiment": ".entity_product_list_response_items_item_sentiment",
     "EntityRef": ".entity_ref",
     "EntityResolveResponse": ".entity_resolve_response",
     "EntityResolveResponseAsk": ".entity_resolve_response_ask",
     "EntityResolveResponseAskOptionsItem": ".entity_resolve_response_ask_options_item",
     "EntityResolveResponseConfidence": ".entity_resolve_response_confidence",
-    "EntitySearchResponse": ".entity_search_response",
-    "EntitySearchResult": ".entity_search_result",
-    "EntitySearchResultRecommendationsSummary": ".entity_search_result_recommendations_summary",
-    "EntityTopicListResponse": ".entity_topic_list_response",
-    "EntityTopicListResponseExportCapabilities": ".entity_topic_list_response_export_capabilities",
-    "EntityTopicListResponseItemsItem": ".entity_topic_list_response_items_item",
-    "EntityTopicListResponseItemsItemSentiment": ".entity_topic_list_response_items_item_sentiment",
     "Error": ".error",
     "ErrorError": ".error_error",
+    "ErrorErrorDetails": ".error_error_details",
     "ErrorErrorGate": ".error_error_gate",
     "ErrorErrorReason": ".error_error_reason",
     "ErrorErrorType": ".error_error_type",
     "ErrorErrorUnlock": ".error_error_unlock",
     "ErrorErrorUnlockAction": ".error_error_unlock_action",
-    "ErrorQuote": ".error_quote",
-    "ErrorQuoteCharge": ".error_quote_charge",
-    "ErrorQuoteChargeFrom": ".error_quote_charge_from",
-    "ErrorQuoteChargeUnit": ".error_quote_charge_unit",
     "ErrorResource": ".error_resource",
     "ErrorResourceChart": ".error_resource_chart",
     "ErrorResourceCommercial": ".error_resource_commercial",
@@ -618,45 +339,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ErrorResource_Requests": ".error_resource",
     "ErrorResource_Rows": ".error_resource",
     "ErrorResource_SidebarRows": ".error_resource",
-    "ExposureMeta": ".exposure_meta",
-    "ExposureMetaAccess": ".exposure_meta_access",
-    "ExposureMetaAccessChart": ".exposure_meta_access_chart",
-    "ExposureMetaAccessCls": ".exposure_meta_access_cls",
-    "ExposureMetaAccessFreshness": ".exposure_meta_access_freshness",
-    "ExposureMetaAccessLadder": ".exposure_meta_access_ladder",
-    "ExposureMetaAccessRows": ".exposure_meta_access_rows",
-    "ExposureMetaAccessRowsEntities": ".exposure_meta_access_rows_entities",
-    "ExposureMetaAccessRowsMedia": ".exposure_meta_access_rows_media",
-    "ExposureMetaAccessRowsTopics": ".exposure_meta_access_rows_topics",
-    "ExposureMetaAccessUnlock": ".exposure_meta_access_unlock",
-    "ExposureMetaAccessUnlockLimitAction": ".exposure_meta_access_unlock_limit_action",
-    "ExposureMetaAccessUnlockSrc": ".exposure_meta_access_unlock_src",
-    "ExposureMetaAccessView": ".exposure_meta_access_view",
-    "ExposureMetaAccessWithheldItem": ".exposure_meta_access_withheld_item",
-    "ExposureMetaAccessWithheldItemKind": ".exposure_meta_access_withheld_item_kind",
-    "ExposureMetaAccessWithheldItemParam": ".exposure_meta_access_withheld_item_param",
-    "ExposureMetaAccessWithheldItemSection": ".exposure_meta_access_withheld_item_section",
-    "ExposureMetaAccessWithheldItemWhat": ".exposure_meta_access_withheld_item_what",
-    "ExposureMetaCredits": ".exposure_meta_credits",
-    "ExposureMetaCreditsOnDemand": ".exposure_meta_credits_on_demand",
-    "ExposureMetaCreditsPlan": ".exposure_meta_credits_plan",
-    "ExposureMetaFreeLimit": ".exposure_meta_free_limit",
-    "ExposureMetaLimitAction": ".exposure_meta_limit_action",
-    "ExposureMetaLimits": ".exposure_meta_limits",
-    "ExposureMetaRecentPreview": ".exposure_meta_recent_preview",
-    "ExposureMetaRecentPreviewExperiment": ".exposure_meta_recent_preview_experiment",
-    "ExposureMetaRecentPreviewMentions": ".exposure_meta_recent_preview_mentions",
-    "ExposureMetaRecentPreviewMentionsExperiment": ".exposure_meta_recent_preview_mentions_experiment",
-    "ExposureMetaRecentPreviewMentionsSubject": ".exposure_meta_recent_preview_mentions_subject",
-    "ExposureMetaRecentPreviewMentionsTeaserItemsItem": ".exposure_meta_recent_preview_mentions_teaser_items_item",
-    "ExposureMetaRecentPreviewSubject": ".exposure_meta_recent_preview_subject",
-    "ExposureMetaRecentPreviewTeaserItemsItem": ".exposure_meta_recent_preview_teaser_items_item",
-    "ExposureMetaTotals": ".exposure_meta_totals",
-    "ExposureMetaUsageLimitType": ".exposure_meta_usage_limit_type",
     "FeedbackCorrectionResult": ".feedback_correction_result",
-    "FeedbackCorrectionResultRecommendation": ".feedback_correction_result_recommendation",
-    "FeedbackCorrectionResultRecommendationMedia": ".feedback_correction_result_recommendation_media",
-    "FeedbackCorrectionResultRecommendationMediaSourceChannel": ".feedback_correction_result_recommendation_media_source_channel",
     "FeedbackCorrectionResultStatus": ".feedback_correction_result_status",
     "FeedbackReadbackCorrection": ".feedback_readback_correction",
     "FeedbackReadbackCorrectionStatus": ".feedback_readback_correction_status",
@@ -673,7 +356,6 @@ _dynamic_imports: typing.Dict[str, str] = {
     "MeResponseUsageCredits": ".me_response_usage_credits",
     "MeResponseUsageCreditsOnDemand": ".me_response_usage_credits_on_demand",
     "MeResponseUsageCreditsPlan": ".me_response_usage_credits_plan",
-    "MeResponseUsageHits": ".me_response_usage_hits",
     "MeSettingsResponse": ".me_settings_response",
     "Mention": ".mention",
     "MentionCountsResponse": ".mention_counts_response",
@@ -682,7 +364,6 @@ _dynamic_imports: typing.Dict[str, str] = {
     "MentionCountsResponseSharedItem": ".mention_counts_response_shared_item",
     "MentionCountsResponseSharedItemByChannelItem": ".mention_counts_response_shared_item_by_channel_item",
     "MentionListResponse": ".mention_list_response",
-    "MentionListResponseEntity": ".mention_list_response_entity",
     "MentionListResponseUnlock": ".mention_list_response_unlock",
     "MentionMedia": ".mention_media",
     "MentionMediaSourceChannel": ".mention_media_source_channel",
@@ -693,16 +374,23 @@ _dynamic_imports: typing.Dict[str, str] = {
     "MissedAlertChange": ".missed_alert_change",
     "MissingResultChange": ".missing_result_change",
     "Monitor": ".monitor",
+    "MonitorAccess": ".monitor_access",
+    "MonitorAddEntitiesResponse": ".monitor_add_entities_response",
     "MonitorAddTrackersResponse": ".monitor_add_trackers_response",
     "MonitorDeleteResponse": ".monitor_delete_response",
     "MonitorEmailRecipientsItem": ".monitor_email_recipients_item",
     "MonitorEmailRecipientsItemInvitationStatus": ".monitor_email_recipients_item_invitation_status",
+    "MonitorEmailRecipientsItemRole": ".monitor_email_recipients_item_role",
     "MonitorEmailRecipientsItemStatus": ".monitor_email_recipients_item_status",
+    "MonitorEntityResult": ".monitor_entity_result",
+    "MonitorEntityResultReason": ".monitor_entity_result_reason",
+    "MonitorEntityResultType": ".monitor_entity_result_type",
     "MonitorListResponse": ".monitor_list_response",
     "MonitorListResponseMonitorsItem": ".monitor_list_response_monitors_item",
     "MonitorListResponseMonitorsItemSlackIntegration": ".monitor_list_response_monitors_item_slack_integration",
     "MonitorMutationResponse": ".monitor_mutation_response",
     "MonitorMutationResponseMonitor": ".monitor_mutation_response_monitor",
+    "MonitorTeam": ".monitor_team",
     "MonitorTrackersResponse": ".monitor_trackers_response",
     "MonitorTrackersResponseTrackersItem": ".monitor_trackers_response_trackers_item",
     "NamedEntityRef": ".named_entity_ref",
@@ -710,131 +398,38 @@ _dynamic_imports: typing.Dict[str, str] = {
     "OpenApiDocumentInfo": ".open_api_document_info",
     "OpenApiDocumentInfoContact": ".open_api_document_info_contact",
     "OpenApiDocumentServersItem": ".open_api_document_servers_item",
-    "OrganizationPageResponse": ".organization_page_response",
-    "OrganizationPageResponseChannelsItem": ".organization_page_response_channels_item",
-    "OrganizationPageResponseChannelsItemSentiment": ".organization_page_response_channels_item_sentiment",
-    "OrganizationPageResponseEntity": ".organization_page_response_entity",
-    "OrganizationPageResponseEntityOwnedChannelsItem": ".organization_page_response_entity_owned_channels_item",
-    "OrganizationPageResponseEntityOwnedProductsItem": ".organization_page_response_entity_owned_products_item",
-    "OrganizationPageResponseEntityType": ".organization_page_response_entity_type",
-    "OrganizationPageResponseMentionsByMonthItem": ".organization_page_response_mentions_by_month_item",
-    "OrganizationPageResponsePeopleItem": ".organization_page_response_people_item",
-    "OrganizationPageResponsePeopleItemSentiment": ".organization_page_response_people_item_sentiment",
-    "OrganizationPageResponseProductsItem": ".organization_page_response_products_item",
-    "OrganizationPageResponseProductsItemSentiment": ".organization_page_response_products_item_sentiment",
-    "OrganizationPageResponseRoleEdge": ".organization_page_response_role_edge",
-    "OrganizationPageResponseRoleEdgeLabel": ".organization_page_response_role_edge_label",
-    "OrganizationPageResponseRoleEdgePeopleItem": ".organization_page_response_role_edge_people_item",
-    "OrganizationPageResponseRoleEdgeRecentAppearancesItem": ".organization_page_response_role_edge_recent_appearances_item",
-    "OrganizationPageResponseRoleEdgeRole": ".organization_page_response_role_edge_role",
-    "OrganizationPageResponseStats": ".organization_page_response_stats",
-    "OrganizationPageResponseTopicsItem": ".organization_page_response_topics_item",
-    "OrganizationPageResponseTopicsItemSentiment": ".organization_page_response_topics_item_sentiment",
-    "PersonAppearanceListResponse": ".person_appearance_list_response",
-    "PersonAppearanceListResponseItemsItem": ".person_appearance_list_response_items_item",
-    "PersonAppearanceListResponseItemsItemPlatform": ".person_appearance_list_response_items_item_platform",
-    "PersonAppearanceListResponseItemsItemSentiment": ".person_appearance_list_response_items_item_sentiment",
-    "PersonAppearanceListResponseItemsItemType": ".person_appearance_list_response_items_item_type",
-    "PersonPageResponse": ".person_page_response",
-    "PersonPageResponseAppearancesByMonthItem": ".person_page_response_appearances_by_month_item",
-    "PersonPageResponseAppearancesItem": ".person_page_response_appearances_item",
-    "PersonPageResponseAppearancesItemPlatform": ".person_page_response_appearances_item_platform",
-    "PersonPageResponseAppearancesItemSentiment": ".person_page_response_appearances_item_sentiment",
-    "PersonPageResponseAppearancesItemType": ".person_page_response_appearances_item_type",
-    "PersonPageResponseBrandsItem": ".person_page_response_brands_item",
-    "PersonPageResponseBrandsItemSentiment": ".person_page_response_brands_item_sentiment",
-    "PersonPageResponseEntity": ".person_page_response_entity",
-    "PersonPageResponseEntityOwnedChannelsItem": ".person_page_response_entity_owned_channels_item",
-    "PersonPageResponseEntityOwnedProductsItem": ".person_page_response_entity_owned_products_item",
-    "PersonPageResponseMentionsByMonthItem": ".person_page_response_mentions_by_month_item",
-    "PersonPageResponseMentionsItem": ".person_page_response_mentions_item",
-    "PersonPageResponseMentionsItemPlatform": ".person_page_response_mentions_item_platform",
-    "PersonPageResponseMentionsItemSentiment": ".person_page_response_mentions_item_sentiment",
-    "PersonPageResponseMentionsItemType": ".person_page_response_mentions_item_type",
-    "PersonPageResponsePeopleItem": ".person_page_response_people_item",
-    "PersonPageResponsePeopleItemRole": ".person_page_response_people_item_role",
-    "PersonPageResponsePeopleItemSentiment": ".person_page_response_people_item_sentiment",
-    "PersonPageResponseProductsItem": ".person_page_response_products_item",
-    "PersonPageResponseProductsItemSentiment": ".person_page_response_products_item_sentiment",
-    "PersonPageResponseRoleEdge": ".person_page_response_role_edge",
-    "PersonPageResponseRoleEdgeLabel": ".person_page_response_role_edge_label",
-    "PersonPageResponseRoleEdgeRole": ".person_page_response_role_edge_role",
-    "PersonPageResponseStats": ".person_page_response_stats",
-    "PersonPageResponseTopicsItem": ".person_page_response_topics_item",
-    "PersonPageResponseTopicsItemSentiment": ".person_page_response_topics_item_sentiment",
-    "ProductPageResponse": ".product_page_response",
-    "ProductPageResponseChannelsItem": ".product_page_response_channels_item",
-    "ProductPageResponseChannelsItemSentiment": ".product_page_response_channels_item_sentiment",
-    "ProductPageResponseEntity": ".product_page_response_entity",
-    "ProductPageResponseEntityOwner": ".product_page_response_entity_owner",
-    "ProductPageResponseEntityParentOrg": ".product_page_response_entity_parent_org",
-    "ProductPageResponseEntityType": ".product_page_response_entity_type",
-    "ProductPageResponseMentionsByMonthItem": ".product_page_response_mentions_by_month_item",
-    "ProductPageResponseOpportunities": ".product_page_response_opportunities",
-    "ProductPageResponseOrganizationsItem": ".product_page_response_organizations_item",
-    "ProductPageResponseOrganizationsItemSentiment": ".product_page_response_organizations_item_sentiment",
-    "ProductPageResponsePeopleItem": ".product_page_response_people_item",
-    "ProductPageResponsePeopleItemSentiment": ".product_page_response_people_item_sentiment",
-    "ProductPageResponseStats": ".product_page_response_stats",
-    "ProductPageResponseTopicsItem": ".product_page_response_topics_item",
-    "ProductPageResponseTopicsItemSentiment": ".product_page_response_topics_item_sentiment",
-    "PublishedExcerpt": ".published_excerpt",
-    "PublishedExcerptPublicSourceClass": ".published_excerpt_public_source_class",
+    "PublicationWindow": ".publication_window",
     "Recommendation": ".recommendation",
+    "RecommendationClass": ".recommendation_class",
     "RecommendationEnrichmentItem": ".recommendation_enrichment_item",
+    "RecommendationEnrichmentItemClass": ".recommendation_enrichment_item_class",
     "RecommendationListResponse": ".recommendation_list_response",
-    "RecommendationListResponseEntity": ".recommendation_list_response_entity",
     "RecommendationMedia": ".recommendation_media",
     "RecommendationMediaSourceChannel": ".recommendation_media_source_channel",
+    "RefusedQuote": ".refused_quote",
+    "RefusedQuoteCharge": ".refused_quote_charge",
+    "RefusedQuoteChargeFrom": ".refused_quote_charge_from",
+    "RefusedQuoteChargeUnit": ".refused_quote_charge_unit",
     "ResolveCandidate": ".resolve_candidate",
     "ResolveCandidateMatch": ".resolve_candidate_match",
     "ResolveSuggestion": ".resolve_suggestion",
     "ResolveSuggestionMatch": ".resolve_suggestion_match",
     "ResolveSuggestionReason": ".resolve_suggestion_reason",
-    "SearchResolveResponse": ".search_resolve_response",
-    "SearchResolveResponseEntity": ".search_resolve_response_entity",
     "SignupSentResponse": ".signup_sent_response",
     "SignupSentResponseNext": ".signup_sent_response_next",
     "SignupSentResponseNextMethod": ".signup_sent_response_next_method",
     "SignupVerifiedResponse": ".signup_verified_response",
-    "SpeakerIdentificationSubmittedResponse": ".speaker_identification_submitted_response",
-    "SpeakerIdentificationSubmittedResponseIdentification": ".speaker_identification_submitted_response_identification",
-    "SpeakerIdentificationSubmittedResponseIdentificationEntity": ".speaker_identification_submitted_response_identification_entity",
-    "SpeakerIdentificationSubmittedResponseIdentificationStatus": ".speaker_identification_submitted_response_identification_status",
+    "SlackIntegrationListResponse": ".slack_integration_list_response",
+    "SlackIntegrationListResponseIntegrationsItem": ".slack_integration_list_response_integrations_item",
+    "SlackIntegrationListResponseIntegrationsItemChannelsItem": ".slack_integration_list_response_integrations_item_channels_item",
     "StaleMetadataChange": ".stale_metadata_change",
-    "TeamMember": ".team_member",
-    "TeamMemberRole": ".team_member_role",
-    "TeamMemberSeatType": ".team_member_seat_type",
-    "TeamMemberSpend": ".team_member_spend",
-    "TeamMemberSpendRole": ".team_member_spend_role",
-    "TeamMemberSpendSeatType": ".team_member_spend_seat_type",
-    "TeamMembersResponse": ".team_members_response",
-    "TeamMembersResponseTeam": ".team_members_response_team",
-    "TeamSpendResponse": ".team_spend_response",
-    "TeamUsageEvent": ".team_usage_event",
-    "TeamUsageEventsResponse": ".team_usage_events_response",
-    "TopicPageResponse": ".topic_page_response",
-    "TopicPageResponseChannelsItem": ".topic_page_response_channels_item",
-    "TopicPageResponseChannelsItemSentiment": ".topic_page_response_channels_item_sentiment",
-    "TopicPageResponseCompaniesItem": ".topic_page_response_companies_item",
-    "TopicPageResponseCompaniesItemSentiment": ".topic_page_response_companies_item_sentiment",
-    "TopicPageResponseEntity": ".topic_page_response_entity",
-    "TopicPageResponseEntityType": ".topic_page_response_entity_type",
-    "TopicPageResponseMentionsByMonthItem": ".topic_page_response_mentions_by_month_item",
-    "TopicPageResponseProductsItem": ".topic_page_response_products_item",
-    "TopicPageResponseProductsItemSentiment": ".topic_page_response_products_item_sentiment",
-    "TopicPageResponseRelatedTopicsItem": ".topic_page_response_related_topics_item",
-    "TopicPageResponseRelatedTopicsItemSentiment": ".topic_page_response_related_topics_item_sentiment",
-    "TopicPageResponseStats": ".topic_page_response_stats",
-    "TopicPageResponseVoicesItem": ".topic_page_response_voices_item",
-    "TopicPageResponseVoicesItemRole": ".topic_page_response_voices_item_role",
-    "TopicPageResponseVoicesItemSentiment": ".topic_page_response_voices_item_sentiment",
     "Tracker": ".tracker",
     "TrackerListResponse": ".tracker_list_response",
     "TrackerMutationResponse": ".tracker_mutation_response",
-    "TranscriptEditSubmittedResponse": ".transcript_edit_submitted_response",
-    "TranscriptEditSubmittedResponseEdit": ".transcript_edit_submitted_response_edit",
-    "TranscriptEditSubmittedResponseEditStatus": ".transcript_edit_submitted_response_edit_status",
+    "TranscriptFailed": ".transcript_failed",
+    "TranscriptFailedLastAttempt": ".transcript_failed_last_attempt",
+    "TranscriptFailedLastAttemptStatus": ".transcript_failed_last_attempt_status",
+    "TranscriptFailedQuality": ".transcript_failed_quality",
     "TranscriptJob": ".transcript_job",
     "TranscriptJobCharge": ".transcript_job_charge",
     "TranscriptJobChargeFrom": ".transcript_job_charge_from",
@@ -844,16 +439,6 @@ _dynamic_imports: typing.Dict[str, str] = {
     "TranscriptJobStatus": ".transcript_job_status",
     "TranscriptPending": ".transcript_pending",
     "TranscriptPendingQuality": ".transcript_pending_quality",
-    "TranscriptPreparationRequired": ".transcript_preparation_required",
-    "TranscriptPreparationRequiredAction": ".transcript_preparation_required_action",
-    "TranscriptPreparationRequiredActionBody": ".transcript_preparation_required_action_body",
-    "TranscriptPreparationRequiredActionMethod": ".transcript_preparation_required_action_method",
-    "TranscriptPreparationRequiredLastAttempt": ".transcript_preparation_required_last_attempt",
-    "TranscriptPreparationRequiredQuality": ".transcript_preparation_required_quality",
-    "TranscriptPreparationRequiredQuote": ".transcript_preparation_required_quote",
-    "TranscriptPreparationRequiredQuoteCharge": ".transcript_preparation_required_quote_charge",
-    "TranscriptPreparationRequiredQuoteChargeFrom": ".transcript_preparation_required_quote_charge_from",
-    "TranscriptPreparationRequiredQuoteChargeUnit": ".transcript_preparation_required_quote_charge_unit",
     "TranscriptPurchaseQuote": ".transcript_purchase_quote",
     "TranscriptPurchaseQuoteBillingScope": ".transcript_purchase_quote_billing_scope",
     "TranscriptPurchaseQuoteCharge": ".transcript_purchase_quote_charge",
@@ -863,9 +448,9 @@ _dynamic_imports: typing.Dict[str, str] = {
     "TranscriptQuote": ".transcript_quote",
     "TranscriptRequestListResponse": ".transcript_request_list_response",
     "TranscriptRequestListResponseRequestsItem": ".transcript_request_list_response_requests_item",
-    "TranscriptRequestSubmitResponse": ".transcript_request_submit_response",
     "TranscriptResponse": ".transcript_response",
     "TranscriptResponseAccess": ".transcript_response_access",
+    "TranscriptResponseAccessDetails": ".transcript_response_access_details",
     "TranscriptResponseAccessGate": ".transcript_response_access_gate",
     "TranscriptResponseAccessReason": ".transcript_response_access_reason",
     "TranscriptResponseAccessType": ".transcript_response_access_type",
@@ -878,34 +463,29 @@ _dynamic_imports: typing.Dict[str, str] = {
     "TranscriptResponseSource": ".transcript_response_source",
     "TranscriptResponseSpeakersItem": ".transcript_response_speakers_item",
     "TranscriptResult": ".transcript_result",
+    "TranscriptResult_Failed": ".transcript_result",
     "TranscriptResult_Pending": ".transcript_result",
-    "TranscriptResult_PreparationRequired": ".transcript_result",
     "TranscriptResult_Ready": ".transcript_result",
     "TranscriptSearchChunk": ".transcript_search_chunk",
     "TranscriptSearchResponse": ".transcript_search_response",
     "TranscriptSearchResponseAccess": ".transcript_search_response_access",
+    "TranscriptSearchResponseAccessDetails": ".transcript_search_response_access_details",
     "TranscriptSearchResponseAccessGate": ".transcript_search_response_access_gate",
     "TranscriptSearchResponseAccessReason": ".transcript_search_response_access_reason",
     "TranscriptSearchResponseAccessType": ".transcript_search_response_access_type",
     "TranscriptSearchResponseAccessUnlock": ".transcript_search_response_access_unlock",
     "TranscriptSearchResponseAccessUnlockAction": ".transcript_search_response_access_unlock_action",
     "TranscriptSearchResponseFilters": ".transcript_search_response_filters",
+    "TranscriptSearchResponseFiltersKindItem": ".transcript_search_response_filters_kind_item",
     "TranscriptSearchResponseSearchIndex": ".transcript_search_response_search_index",
     "TranscriptSearchResponseSearchIndexState": ".transcript_search_response_search_index_state",
+    "TranscriptSearchResponseUnlock": ".transcript_search_response_unlock",
     "TranscriptSettings": ".transcript_settings",
     "TranscriptSettingsQuality": ".transcript_settings_quality",
     "TranscriptVideo": ".transcript_video",
-    "VideoCaptionsResponse": ".video_captions_response",
-    "VideoMergeListResponse": ".video_merge_list_response",
-    "VideoMergeListResponseMergesItem": ".video_merge_list_response_merges_item",
-    "VideoMergeListResponseMergesItemStatus": ".video_merge_list_response_merges_item_status",
-    "VideoMergeSubmittedResponse": ".video_merge_submitted_response",
-    "VideoMergeSubmittedResponseMerge": ".video_merge_submitted_response_merge",
-    "VideoMergeSubmittedResponseMergeStatus": ".video_merge_submitted_response_merge_status",
     "WebhookSecretRotateResponse": ".webhook_secret_rotate_response",
-    "WithdrawnResponse": ".withdrawn_response",
     "WrongClassificationChange": ".wrong_classification_change",
-    "WrongClassificationChangeMentionClass": ".wrong_classification_change_mention_class",
+    "WrongClassificationChangeClass": ".wrong_classification_change_class",
     "WrongEntityChange": ".wrong_entity_change",
     "WrongEntityTypeChange": ".wrong_entity_type_change",
     "WrongEntityTypeChangeField": ".wrong_entity_type_change_field",
@@ -945,39 +525,11 @@ __all__ = [
     "ChannelCoverageResponse",
     "ChannelCoverageResponseChannel",
     "ChannelCoverageResponseChannelSourceMix",
-    "ChannelGuestListResponse",
-    "ChannelGuestListResponseExportCapabilities",
-    "ChannelGuestListResponseItemsItem",
-    "ChannelGuestListResponseItemsItemSentiment",
-    "ChannelPageResponse",
-    "ChannelPageResponseChannelInfo",
-    "ChannelPageResponseEntity",
-    "ChannelPageResponseEntityOwner",
-    "ChannelPageResponseEntityType",
-    "ChannelPageResponseEpisodesByMonthItem",
-    "ChannelPageResponseEpisodesItem",
-    "ChannelPageResponseEpisodesItemPlatform",
-    "ChannelPageResponseEpisodesItemSentiment",
-    "ChannelPageResponseEpisodesItemTimestamp",
-    "ChannelPageResponseEpisodesItemType",
-    "ChannelPageResponseGuestsItem",
-    "ChannelPageResponseGuestsItemRole",
-    "ChannelPageResponseGuestsItemSentiment",
-    "ChannelPageResponseHostsDetailedItem",
-    "ChannelPageResponseHostsDetailedItemSentiment",
-    "ChannelPageResponseOrganizationsItem",
-    "ChannelPageResponseOrganizationsItemSentiment",
-    "ChannelPageResponseProductsItem",
-    "ChannelPageResponseProductsItemSentiment",
-    "ChannelPageResponseRecommendationsSummary",
-    "ChannelPageResponseStats",
-    "ChannelPageResponseTopicsItem",
-    "ChannelPageResponseTopicsItemSentiment",
     "ChannelSponsor",
-    "ChannelSponsorEntity",
     "ChannelSponsorSponsorStatus",
     "ChannelSponsorsResponse",
     "ChannelSponsorsResponseAccess",
+    "ChannelSponsorsResponseAccessDetails",
     "ChannelSponsorsResponseAccessGate",
     "ChannelSponsorsResponseAccessReason",
     "ChannelSponsorsResponseAccessType",
@@ -988,21 +540,14 @@ __all__ = [
     "ChannelVideosResponse",
     "ChannelVideosResponseChannel",
     "ChannelVideosResponseEpisodesItem",
-    "CorrectionAcceptedResponse",
-    "CorrectionAcceptedResponseKind",
     "DeliveryIssueChange",
     "DeliveryIssueChangeChannel",
     "Entity",
-    "EntityCard",
-    "EntityCardsResponse",
-    "EntityChannelListResponse",
-    "EntityChannelListResponseExportCapabilities",
-    "EntityChannelListResponseItemsItem",
     "EntityDetailRecommendationsSummary",
     "EntityDetailResponse",
-    "EntityLookupResponse",
     "EntityMomentumResponse",
     "EntityMomentumResponseAccess",
+    "EntityMomentumResponseAccessDetails",
     "EntityMomentumResponseAccessGate",
     "EntityMomentumResponseAccessReason",
     "EntityMomentumResponseAccessType",
@@ -1012,48 +557,19 @@ __all__ = [
     "EntityMomentumResponseTopShowsItem",
     "EntityMomentumResponseVerdict",
     "EntityMomentumResponseVolume",
-    "EntityOrganizationListResponse",
-    "EntityOrganizationListResponseExportCapabilities",
-    "EntityOrganizationListResponseItemsItem",
-    "EntityOrganizationListResponseItemsItemSentiment",
-    "EntityPageMention",
-    "EntityPageMentionExcerpt",
-    "EntityPageMentionExcerptPublicSourceClass",
-    "EntityPageMentionPlatform",
-    "EntityPageMentionSentiment",
-    "EntityPageMentionType",
-    "EntityPeopleListResponse",
-    "EntityPeopleListResponseExportCapabilities",
-    "EntityPeopleListResponseItemsItem",
-    "EntityPeopleListResponseItemsItemSentiment",
-    "EntityPeopleListResponsePeopleMode",
-    "EntityProductListResponse",
-    "EntityProductListResponseExportCapabilities",
-    "EntityProductListResponseItemsItem",
-    "EntityProductListResponseItemsItemSentiment",
     "EntityRef",
     "EntityResolveResponse",
     "EntityResolveResponseAsk",
     "EntityResolveResponseAskOptionsItem",
     "EntityResolveResponseConfidence",
-    "EntitySearchResponse",
-    "EntitySearchResult",
-    "EntitySearchResultRecommendationsSummary",
-    "EntityTopicListResponse",
-    "EntityTopicListResponseExportCapabilities",
-    "EntityTopicListResponseItemsItem",
-    "EntityTopicListResponseItemsItemSentiment",
     "Error",
     "ErrorError",
+    "ErrorErrorDetails",
     "ErrorErrorGate",
     "ErrorErrorReason",
     "ErrorErrorType",
     "ErrorErrorUnlock",
     "ErrorErrorUnlockAction",
-    "ErrorQuote",
-    "ErrorQuoteCharge",
-    "ErrorQuoteChargeFrom",
-    "ErrorQuoteChargeUnit",
     "ErrorResource",
     "ErrorResourceChart",
     "ErrorResourceCommercial",
@@ -1086,45 +602,7 @@ __all__ = [
     "ErrorResource_Requests",
     "ErrorResource_Rows",
     "ErrorResource_SidebarRows",
-    "ExposureMeta",
-    "ExposureMetaAccess",
-    "ExposureMetaAccessChart",
-    "ExposureMetaAccessCls",
-    "ExposureMetaAccessFreshness",
-    "ExposureMetaAccessLadder",
-    "ExposureMetaAccessRows",
-    "ExposureMetaAccessRowsEntities",
-    "ExposureMetaAccessRowsMedia",
-    "ExposureMetaAccessRowsTopics",
-    "ExposureMetaAccessUnlock",
-    "ExposureMetaAccessUnlockLimitAction",
-    "ExposureMetaAccessUnlockSrc",
-    "ExposureMetaAccessView",
-    "ExposureMetaAccessWithheldItem",
-    "ExposureMetaAccessWithheldItemKind",
-    "ExposureMetaAccessWithheldItemParam",
-    "ExposureMetaAccessWithheldItemSection",
-    "ExposureMetaAccessWithheldItemWhat",
-    "ExposureMetaCredits",
-    "ExposureMetaCreditsOnDemand",
-    "ExposureMetaCreditsPlan",
-    "ExposureMetaFreeLimit",
-    "ExposureMetaLimitAction",
-    "ExposureMetaLimits",
-    "ExposureMetaRecentPreview",
-    "ExposureMetaRecentPreviewExperiment",
-    "ExposureMetaRecentPreviewMentions",
-    "ExposureMetaRecentPreviewMentionsExperiment",
-    "ExposureMetaRecentPreviewMentionsSubject",
-    "ExposureMetaRecentPreviewMentionsTeaserItemsItem",
-    "ExposureMetaRecentPreviewSubject",
-    "ExposureMetaRecentPreviewTeaserItemsItem",
-    "ExposureMetaTotals",
-    "ExposureMetaUsageLimitType",
     "FeedbackCorrectionResult",
-    "FeedbackCorrectionResultRecommendation",
-    "FeedbackCorrectionResultRecommendationMedia",
-    "FeedbackCorrectionResultRecommendationMediaSourceChannel",
     "FeedbackCorrectionResultStatus",
     "FeedbackReadbackCorrection",
     "FeedbackReadbackCorrectionStatus",
@@ -1141,7 +619,6 @@ __all__ = [
     "MeResponseUsageCredits",
     "MeResponseUsageCreditsOnDemand",
     "MeResponseUsageCreditsPlan",
-    "MeResponseUsageHits",
     "MeSettingsResponse",
     "Mention",
     "MentionCountsResponse",
@@ -1150,7 +627,6 @@ __all__ = [
     "MentionCountsResponseSharedItem",
     "MentionCountsResponseSharedItemByChannelItem",
     "MentionListResponse",
-    "MentionListResponseEntity",
     "MentionListResponseUnlock",
     "MentionMedia",
     "MentionMediaSourceChannel",
@@ -1161,16 +637,23 @@ __all__ = [
     "MissedAlertChange",
     "MissingResultChange",
     "Monitor",
+    "MonitorAccess",
+    "MonitorAddEntitiesResponse",
     "MonitorAddTrackersResponse",
     "MonitorDeleteResponse",
     "MonitorEmailRecipientsItem",
     "MonitorEmailRecipientsItemInvitationStatus",
+    "MonitorEmailRecipientsItemRole",
     "MonitorEmailRecipientsItemStatus",
+    "MonitorEntityResult",
+    "MonitorEntityResultReason",
+    "MonitorEntityResultType",
     "MonitorListResponse",
     "MonitorListResponseMonitorsItem",
     "MonitorListResponseMonitorsItemSlackIntegration",
     "MonitorMutationResponse",
     "MonitorMutationResponseMonitor",
+    "MonitorTeam",
     "MonitorTrackersResponse",
     "MonitorTrackersResponseTrackersItem",
     "NamedEntityRef",
@@ -1178,131 +661,38 @@ __all__ = [
     "OpenApiDocumentInfo",
     "OpenApiDocumentInfoContact",
     "OpenApiDocumentServersItem",
-    "OrganizationPageResponse",
-    "OrganizationPageResponseChannelsItem",
-    "OrganizationPageResponseChannelsItemSentiment",
-    "OrganizationPageResponseEntity",
-    "OrganizationPageResponseEntityOwnedChannelsItem",
-    "OrganizationPageResponseEntityOwnedProductsItem",
-    "OrganizationPageResponseEntityType",
-    "OrganizationPageResponseMentionsByMonthItem",
-    "OrganizationPageResponsePeopleItem",
-    "OrganizationPageResponsePeopleItemSentiment",
-    "OrganizationPageResponseProductsItem",
-    "OrganizationPageResponseProductsItemSentiment",
-    "OrganizationPageResponseRoleEdge",
-    "OrganizationPageResponseRoleEdgeLabel",
-    "OrganizationPageResponseRoleEdgePeopleItem",
-    "OrganizationPageResponseRoleEdgeRecentAppearancesItem",
-    "OrganizationPageResponseRoleEdgeRole",
-    "OrganizationPageResponseStats",
-    "OrganizationPageResponseTopicsItem",
-    "OrganizationPageResponseTopicsItemSentiment",
-    "PersonAppearanceListResponse",
-    "PersonAppearanceListResponseItemsItem",
-    "PersonAppearanceListResponseItemsItemPlatform",
-    "PersonAppearanceListResponseItemsItemSentiment",
-    "PersonAppearanceListResponseItemsItemType",
-    "PersonPageResponse",
-    "PersonPageResponseAppearancesByMonthItem",
-    "PersonPageResponseAppearancesItem",
-    "PersonPageResponseAppearancesItemPlatform",
-    "PersonPageResponseAppearancesItemSentiment",
-    "PersonPageResponseAppearancesItemType",
-    "PersonPageResponseBrandsItem",
-    "PersonPageResponseBrandsItemSentiment",
-    "PersonPageResponseEntity",
-    "PersonPageResponseEntityOwnedChannelsItem",
-    "PersonPageResponseEntityOwnedProductsItem",
-    "PersonPageResponseMentionsByMonthItem",
-    "PersonPageResponseMentionsItem",
-    "PersonPageResponseMentionsItemPlatform",
-    "PersonPageResponseMentionsItemSentiment",
-    "PersonPageResponseMentionsItemType",
-    "PersonPageResponsePeopleItem",
-    "PersonPageResponsePeopleItemRole",
-    "PersonPageResponsePeopleItemSentiment",
-    "PersonPageResponseProductsItem",
-    "PersonPageResponseProductsItemSentiment",
-    "PersonPageResponseRoleEdge",
-    "PersonPageResponseRoleEdgeLabel",
-    "PersonPageResponseRoleEdgeRole",
-    "PersonPageResponseStats",
-    "PersonPageResponseTopicsItem",
-    "PersonPageResponseTopicsItemSentiment",
-    "ProductPageResponse",
-    "ProductPageResponseChannelsItem",
-    "ProductPageResponseChannelsItemSentiment",
-    "ProductPageResponseEntity",
-    "ProductPageResponseEntityOwner",
-    "ProductPageResponseEntityParentOrg",
-    "ProductPageResponseEntityType",
-    "ProductPageResponseMentionsByMonthItem",
-    "ProductPageResponseOpportunities",
-    "ProductPageResponseOrganizationsItem",
-    "ProductPageResponseOrganizationsItemSentiment",
-    "ProductPageResponsePeopleItem",
-    "ProductPageResponsePeopleItemSentiment",
-    "ProductPageResponseStats",
-    "ProductPageResponseTopicsItem",
-    "ProductPageResponseTopicsItemSentiment",
-    "PublishedExcerpt",
-    "PublishedExcerptPublicSourceClass",
+    "PublicationWindow",
     "Recommendation",
+    "RecommendationClass",
     "RecommendationEnrichmentItem",
+    "RecommendationEnrichmentItemClass",
     "RecommendationListResponse",
-    "RecommendationListResponseEntity",
     "RecommendationMedia",
     "RecommendationMediaSourceChannel",
+    "RefusedQuote",
+    "RefusedQuoteCharge",
+    "RefusedQuoteChargeFrom",
+    "RefusedQuoteChargeUnit",
     "ResolveCandidate",
     "ResolveCandidateMatch",
     "ResolveSuggestion",
     "ResolveSuggestionMatch",
     "ResolveSuggestionReason",
-    "SearchResolveResponse",
-    "SearchResolveResponseEntity",
     "SignupSentResponse",
     "SignupSentResponseNext",
     "SignupSentResponseNextMethod",
     "SignupVerifiedResponse",
-    "SpeakerIdentificationSubmittedResponse",
-    "SpeakerIdentificationSubmittedResponseIdentification",
-    "SpeakerIdentificationSubmittedResponseIdentificationEntity",
-    "SpeakerIdentificationSubmittedResponseIdentificationStatus",
+    "SlackIntegrationListResponse",
+    "SlackIntegrationListResponseIntegrationsItem",
+    "SlackIntegrationListResponseIntegrationsItemChannelsItem",
     "StaleMetadataChange",
-    "TeamMember",
-    "TeamMemberRole",
-    "TeamMemberSeatType",
-    "TeamMemberSpend",
-    "TeamMemberSpendRole",
-    "TeamMemberSpendSeatType",
-    "TeamMembersResponse",
-    "TeamMembersResponseTeam",
-    "TeamSpendResponse",
-    "TeamUsageEvent",
-    "TeamUsageEventsResponse",
-    "TopicPageResponse",
-    "TopicPageResponseChannelsItem",
-    "TopicPageResponseChannelsItemSentiment",
-    "TopicPageResponseCompaniesItem",
-    "TopicPageResponseCompaniesItemSentiment",
-    "TopicPageResponseEntity",
-    "TopicPageResponseEntityType",
-    "TopicPageResponseMentionsByMonthItem",
-    "TopicPageResponseProductsItem",
-    "TopicPageResponseProductsItemSentiment",
-    "TopicPageResponseRelatedTopicsItem",
-    "TopicPageResponseRelatedTopicsItemSentiment",
-    "TopicPageResponseStats",
-    "TopicPageResponseVoicesItem",
-    "TopicPageResponseVoicesItemRole",
-    "TopicPageResponseVoicesItemSentiment",
     "Tracker",
     "TrackerListResponse",
     "TrackerMutationResponse",
-    "TranscriptEditSubmittedResponse",
-    "TranscriptEditSubmittedResponseEdit",
-    "TranscriptEditSubmittedResponseEditStatus",
+    "TranscriptFailed",
+    "TranscriptFailedLastAttempt",
+    "TranscriptFailedLastAttemptStatus",
+    "TranscriptFailedQuality",
     "TranscriptJob",
     "TranscriptJobCharge",
     "TranscriptJobChargeFrom",
@@ -1312,16 +702,6 @@ __all__ = [
     "TranscriptJobStatus",
     "TranscriptPending",
     "TranscriptPendingQuality",
-    "TranscriptPreparationRequired",
-    "TranscriptPreparationRequiredAction",
-    "TranscriptPreparationRequiredActionBody",
-    "TranscriptPreparationRequiredActionMethod",
-    "TranscriptPreparationRequiredLastAttempt",
-    "TranscriptPreparationRequiredQuality",
-    "TranscriptPreparationRequiredQuote",
-    "TranscriptPreparationRequiredQuoteCharge",
-    "TranscriptPreparationRequiredQuoteChargeFrom",
-    "TranscriptPreparationRequiredQuoteChargeUnit",
     "TranscriptPurchaseQuote",
     "TranscriptPurchaseQuoteBillingScope",
     "TranscriptPurchaseQuoteCharge",
@@ -1331,9 +711,9 @@ __all__ = [
     "TranscriptQuote",
     "TranscriptRequestListResponse",
     "TranscriptRequestListResponseRequestsItem",
-    "TranscriptRequestSubmitResponse",
     "TranscriptResponse",
     "TranscriptResponseAccess",
+    "TranscriptResponseAccessDetails",
     "TranscriptResponseAccessGate",
     "TranscriptResponseAccessReason",
     "TranscriptResponseAccessType",
@@ -1346,34 +726,29 @@ __all__ = [
     "TranscriptResponseSource",
     "TranscriptResponseSpeakersItem",
     "TranscriptResult",
+    "TranscriptResult_Failed",
     "TranscriptResult_Pending",
-    "TranscriptResult_PreparationRequired",
     "TranscriptResult_Ready",
     "TranscriptSearchChunk",
     "TranscriptSearchResponse",
     "TranscriptSearchResponseAccess",
+    "TranscriptSearchResponseAccessDetails",
     "TranscriptSearchResponseAccessGate",
     "TranscriptSearchResponseAccessReason",
     "TranscriptSearchResponseAccessType",
     "TranscriptSearchResponseAccessUnlock",
     "TranscriptSearchResponseAccessUnlockAction",
     "TranscriptSearchResponseFilters",
+    "TranscriptSearchResponseFiltersKindItem",
     "TranscriptSearchResponseSearchIndex",
     "TranscriptSearchResponseSearchIndexState",
+    "TranscriptSearchResponseUnlock",
     "TranscriptSettings",
     "TranscriptSettingsQuality",
     "TranscriptVideo",
-    "VideoCaptionsResponse",
-    "VideoMergeListResponse",
-    "VideoMergeListResponseMergesItem",
-    "VideoMergeListResponseMergesItemStatus",
-    "VideoMergeSubmittedResponse",
-    "VideoMergeSubmittedResponseMerge",
-    "VideoMergeSubmittedResponseMergeStatus",
     "WebhookSecretRotateResponse",
-    "WithdrawnResponse",
     "WrongClassificationChange",
-    "WrongClassificationChangeMentionClass",
+    "WrongClassificationChangeClass",
     "WrongEntityChange",
     "WrongEntityTypeChange",
     "WrongEntityTypeChangeField",

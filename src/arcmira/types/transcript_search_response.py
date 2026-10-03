@@ -3,13 +3,13 @@
 import typing
 
 import pydantic
-import typing_extensions
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
-from ..core.serialization import FieldMetadata
+from .publication_window import PublicationWindow
 from .transcript_search_chunk import TranscriptSearchChunk
 from .transcript_search_response_access import TranscriptSearchResponseAccess
 from .transcript_search_response_filters import TranscriptSearchResponseFilters
 from .transcript_search_response_search_index import TranscriptSearchResponseSearchIndex
+from .transcript_search_response_unlock import TranscriptSearchResponseUnlock
 
 
 class TranscriptSearchResponse(UniversalBaseModel):
@@ -18,21 +18,18 @@ class TranscriptSearchResponse(UniversalBaseModel):
     The q parameter echoed back.
     """
 
-    requested_k: typing_extensions.Annotated[
-        int, FieldMetadata(alias="requestedK"), pydantic.Field(alias="requestedK", description="The limit applied.")
-    ]
+    limit: int = pydantic.Field()
     """
     The limit applied.
     """
 
-    returned_n: typing_extensions.Annotated[
-        int, FieldMetadata(alias="returnedN"), pydantic.Field(alias="returnedN", description="Chunks returned.")
-    ]
+    returned: int = pydantic.Field()
     """
     Chunks returned.
     """
 
     filters: TranscriptSearchResponseFilters
+    window: PublicationWindow
     chunks: typing.List[TranscriptSearchChunk] = pydantic.Field()
     """
     Ranked slices. Empty means no hit in the shows we index; say so, never search the open web.
@@ -43,18 +40,14 @@ class TranscriptSearchResponse(UniversalBaseModel):
     True when some retrieval batches failed and these chunks are what survived.
     """
 
-    failed_batches: typing_extensions.Annotated[
-        typing.Optional[int],
-        FieldMetadata(alias="failedBatches"),
-        pydantic.Field(alias="failedBatches", description="How many batches failed when partial is true."),
-    ] = None
+    failed_batches: typing.Optional[int] = pydantic.Field(default=None)
     """
     How many batches failed when partial is true.
     """
 
     as_of: typing.Optional[str] = pydantic.Field(default=None)
     """
-    Newest publishedAt among the chunks. Null when there are none.
+    Newest published_at among the chunks. Null when there are none.
     """
 
     search_index: TranscriptSearchResponseSearchIndex = pydantic.Field()
@@ -65,6 +58,11 @@ class TranscriptSearchResponse(UniversalBaseModel):
     access: typing.Optional[TranscriptSearchResponseAccess] = pydantic.Field(default=None)
     """
     The gate that reduced this response. Present only when something was withheld; carries the same code, gate, and unlock an outright refusal would.
+    """
+
+    unlock: typing.Optional[TranscriptSearchResponseUnlock] = pydantic.Field(default=None)
+    """
+    Present when your plan's freshness gate cut the window and nothing older matched; note says so.
     """
 
     note: str = pydantic.Field()

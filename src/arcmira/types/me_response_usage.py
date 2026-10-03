@@ -5,7 +5,6 @@ import typing
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 from .me_response_usage_credits import MeResponseUsageCredits
-from .me_response_usage_hits import MeResponseUsageHits
 
 
 class MeResponseUsage(UniversalBaseModel):
@@ -32,11 +31,6 @@ class MeResponseUsage(UniversalBaseModel):
     credits: typing.Optional[MeResponseUsageCredits] = pydantic.Field(default=None)
     """
     The month in credits (1 credit is $0.001; a row is 4 credits). Present only when the credits ledger decides access.
-    """
-
-    hits: typing.Optional[MeResponseUsageHits] = pydantic.Field(default=None)
-    """
-    Monitor alerts this month. Alerts cost no credits; once the allowance is used, monitors keep matching but deliver nothing until the reset. Present only when the credits ledger decides access.
     """
 
     if IS_PYDANTIC_V2:

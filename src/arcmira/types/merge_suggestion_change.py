@@ -3,9 +3,7 @@
 import typing
 
 import pydantic
-import typing_extensions
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
-from ..core.serialization import FieldMetadata
 
 
 class MergeSuggestionChange(UniversalBaseModel):
@@ -13,47 +11,27 @@ class MergeSuggestionChange(UniversalBaseModel):
     For issue_type merge_suggestion (and duplicate_entity): the canonical merge you are proposing. Provide ids when you have them, names otherwise.
     """
 
-    source_entity_id: typing_extensions.Annotated[
-        typing.Optional[str],
-        FieldMetadata(alias="sourceEntityId"),
-        pydantic.Field(
-            alias="sourceEntityId", description='Public id ("ent_{n}") of the duplicate/variant entity to merge away.'
-        ),
-    ] = None
+    source_entity_id: typing.Optional[str] = pydantic.Field(default=None)
     """
     Public id ("ent_{n}") of the duplicate/variant entity to merge away.
     """
 
-    target_entity_id: typing_extensions.Annotated[
-        typing.Optional[str],
-        FieldMetadata(alias="targetEntityId"),
-        pydantic.Field(
-            alias="targetEntityId", description='Public id ("ent_{n}") of the canonical entity to merge into.'
-        ),
-    ] = None
+    target_entity_id: typing.Optional[str] = pydantic.Field(default=None)
     """
     Public id ("ent_{n}") of the canonical entity to merge into.
     """
 
-    source_name: typing_extensions.Annotated[
-        typing.Optional[str],
-        FieldMetadata(alias="sourceName"),
-        pydantic.Field(alias="sourceName", description="Name of the duplicate entity when you do not have its id."),
-    ] = None
+    source_name: typing.Optional[str] = pydantic.Field(default=None)
     """
     Name of the duplicate entity when you do not have its id.
     """
 
     merge_into: typing.Optional[str] = pydantic.Field(default=None)
     """
-    Name or public id of the canonical entity when you do not have targetEntityId.
+    Name or public id of the canonical entity when you do not have target_entity_id.
     """
 
-    scope_type: typing_extensions.Annotated[
-        typing.Optional[str],
-        FieldMetadata(alias="scopeType"),
-        pydantic.Field(alias="scopeType", description='Scope of the merge rule, e.g. "global".'),
-    ] = None
+    scope_type: typing.Optional[str] = pydantic.Field(default=None)
     """
     Scope of the merge rule, e.g. "global".
     """

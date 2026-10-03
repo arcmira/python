@@ -16,31 +16,16 @@ class Mention(UniversalBaseModel):
     Public mention id in the form "men_{n}".
     """
 
-    appearance_id: int = pydantic.Field()
-    """
-    Raw integer id of the underlying appearance row. Same number as in the "men_{n}" public id.
-    """
-
     entity: EntityRef
     media: MentionMedia
-    start_timestamp: typing.Optional[str] = pydantic.Field(default=None)
-    """
-    DEPRECATED: prefer the numeric sibling field. This "MM:SS" (or "HH:MM:SS") string remains until a dated, changelog-announced removal (see /requests#versioning-and-deprecation). Use start_seconds. Null when the analyzer could not locate the mention in time.
-    """
-
-    end_timestamp: typing.Optional[str] = pydantic.Field(default=None)
-    """
-    DEPRECATED: prefer the numeric sibling field. This "MM:SS" (or "HH:MM:SS") string remains until a dated, changelog-announced removal (see /requests#versioning-and-deprecation). Use end_seconds. Null when unknown.
-    """
-
     start_seconds: typing.Optional[int] = pydantic.Field(default=None)
     """
-    Start position in the video in integer SECONDS, parsed from start_timestamp. Prefer this over the deprecated string field. 0 means "full episode / no specific moment" (the string sentinel "00:00"). Null when the string timestamp is null or unparseable.
+    Start position in the video in integer seconds. 0 means "full episode / no specific moment". Null when the analyzer could not place it in time.
     """
 
     end_seconds: typing.Optional[int] = pydantic.Field(default=None)
     """
-    End position in the video in integer SECONDS, parsed from end_timestamp. 0 means "full episode / no specific moment" (the string sentinel "00:00"). Null when the string timestamp is null or unparseable.
+    End position in the video in integer seconds. 0 means "full episode / no specific moment". Null when the analyzer could not place it in time.
     """
 
     is_appearance: bool = pydantic.Field()

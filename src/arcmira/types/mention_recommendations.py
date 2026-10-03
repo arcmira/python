@@ -14,7 +14,7 @@ class MentionRecommendations(UniversalBaseModel):
 
     items: typing.List[RecommendationEnrichmentItem] = pydantic.Field()
     """
-    Commercial mentions (ad reads, endorsements) for the same entity in the same video.
+    Commercial mentions (sponsored and organic) for the same entity in the same video.
     """
 
     if IS_PYDANTIC_V2:

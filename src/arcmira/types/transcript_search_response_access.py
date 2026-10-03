@@ -5,6 +5,7 @@ import typing
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 from .error_resource import ErrorResource
+from .transcript_search_response_access_details import TranscriptSearchResponseAccessDetails
 from .transcript_search_response_access_gate import TranscriptSearchResponseAccessGate
 from .transcript_search_response_access_reason import TranscriptSearchResponseAccessReason
 from .transcript_search_response_access_type import TranscriptSearchResponseAccessType
@@ -57,14 +58,9 @@ class TranscriptSearchResponseAccess(UniversalBaseModel):
     Present on rate gates. Mirrors the Retry-After header.
     """
 
-    current_revision: typing.Optional[str] = pydantic.Field(default=None)
+    details: typing.Optional[TranscriptSearchResponseAccessDetails] = pydantic.Field(default=None)
     """
-    On revision_mismatch and anchor_mismatch, the transcript revision to re-read before re-anchoring the correction.
-    """
-
-    expected_seq: typing.Optional[int] = pydantic.Field(default=None)
-    """
-    On sequence_mismatch (HTTP 412), the seq the server expects next for this video. Rebase local counters onto it and resend under the same key.
+    Machine data the refusal carries for you to act on. Present only on the codes that name a field here.
     """
 
     doc_url: str

@@ -3,17 +3,11 @@
 import typing
 
 import pydantic
-import typing_extensions
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
-from ..core.serialization import FieldMetadata
 
 
 class MonitorAddTrackersResponse(UniversalBaseModel):
-    attached_count: typing_extensions.Annotated[
-        int,
-        FieldMetadata(alias="attachedCount"),
-        pydantic.Field(alias="attachedCount", description="Number of unique requested trackers attached."),
-    ]
+    attached_count: int = pydantic.Field()
     """
     Number of unique requested trackers attached.
     """
@@ -23,11 +17,7 @@ class MonitorAddTrackersResponse(UniversalBaseModel):
     Human-readable confirmation, e.g. "Added 3 tracker(s) to monitor".
     """
 
-    monitor_id: typing_extensions.Annotated[
-        str,
-        FieldMetadata(alias="monitorId"),
-        pydantic.Field(alias="monitorId", description="The monitor id from the request path."),
-    ]
+    monitor_id: str = pydantic.Field()
     """
     The monitor id from the request path.
     """

@@ -20,7 +20,7 @@ class FeedbackReadbackCorrection(UniversalBaseModel):
 
     issue_type: typing.Optional[str] = pydantic.Field(default=None)
     """
-    The issue_type as submitted. Null when the correction carried only a reason or mention_class.
+    The issue_type as submitted. Null when the correction carried only a reason or class.
     """
 
     reason: typing.Optional[str] = pydantic.Field(default=None)

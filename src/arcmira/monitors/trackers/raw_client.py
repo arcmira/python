@@ -146,7 +146,7 @@ class RawTrackersClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[MonitorAddTrackersResponse]:
         """
-        Attaches EXISTING trackers to the monitor by id ({ trackerIds: ["trk_..."] }). It does not create trackers: create them first via POST /v1/trackers, then attach. Attached trackers use the monitor's delivery settings. Supply 1 to 90 IDs. Duplicate IDs count once. Every ID must belong to the account; a missing or foreign ID returns tracker_not_found and none are attached. attachedCount reports the unique attached count.
+        Attaches EXISTING trackers to the monitor by id ({ tracker_ids: ["trk_..."] }). It does not create trackers: create them first via POST /v1/trackers, then attach. Attached trackers use the monitor's delivery settings. Supply 1 to 90 IDs. Duplicate IDs count once. Every ID must belong to the account; a missing or foreign ID returns tracker_not_found and none are attached. attached_count reports the unique attached count.
 
         Parameters
         ----------
@@ -171,7 +171,7 @@ class RawTrackersClient:
             f"v1/monitors/{encode_path_param(id)}/trackers",
             method="POST",
             json={
-                "trackerIds": tracker_ids,
+                "tracker_ids": tracker_ids,
             },
             headers={
                 "content-type": "application/json",
@@ -397,7 +397,7 @@ class AsyncRawTrackersClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[MonitorAddTrackersResponse]:
         """
-        Attaches EXISTING trackers to the monitor by id ({ trackerIds: ["trk_..."] }). It does not create trackers: create them first via POST /v1/trackers, then attach. Attached trackers use the monitor's delivery settings. Supply 1 to 90 IDs. Duplicate IDs count once. Every ID must belong to the account; a missing or foreign ID returns tracker_not_found and none are attached. attachedCount reports the unique attached count.
+        Attaches EXISTING trackers to the monitor by id ({ tracker_ids: ["trk_..."] }). It does not create trackers: create them first via POST /v1/trackers, then attach. Attached trackers use the monitor's delivery settings. Supply 1 to 90 IDs. Duplicate IDs count once. Every ID must belong to the account; a missing or foreign ID returns tracker_not_found and none are attached. attached_count reports the unique attached count.
 
         Parameters
         ----------
@@ -422,7 +422,7 @@ class AsyncRawTrackersClient:
             f"v1/monitors/{encode_path_param(id)}/trackers",
             method="POST",
             json={
-                "trackerIds": tracker_ids,
+                "tracker_ids": tracker_ids,
             },
             headers={
                 "content-type": "application/json",

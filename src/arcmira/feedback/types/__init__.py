@@ -6,9 +6,10 @@ import typing
 from importlib import import_module
 
 if typing.TYPE_CHECKING:
+    from .submit_feedback_request_category import SubmitFeedbackRequestCategory
     from .submit_feedback_request_corrections_item import SubmitFeedbackRequestCorrectionsItem
+    from .submit_feedback_request_corrections_item_class import SubmitFeedbackRequestCorrectionsItemClass
     from .submit_feedback_request_corrections_item_issue_type import SubmitFeedbackRequestCorrectionsItemIssueType
-    from .submit_feedback_request_corrections_item_mention_class import SubmitFeedbackRequestCorrectionsItemMentionClass
     from .submit_feedback_request_corrections_item_reason import SubmitFeedbackRequestCorrectionsItemReason
     from .submit_feedback_request_corrections_item_suggested_change import (
         SubmitFeedbackRequestCorrectionsItemSuggestedChange,
@@ -16,9 +17,10 @@ if typing.TYPE_CHECKING:
     from .submit_feedback_request_method import SubmitFeedbackRequestMethod
     from .submit_feedback_request_type import SubmitFeedbackRequestType
 _dynamic_imports: typing.Dict[str, str] = {
+    "SubmitFeedbackRequestCategory": ".submit_feedback_request_category",
     "SubmitFeedbackRequestCorrectionsItem": ".submit_feedback_request_corrections_item",
+    "SubmitFeedbackRequestCorrectionsItemClass": ".submit_feedback_request_corrections_item_class",
     "SubmitFeedbackRequestCorrectionsItemIssueType": ".submit_feedback_request_corrections_item_issue_type",
-    "SubmitFeedbackRequestCorrectionsItemMentionClass": ".submit_feedback_request_corrections_item_mention_class",
     "SubmitFeedbackRequestCorrectionsItemReason": ".submit_feedback_request_corrections_item_reason",
     "SubmitFeedbackRequestCorrectionsItemSuggestedChange": ".submit_feedback_request_corrections_item_suggested_change",
     "SubmitFeedbackRequestMethod": ".submit_feedback_request_method",
@@ -48,9 +50,10 @@ def __dir__():
 
 
 __all__ = [
+    "SubmitFeedbackRequestCategory",
     "SubmitFeedbackRequestCorrectionsItem",
+    "SubmitFeedbackRequestCorrectionsItemClass",
     "SubmitFeedbackRequestCorrectionsItemIssueType",
-    "SubmitFeedbackRequestCorrectionsItemMentionClass",
     "SubmitFeedbackRequestCorrectionsItemReason",
     "SubmitFeedbackRequestCorrectionsItemSuggestedChange",
     "SubmitFeedbackRequestMethod",
