@@ -113,7 +113,6 @@ if typing.TYPE_CHECKING:
     from .me_response_usage_credits import MeResponseUsageCredits
     from .me_response_usage_credits_on_demand import MeResponseUsageCreditsOnDemand
     from .me_response_usage_credits_plan import MeResponseUsageCreditsPlan
-    from .me_response_usage_hits import MeResponseUsageHits
     from .me_settings_response import MeSettingsResponse
     from .mention import Mention
     from .mention_counts_response import MentionCountsResponse
@@ -357,7 +356,6 @@ _dynamic_imports: typing.Dict[str, str] = {
     "MeResponseUsageCredits": ".me_response_usage_credits",
     "MeResponseUsageCreditsOnDemand": ".me_response_usage_credits_on_demand",
     "MeResponseUsageCreditsPlan": ".me_response_usage_credits_plan",
-    "MeResponseUsageHits": ".me_response_usage_hits",
     "MeSettingsResponse": ".me_settings_response",
     "Mention": ".mention",
     "MentionCountsResponse": ".mention_counts_response",
@@ -621,7 +619,6 @@ __all__ = [
     "MeResponseUsageCredits",
     "MeResponseUsageCreditsOnDemand",
     "MeResponseUsageCreditsPlan",
-    "MeResponseUsageHits",
     "MeSettingsResponse",
     "Mention",
     "MentionCountsResponse",

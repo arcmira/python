@@ -31,6 +31,7 @@ Breaking changes from 0.3.
 - `MentionCountsResponse` replaces `published_after` and `published_before` with `window`. `FeedbackCorrectionResult` drops `new_mention_class`, `previous_mention_class`, `recommendation` and `rows_affected`.
 - `feedback.submit` no longer requires `query`. `type` stays required.
 - `trackers.create` follows a channel by its YouTube channel id in `entity_name`. A channel name raises `id_required`.
+- `me.usage.hits` is gone. Monitor alerts cost credits now and count in `usage.credits`.
 
 Removed methods and their replacements.
 
