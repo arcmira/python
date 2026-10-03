@@ -1,6 +1,8 @@
-# Arcmira Python SDK
+# Arcmira: YouTube Transcript Search
 
-The official Python client for the [Arcmira API](https://arcmira.com/docs), with synchronous and asynchronous clients, typed responses, and cursor pagination.
+The official Python SDK for searching indexed YouTube transcripts. Find timestamped quotes, speaker appearances, mentions, sponsors and recommendations with synchronous and asynchronous clients, typed responses and cursor pagination.
+
+[API docs](https://arcmira.com/docs) · [OpenAPI schema](https://api.arcmira.com/v1/openapi.json) · [MCP setup](https://arcmira.com/docs/mcp-server)
 
 ```sh
 pip install arcmira
