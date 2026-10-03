@@ -8,6 +8,8 @@ import pydantic
 import typing_extensions
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 from .caption_track import CaptionTrack
+from .transcript_failed_last_attempt import TranscriptFailedLastAttempt
+from .transcript_failed_quality import TranscriptFailedQuality
 from .transcript_job import TranscriptJob
 from .transcript_pending_quality import TranscriptPendingQuality
 from .transcript_response_access import TranscriptResponseAccess
@@ -48,6 +50,24 @@ class TranscriptResult_Ready(UniversalBaseModel):
             extra = pydantic.Extra.allow
 
 
+class TranscriptResult_Failed(UniversalBaseModel):
+    state: typing.Literal["failed"] = "failed"
+    quality: TranscriptFailedQuality
+    video_id: str
+    job: TranscriptJob
+    last_attempt: TranscriptFailedLastAttempt
+    note: str
+
+    if IS_PYDANTIC_V2:
+        model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
+    else:
+
+        class Config:
+            frozen = True
+            smart_union = True
+            extra = pydantic.Extra.allow
+
+
 class TranscriptResult_Pending(UniversalBaseModel):
     state: typing.Literal["pending"] = "pending"
     quality: TranscriptPendingQuality
@@ -65,5 +85,6 @@ class TranscriptResult_Pending(UniversalBaseModel):
 
 
 TranscriptResult = typing_extensions.Annotated[
-    typing.Union[TranscriptResult_Ready, TranscriptResult_Pending], pydantic.Field(discriminator="state")
+    typing.Union[TranscriptResult_Ready, TranscriptResult_Failed, TranscriptResult_Pending],
+    pydantic.Field(discriminator="state"),
 ]

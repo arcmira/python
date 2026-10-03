@@ -4,7 +4,7 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
-from .error_error_details_quote import ErrorErrorDetailsQuote
+from .refused_quote import RefusedQuote
 
 
 class ErrorErrorDetails(UniversalBaseModel):
@@ -12,16 +12,7 @@ class ErrorErrorDetails(UniversalBaseModel):
     Machine data the refusal carries for you to act on. Present only on the codes that name a field here.
     """
 
-    quote: typing.Optional[ErrorErrorDetailsQuote] = pydantic.Field(default=None)
-    """
-    The refused price, on a priced refusal: quota_exceeded, max_rows_exceeded, max_charge_exceeded, spend_limit_exceeded, purchase_authority_changed and paid_plan_required.
-    """
-
-    existing_request_id: typing.Optional[str] = pydantic.Field(default=None)
-    """
-    On max_charge_exceeded: the accepted purchase for this video that holds a higher money ceiling. Poll it at /v1/transcriptions/{id} instead of starting another.
-    """
-
+    quote: typing.Optional[RefusedQuote] = None
     existing_id: typing.Optional[str] = pydantic.Field(default=None)
     """
     On tracker_already_exists, the existing tracker id. Reuse it instead of creating another tracker.

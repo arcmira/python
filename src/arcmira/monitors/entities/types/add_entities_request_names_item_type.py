@@ -2,6 +2,6 @@
 
 import typing
 
-CreateTrackersRequestEntityType = typing.Union[
+AddEntitiesRequestNamesItemType = typing.Union[
     typing.Literal["person", "organization", "org", "product", "topic", "channel"], typing.Any
 ]

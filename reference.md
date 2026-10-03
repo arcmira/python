@@ -1244,7 +1244,7 @@ client.transcripts.search(
 <dl>
 <dd>
 
-Caption retrieval costs one row per started 15 minutes. quality=premium is one read: an owned transcript answers 200 ready at zero rows; otherwise this call buys the whole video within the account's plan and on-demand budget, included credits first and then on-demand money up to the account limit, and answers 202 pending with the job and Retry-After until the transcript is ready. Read again after Retry-After; repeated reads join the same purchase and never buy twice. When the plan or the budget blocks, 403 paid_plan_required (with unlock) or 402 quota_exceeded or spend_limit_exceeded carries the price in quote and nothing is charged. A default-premium account with nothing owned reads captions with a note. start/end only trim the returned content; language selects caption tracks, timestamps=false returns paragraphs. Premium responses retain revision and line indexes for corrections.
+Caption retrieval costs one row per started 15 minutes. quality=premium is one read: an owned transcript answers 200 ready at zero rows; otherwise this call buys the whole video within the account's plan and on-demand budget, included credits first and then on-demand money up to the account limit, and answers 202 pending with the job and Retry-After until the transcript is ready. Read again after Retry-After; repeated reads join the same purchase and never buy twice. When the last purchase for the video failed, the read answers 200 state failed with the job and last_attempt and buys nothing; retry=true buys it again. When the plan or the budget blocks, 403 paid_plan_required (with unlock) or 402 quota_exceeded or spend_limit_exceeded carries the price in quote and nothing is charged. A default-premium account with nothing owned reads captions with a note. start/end only trim the returned content; language selects caption tracks, timestamps=false returns paragraphs. Premium lines carry speaker and index, and the body carries speakers and revision.
 </dd>
 </dl>
 </dd>
@@ -1293,7 +1293,7 @@ client.transcripts.get(
 <dl>
 <dd>
 
-**quality:** `typing.Optional[GetTranscriptsRequestQuality]` — captions reads creator or automatic captions at 1 row per started 15 minutes. premium is one read: an owned transcript returns 200 state ready at zero rows; otherwise the read buys the whole video within the account's plan and on-demand budget (included credits first, then on-demand money up to the account limit) and returns 202 state pending with the job until it is ready. 402 quota_exceeded or spend_limit_exceeded and 403 paid_plan_required carry the price in quote. It never substitutes captions. Default captions unless changed in account settings.
+**quality:** `typing.Optional[GetTranscriptsRequestQuality]` — captions reads creator or automatic captions at 1 row per started 15 minutes. premium is one read: an owned transcript returns 200 state ready at zero rows; otherwise the read buys the whole video within the account's plan and on-demand budget (included credits first, then on-demand money up to the account limit) and returns 202 state pending with the job until it is ready. When the last purchase for the video failed it answers 200 state failed and buys again only with retry=true. 402 quota_exceeded or spend_limit_exceeded and 403 paid_plan_required carry the price in quote. It never substitutes captions. Default captions unless changed in account settings.
 
 </dd>
 </dl>
@@ -1326,6 +1326,14 @@ client.transcripts.get(
 <dd>
 
 **end:** `typing.Optional[float]` — Window end in seconds, greater than start and no greater than the video duration. Send start and end together.
+
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**retry:** `typing.Optional[bool]` — Premium only; captions with retry=true returns invalid_query. When the last Premium purchase for this video failed, a read answers 200 state failed with the job and last_attempt and buys nothing; retry=true buys it again under the same quote, budget and one-purchase rules as the first read. While that refund is still settling (job.status refund_pending) even retry=true answers state failed. Without a failed purchase it changes nothing.
 
 </dd>
 </dl>
@@ -2266,7 +2274,7 @@ client.trackers.create(
 <dl>
 <dd>
 
-**entity_name:** `str` — The exact name to watch, matched case-insensitively against analyzed media, so a tracker can exist before the entity is indexed. For a channel, the YouTube channel id (UC plus 22 characters), never a name: a channel name answers 400 id_required naming GET /v1/entities/resolve?q=...&type=channel and best.youtube_channel_id. Required on create. Creating a duplicate (same name + type) returns 409 tracker_already_exists with the existing tracker id in error.details.existing_id.
+**entity_name:** `str` — The exact name to watch, matched case-insensitively against analyzed media, so a tracker can exist before the entity is indexed. For a channel, the YouTube channel id (UC plus 22 characters), never a name: a channel name answers 400 id_required naming GET /v1/entities/resolve?q=...&type=channel and best.youtube_channel_id. Required on create. Creating a duplicate (same name, compared case-insensitively, and type) returns 409 tracker_already_exists with the existing tracker id in error.details.existing_id.
 
 </dd>
 </dl>
@@ -3052,7 +3060,7 @@ client.monitors.trackers.add(
 <dl>
 <dd>
 
-The newest limit alert deliveries for the monitor (default 25, at most 100), as a single page. has_more is true when older alerts exist past limit; this endpoint does not paginate, so next_cursor is always null and a larger limit reads further. entity_id ("ent_{n}") and mention_id ("men_{n}") are public-ID forms that join directly against entity and mention rows; media_id and appearance_id are raw integer ids, matching the numeric ids used elsewhere in the API. Dispute a fired alert via POST /v1/feedback with type monitor_alert.
+The newest limit alert deliveries for the monitor (default 25, at most 100), as a single page. has_more is true when older alerts exist past limit; this endpoint does not paginate, so next_cursor is always null and a larger limit reads further. entity_id ("ent_{n}") and mention_id ("men_{n}") are the ids GET /v1/entities/{id} and GET /v1/mentions use, and video_id is the YouTube video id that GET /v1/transcripts/{video_id} reads. Dispute a fired alert via POST /v1/feedback with type monitor_alert.
 </dd>
 </dl>
 </dd>
@@ -3134,7 +3142,7 @@ client.monitors.alerts.list(
 <dl>
 <dd>
 
-Follows each entity ({ entity_ids: ["ent_..."] }) in the monitor: the account's existing tracker for the entity is reused, else a tracker is created for the canonical entity (a merged id follows its redirect), then the trackers are attached. Attached trackers use the monitor's delivery settings. Supply 1 to 90 ids; duplicates count once. Each id gets one result in request order. An id that cannot be followed comes back with attached: false and a reason (entity_not_found, entity_type_not_trackable, tracker_limit_reached, tracked_in_another_monitor) while the rest still attach; a tracker already in another monitor is left there and named in current_monitor_id. Requires the monitors:write and trackers:write scopes.
+Follows each entity ({ entity_ids: ["ent_..."] }) and each exact name ({ names: [{ name, type }] }) in the monitor: the monitor account's existing tracker for the entity or name (compared case-insensitively) is reused, else a tracker is created under the monitor's account (the team owner on a team monitor) for the canonical entity (a merged id follows its redirect) or the name as given, then the trackers are attached, all in one write. Use names for something not yet indexed; a channel is named by its YouTube channel id, and a channel name answers 400 id_required. Attached trackers use the monitor's delivery settings. Supply 1 to 90 ids and names together; duplicates count once. Each gets one result, ids first then names, in request order; a names result carries name and type in place of entity_id. An id that cannot be followed comes back with attached: false and a reason (entity_not_found, entity_type_not_trackable, tracker_limit_reached, tracked_in_another_monitor) while the rest still attach; a tracker already in another monitor is left there and named in current_monitor_id. Requires the monitors:write and trackers:write scopes.
 </dd>
 </dl>
 </dd>
@@ -3160,9 +3168,6 @@ client = Arcmira(
 client.monitors.entities.add(
     id="id",
     idempotency_key="8b2f6c3e-4d1a-4e7b-9c05-2f6a1b7d3e90",
-    entity_ids=[
-        "entity_ids"
-    ],
 )
 
 ```
@@ -3187,7 +3192,7 @@ client.monitors.entities.add(
 <dl>
 <dd>
 
-**entity_ids:** `typing.List[str]` — Entity ids ("ent_...") to follow in this monitor, from GET /v1/entities/resolve or search. 1 to 90; duplicates count once. A merged id follows its redirect to the canonical entity.
+**idempotency_key:** `typing.Optional[str]` — One key per intent, 1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400 invalid_idempotency_key. Keys are scoped to the account, credential and resource family. The same key and normalized method, path and body returns the committed response with Idempotency-Replayed: true. A changed intent within the same family returns 409 idempotency_conflict. Monitor and tracker families have independent namespaces. Secret recovery is limited as described by the operation.
 
 </dd>
 </dl>
@@ -3195,7 +3200,15 @@ client.monitors.entities.add(
 <dl>
 <dd>
 
-**idempotency_key:** `typing.Optional[str]` — One key per intent, 1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400 invalid_idempotency_key. Keys are scoped to the account, credential and resource family. The same key and normalized method, path and body returns the committed response with Idempotency-Replayed: true. A changed intent within the same family returns 409 idempotency_conflict. Monitor and tracker families have independent namespaces. Secret recovery is limited as described by the operation.
+**entity_ids:** `typing.Optional[typing.List[str]]` — Entity ids ("ent_...") to follow in this monitor, from GET /v1/entities/resolve or search. Duplicates count once. A merged id follows its redirect to the canonical entity.
+
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**names:** `typing.Optional[typing.List[AddEntitiesRequestNamesItem]]` — Exact names to follow in this monitor, for a name not yet indexed or one you have no id for. The tracker is created under the monitor's account (the team owner on a team monitor) and attached in the same call; the account's tracker for the same name (compared case-insensitively) and type is reused. Duplicates count once.
 
 </dd>
 </dl>
@@ -3236,7 +3249,7 @@ client.monitors.entities.add(
 <dl>
 <dd>
 
-The newest limit alert deliveries for the tracker (default 25, at most 100), as a single page. has_more is true when older alerts exist past limit; this endpoint does not paginate, so next_cursor is always null and a larger limit reads further. entity_id ("ent_{n}") and mention_id ("men_{n}") are public-ID forms that join directly against entity and mention rows; media_id and appearance_id are raw integer ids, matching the numeric ids used elsewhere in the API. Dispute a fired alert via POST /v1/feedback with type monitor_alert.
+The newest limit alert deliveries for the tracker (default 25, at most 100), as a single page. has_more is true when older alerts exist past limit; this endpoint does not paginate, so next_cursor is always null and a larger limit reads further. entity_id ("ent_{n}") and mention_id ("men_{n}") are the ids GET /v1/entities/{id} and GET /v1/mentions use, and video_id is the YouTube video id that GET /v1/transcripts/{video_id} reads. Dispute a fired alert via POST /v1/feedback with type monitor_alert.
 </dd>
 </dl>
 </dd>

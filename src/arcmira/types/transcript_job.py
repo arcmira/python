@@ -57,12 +57,12 @@ class TranscriptJob(UniversalBaseModel):
 
     error: typing.Optional[str] = pydantic.Field(default=None)
     """
-    Failure reason. Only present when state is failed or refunded.
+    Failure reason. Only present when state is failed or refunded, or status is refund_pending.
     """
 
     refunded: typing.Optional[bool] = pydantic.Field(default=None)
     """
-    True when the charge was returned. Only present when state is failed or refunded.
+    True when the charge was returned. Only present when state is failed or refunded, or status is refund_pending (false until the refund lands).
     """
 
     created_at: str = pydantic.Field()
@@ -77,7 +77,7 @@ class TranscriptJob(UniversalBaseModel):
 
     status_url: str = pydantic.Field()
     """
-    Absolute URL of GET /v1/transcriptions/{id} for this job.
+    Absolute URL to read again for this job: GET /v1/transcripts/{video_id}?quality=premium, which answers 202 while it prepares, 200 ready once it is, and 200 failed if it failed.
     """
 
     if IS_PYDANTIC_V2:

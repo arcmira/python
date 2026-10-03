@@ -22,14 +22,6 @@ if typing.TYPE_CHECKING:
     from .channel_sponsors_response import ChannelSponsorsResponse
     from .channel_sponsors_response_access import ChannelSponsorsResponseAccess
     from .channel_sponsors_response_access_details import ChannelSponsorsResponseAccessDetails
-    from .channel_sponsors_response_access_details_quote import ChannelSponsorsResponseAccessDetailsQuote
-    from .channel_sponsors_response_access_details_quote_charge import ChannelSponsorsResponseAccessDetailsQuoteCharge
-    from .channel_sponsors_response_access_details_quote_charge_from import (
-        ChannelSponsorsResponseAccessDetailsQuoteChargeFrom,
-    )
-    from .channel_sponsors_response_access_details_quote_charge_unit import (
-        ChannelSponsorsResponseAccessDetailsQuoteChargeUnit,
-    )
     from .channel_sponsors_response_access_gate import ChannelSponsorsResponseAccessGate
     from .channel_sponsors_response_access_reason import ChannelSponsorsResponseAccessReason
     from .channel_sponsors_response_access_type import ChannelSponsorsResponseAccessType
@@ -48,14 +40,6 @@ if typing.TYPE_CHECKING:
     from .entity_momentum_response import EntityMomentumResponse
     from .entity_momentum_response_access import EntityMomentumResponseAccess
     from .entity_momentum_response_access_details import EntityMomentumResponseAccessDetails
-    from .entity_momentum_response_access_details_quote import EntityMomentumResponseAccessDetailsQuote
-    from .entity_momentum_response_access_details_quote_charge import EntityMomentumResponseAccessDetailsQuoteCharge
-    from .entity_momentum_response_access_details_quote_charge_from import (
-        EntityMomentumResponseAccessDetailsQuoteChargeFrom,
-    )
-    from .entity_momentum_response_access_details_quote_charge_unit import (
-        EntityMomentumResponseAccessDetailsQuoteChargeUnit,
-    )
     from .entity_momentum_response_access_gate import EntityMomentumResponseAccessGate
     from .entity_momentum_response_access_reason import EntityMomentumResponseAccessReason
     from .entity_momentum_response_access_type import EntityMomentumResponseAccessType
@@ -73,10 +57,6 @@ if typing.TYPE_CHECKING:
     from .error import Error
     from .error_error import ErrorError
     from .error_error_details import ErrorErrorDetails
-    from .error_error_details_quote import ErrorErrorDetailsQuote
-    from .error_error_details_quote_charge import ErrorErrorDetailsQuoteCharge
-    from .error_error_details_quote_charge_from import ErrorErrorDetailsQuoteChargeFrom
-    from .error_error_details_quote_charge_unit import ErrorErrorDetailsQuoteChargeUnit
     from .error_error_gate import ErrorErrorGate
     from .error_error_reason import ErrorErrorReason
     from .error_error_type import ErrorErrorType
@@ -162,6 +142,7 @@ if typing.TYPE_CHECKING:
     from .monitor_email_recipients_item_status import MonitorEmailRecipientsItemStatus
     from .monitor_entity_result import MonitorEntityResult
     from .monitor_entity_result_reason import MonitorEntityResultReason
+    from .monitor_entity_result_type import MonitorEntityResultType
     from .monitor_list_response import MonitorListResponse
     from .monitor_list_response_monitors_item import MonitorListResponseMonitorsItem
     from .monitor_list_response_monitors_item_slack_integration import MonitorListResponseMonitorsItemSlackIntegration
@@ -183,6 +164,10 @@ if typing.TYPE_CHECKING:
     from .recommendation_list_response import RecommendationListResponse
     from .recommendation_media import RecommendationMedia
     from .recommendation_media_source_channel import RecommendationMediaSourceChannel
+    from .refused_quote import RefusedQuote
+    from .refused_quote_charge import RefusedQuoteCharge
+    from .refused_quote_charge_from import RefusedQuoteChargeFrom
+    from .refused_quote_charge_unit import RefusedQuoteChargeUnit
     from .resolve_candidate import ResolveCandidate
     from .resolve_candidate_match import ResolveCandidateMatch
     from .resolve_suggestion import ResolveSuggestion
@@ -201,6 +186,10 @@ if typing.TYPE_CHECKING:
     from .tracker import Tracker
     from .tracker_list_response import TrackerListResponse
     from .tracker_mutation_response import TrackerMutationResponse
+    from .transcript_failed import TranscriptFailed
+    from .transcript_failed_last_attempt import TranscriptFailedLastAttempt
+    from .transcript_failed_last_attempt_status import TranscriptFailedLastAttemptStatus
+    from .transcript_failed_quality import TranscriptFailedQuality
     from .transcript_job import TranscriptJob
     from .transcript_job_charge import TranscriptJobCharge
     from .transcript_job_charge_from import TranscriptJobChargeFrom
@@ -222,10 +211,6 @@ if typing.TYPE_CHECKING:
     from .transcript_response import TranscriptResponse
     from .transcript_response_access import TranscriptResponseAccess
     from .transcript_response_access_details import TranscriptResponseAccessDetails
-    from .transcript_response_access_details_quote import TranscriptResponseAccessDetailsQuote
-    from .transcript_response_access_details_quote_charge import TranscriptResponseAccessDetailsQuoteCharge
-    from .transcript_response_access_details_quote_charge_from import TranscriptResponseAccessDetailsQuoteChargeFrom
-    from .transcript_response_access_details_quote_charge_unit import TranscriptResponseAccessDetailsQuoteChargeUnit
     from .transcript_response_access_gate import TranscriptResponseAccessGate
     from .transcript_response_access_reason import TranscriptResponseAccessReason
     from .transcript_response_access_type import TranscriptResponseAccessType
@@ -237,19 +222,16 @@ if typing.TYPE_CHECKING:
     from .transcript_response_range import TranscriptResponseRange
     from .transcript_response_source import TranscriptResponseSource
     from .transcript_response_speakers_item import TranscriptResponseSpeakersItem
-    from .transcript_result import TranscriptResult, TranscriptResult_Pending, TranscriptResult_Ready
+    from .transcript_result import (
+        TranscriptResult,
+        TranscriptResult_Failed,
+        TranscriptResult_Pending,
+        TranscriptResult_Ready,
+    )
     from .transcript_search_chunk import TranscriptSearchChunk
     from .transcript_search_response import TranscriptSearchResponse
     from .transcript_search_response_access import TranscriptSearchResponseAccess
     from .transcript_search_response_access_details import TranscriptSearchResponseAccessDetails
-    from .transcript_search_response_access_details_quote import TranscriptSearchResponseAccessDetailsQuote
-    from .transcript_search_response_access_details_quote_charge import TranscriptSearchResponseAccessDetailsQuoteCharge
-    from .transcript_search_response_access_details_quote_charge_from import (
-        TranscriptSearchResponseAccessDetailsQuoteChargeFrom,
-    )
-    from .transcript_search_response_access_details_quote_charge_unit import (
-        TranscriptSearchResponseAccessDetailsQuoteChargeUnit,
-    )
     from .transcript_search_response_access_gate import TranscriptSearchResponseAccessGate
     from .transcript_search_response_access_reason import TranscriptSearchResponseAccessReason
     from .transcript_search_response_access_type import TranscriptSearchResponseAccessType
@@ -286,10 +268,6 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ChannelSponsorsResponse": ".channel_sponsors_response",
     "ChannelSponsorsResponseAccess": ".channel_sponsors_response_access",
     "ChannelSponsorsResponseAccessDetails": ".channel_sponsors_response_access_details",
-    "ChannelSponsorsResponseAccessDetailsQuote": ".channel_sponsors_response_access_details_quote",
-    "ChannelSponsorsResponseAccessDetailsQuoteCharge": ".channel_sponsors_response_access_details_quote_charge",
-    "ChannelSponsorsResponseAccessDetailsQuoteChargeFrom": ".channel_sponsors_response_access_details_quote_charge_from",
-    "ChannelSponsorsResponseAccessDetailsQuoteChargeUnit": ".channel_sponsors_response_access_details_quote_charge_unit",
     "ChannelSponsorsResponseAccessGate": ".channel_sponsors_response_access_gate",
     "ChannelSponsorsResponseAccessReason": ".channel_sponsors_response_access_reason",
     "ChannelSponsorsResponseAccessType": ".channel_sponsors_response_access_type",
@@ -308,10 +286,6 @@ _dynamic_imports: typing.Dict[str, str] = {
     "EntityMomentumResponse": ".entity_momentum_response",
     "EntityMomentumResponseAccess": ".entity_momentum_response_access",
     "EntityMomentumResponseAccessDetails": ".entity_momentum_response_access_details",
-    "EntityMomentumResponseAccessDetailsQuote": ".entity_momentum_response_access_details_quote",
-    "EntityMomentumResponseAccessDetailsQuoteCharge": ".entity_momentum_response_access_details_quote_charge",
-    "EntityMomentumResponseAccessDetailsQuoteChargeFrom": ".entity_momentum_response_access_details_quote_charge_from",
-    "EntityMomentumResponseAccessDetailsQuoteChargeUnit": ".entity_momentum_response_access_details_quote_charge_unit",
     "EntityMomentumResponseAccessGate": ".entity_momentum_response_access_gate",
     "EntityMomentumResponseAccessReason": ".entity_momentum_response_access_reason",
     "EntityMomentumResponseAccessType": ".entity_momentum_response_access_type",
@@ -329,10 +303,6 @@ _dynamic_imports: typing.Dict[str, str] = {
     "Error": ".error",
     "ErrorError": ".error_error",
     "ErrorErrorDetails": ".error_error_details",
-    "ErrorErrorDetailsQuote": ".error_error_details_quote",
-    "ErrorErrorDetailsQuoteCharge": ".error_error_details_quote_charge",
-    "ErrorErrorDetailsQuoteChargeFrom": ".error_error_details_quote_charge_from",
-    "ErrorErrorDetailsQuoteChargeUnit": ".error_error_details_quote_charge_unit",
     "ErrorErrorGate": ".error_error_gate",
     "ErrorErrorReason": ".error_error_reason",
     "ErrorErrorType": ".error_error_type",
@@ -416,6 +386,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "MonitorEmailRecipientsItemStatus": ".monitor_email_recipients_item_status",
     "MonitorEntityResult": ".monitor_entity_result",
     "MonitorEntityResultReason": ".monitor_entity_result_reason",
+    "MonitorEntityResultType": ".monitor_entity_result_type",
     "MonitorListResponse": ".monitor_list_response",
     "MonitorListResponseMonitorsItem": ".monitor_list_response_monitors_item",
     "MonitorListResponseMonitorsItemSlackIntegration": ".monitor_list_response_monitors_item_slack_integration",
@@ -437,6 +408,10 @@ _dynamic_imports: typing.Dict[str, str] = {
     "RecommendationListResponse": ".recommendation_list_response",
     "RecommendationMedia": ".recommendation_media",
     "RecommendationMediaSourceChannel": ".recommendation_media_source_channel",
+    "RefusedQuote": ".refused_quote",
+    "RefusedQuoteCharge": ".refused_quote_charge",
+    "RefusedQuoteChargeFrom": ".refused_quote_charge_from",
+    "RefusedQuoteChargeUnit": ".refused_quote_charge_unit",
     "ResolveCandidate": ".resolve_candidate",
     "ResolveCandidateMatch": ".resolve_candidate_match",
     "ResolveSuggestion": ".resolve_suggestion",
@@ -453,6 +428,10 @@ _dynamic_imports: typing.Dict[str, str] = {
     "Tracker": ".tracker",
     "TrackerListResponse": ".tracker_list_response",
     "TrackerMutationResponse": ".tracker_mutation_response",
+    "TranscriptFailed": ".transcript_failed",
+    "TranscriptFailedLastAttempt": ".transcript_failed_last_attempt",
+    "TranscriptFailedLastAttemptStatus": ".transcript_failed_last_attempt_status",
+    "TranscriptFailedQuality": ".transcript_failed_quality",
     "TranscriptJob": ".transcript_job",
     "TranscriptJobCharge": ".transcript_job_charge",
     "TranscriptJobChargeFrom": ".transcript_job_charge_from",
@@ -474,10 +453,6 @@ _dynamic_imports: typing.Dict[str, str] = {
     "TranscriptResponse": ".transcript_response",
     "TranscriptResponseAccess": ".transcript_response_access",
     "TranscriptResponseAccessDetails": ".transcript_response_access_details",
-    "TranscriptResponseAccessDetailsQuote": ".transcript_response_access_details_quote",
-    "TranscriptResponseAccessDetailsQuoteCharge": ".transcript_response_access_details_quote_charge",
-    "TranscriptResponseAccessDetailsQuoteChargeFrom": ".transcript_response_access_details_quote_charge_from",
-    "TranscriptResponseAccessDetailsQuoteChargeUnit": ".transcript_response_access_details_quote_charge_unit",
     "TranscriptResponseAccessGate": ".transcript_response_access_gate",
     "TranscriptResponseAccessReason": ".transcript_response_access_reason",
     "TranscriptResponseAccessType": ".transcript_response_access_type",
@@ -490,16 +465,13 @@ _dynamic_imports: typing.Dict[str, str] = {
     "TranscriptResponseSource": ".transcript_response_source",
     "TranscriptResponseSpeakersItem": ".transcript_response_speakers_item",
     "TranscriptResult": ".transcript_result",
+    "TranscriptResult_Failed": ".transcript_result",
     "TranscriptResult_Pending": ".transcript_result",
     "TranscriptResult_Ready": ".transcript_result",
     "TranscriptSearchChunk": ".transcript_search_chunk",
     "TranscriptSearchResponse": ".transcript_search_response",
     "TranscriptSearchResponseAccess": ".transcript_search_response_access",
     "TranscriptSearchResponseAccessDetails": ".transcript_search_response_access_details",
-    "TranscriptSearchResponseAccessDetailsQuote": ".transcript_search_response_access_details_quote",
-    "TranscriptSearchResponseAccessDetailsQuoteCharge": ".transcript_search_response_access_details_quote_charge",
-    "TranscriptSearchResponseAccessDetailsQuoteChargeFrom": ".transcript_search_response_access_details_quote_charge_from",
-    "TranscriptSearchResponseAccessDetailsQuoteChargeUnit": ".transcript_search_response_access_details_quote_charge_unit",
     "TranscriptSearchResponseAccessGate": ".transcript_search_response_access_gate",
     "TranscriptSearchResponseAccessReason": ".transcript_search_response_access_reason",
     "TranscriptSearchResponseAccessType": ".transcript_search_response_access_type",
@@ -560,10 +532,6 @@ __all__ = [
     "ChannelSponsorsResponse",
     "ChannelSponsorsResponseAccess",
     "ChannelSponsorsResponseAccessDetails",
-    "ChannelSponsorsResponseAccessDetailsQuote",
-    "ChannelSponsorsResponseAccessDetailsQuoteCharge",
-    "ChannelSponsorsResponseAccessDetailsQuoteChargeFrom",
-    "ChannelSponsorsResponseAccessDetailsQuoteChargeUnit",
     "ChannelSponsorsResponseAccessGate",
     "ChannelSponsorsResponseAccessReason",
     "ChannelSponsorsResponseAccessType",
@@ -582,10 +550,6 @@ __all__ = [
     "EntityMomentumResponse",
     "EntityMomentumResponseAccess",
     "EntityMomentumResponseAccessDetails",
-    "EntityMomentumResponseAccessDetailsQuote",
-    "EntityMomentumResponseAccessDetailsQuoteCharge",
-    "EntityMomentumResponseAccessDetailsQuoteChargeFrom",
-    "EntityMomentumResponseAccessDetailsQuoteChargeUnit",
     "EntityMomentumResponseAccessGate",
     "EntityMomentumResponseAccessReason",
     "EntityMomentumResponseAccessType",
@@ -603,10 +567,6 @@ __all__ = [
     "Error",
     "ErrorError",
     "ErrorErrorDetails",
-    "ErrorErrorDetailsQuote",
-    "ErrorErrorDetailsQuoteCharge",
-    "ErrorErrorDetailsQuoteChargeFrom",
-    "ErrorErrorDetailsQuoteChargeUnit",
     "ErrorErrorGate",
     "ErrorErrorReason",
     "ErrorErrorType",
@@ -690,6 +650,7 @@ __all__ = [
     "MonitorEmailRecipientsItemStatus",
     "MonitorEntityResult",
     "MonitorEntityResultReason",
+    "MonitorEntityResultType",
     "MonitorListResponse",
     "MonitorListResponseMonitorsItem",
     "MonitorListResponseMonitorsItemSlackIntegration",
@@ -711,6 +672,10 @@ __all__ = [
     "RecommendationListResponse",
     "RecommendationMedia",
     "RecommendationMediaSourceChannel",
+    "RefusedQuote",
+    "RefusedQuoteCharge",
+    "RefusedQuoteChargeFrom",
+    "RefusedQuoteChargeUnit",
     "ResolveCandidate",
     "ResolveCandidateMatch",
     "ResolveSuggestion",
@@ -727,6 +692,10 @@ __all__ = [
     "Tracker",
     "TrackerListResponse",
     "TrackerMutationResponse",
+    "TranscriptFailed",
+    "TranscriptFailedLastAttempt",
+    "TranscriptFailedLastAttemptStatus",
+    "TranscriptFailedQuality",
     "TranscriptJob",
     "TranscriptJobCharge",
     "TranscriptJobChargeFrom",
@@ -748,10 +717,6 @@ __all__ = [
     "TranscriptResponse",
     "TranscriptResponseAccess",
     "TranscriptResponseAccessDetails",
-    "TranscriptResponseAccessDetailsQuote",
-    "TranscriptResponseAccessDetailsQuoteCharge",
-    "TranscriptResponseAccessDetailsQuoteChargeFrom",
-    "TranscriptResponseAccessDetailsQuoteChargeUnit",
     "TranscriptResponseAccessGate",
     "TranscriptResponseAccessReason",
     "TranscriptResponseAccessType",
@@ -764,16 +729,13 @@ __all__ = [
     "TranscriptResponseSource",
     "TranscriptResponseSpeakersItem",
     "TranscriptResult",
+    "TranscriptResult_Failed",
     "TranscriptResult_Pending",
     "TranscriptResult_Ready",
     "TranscriptSearchChunk",
     "TranscriptSearchResponse",
     "TranscriptSearchResponseAccess",
     "TranscriptSearchResponseAccessDetails",
-    "TranscriptSearchResponseAccessDetailsQuote",
-    "TranscriptSearchResponseAccessDetailsQuoteCharge",
-    "TranscriptSearchResponseAccessDetailsQuoteChargeFrom",
-    "TranscriptSearchResponseAccessDetailsQuoteChargeUnit",
     "TranscriptSearchResponseAccessGate",
     "TranscriptSearchResponseAccessReason",
     "TranscriptSearchResponseAccessType",

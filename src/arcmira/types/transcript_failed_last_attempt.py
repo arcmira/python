@@ -4,18 +4,22 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
-from .monitor_entity_result import MonitorEntityResult
+from .transcript_failed_last_attempt_status import TranscriptFailedLastAttemptStatus
 
 
-class MonitorAddEntitiesResponse(UniversalBaseModel):
-    monitor_id: str = pydantic.Field()
+class TranscriptFailedLastAttempt(UniversalBaseModel):
     """
-    The monitor the entities were added to.
+    The failed purchase in brief: job.status and job.error.
     """
 
-    results: typing.List[MonitorEntityResult] = pydantic.Field()
+    status: TranscriptFailedLastAttemptStatus = pydantic.Field()
     """
-    One result per distinct requested entity id, then one per distinct requested name, each in request order.
+    How the last purchase ended: failed, refunded (the charge was returned), or refund_pending (the refund is still settling).
+    """
+
+    error: str = pydantic.Field()
+    """
+    Why it failed.
     """
 
     if IS_PYDANTIC_V2:

@@ -5,12 +5,23 @@ import typing
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 from .monitor_entity_result_reason import MonitorEntityResultReason
+from .monitor_entity_result_type import MonitorEntityResultType
 
 
 class MonitorEntityResult(UniversalBaseModel):
-    entity_id: str = pydantic.Field()
+    entity_id: typing.Optional[str] = pydantic.Field(default=None)
     """
-    The entity id as requested.
+    The entity id as requested. Present on an entity_ids result.
+    """
+
+    name: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    The name as requested. Present on a names result.
+    """
+
+    type: typing.Optional[MonitorEntityResultType] = pydantic.Field(default=None)
+    """
+    The type as requested, org read as organization. Present on a names result.
     """
 
     canonical_entity_id: typing.Optional[str] = pydantic.Field(default=None)
@@ -35,7 +46,7 @@ class MonitorEntityResult(UniversalBaseModel):
 
     reason: typing.Optional[MonitorEntityResultReason] = pydantic.Field(default=None)
     """
-    Why attached is false. Values: entity_not_found (no entity has this id), entity_type_not_trackable (only person, organization, product, topic and channel entities can be tracked), tracker_limit_reached (the plan allows no more trackers; upgrade the plan for more), tracked_in_another_monitor (the account already follows this entity in current_monitor_id; it was left there, so move it with POST /v1/monitors/{id}/trackers if the user wants).
+    Why attached is false. Values: entity_not_found (no entity has this id), entity_type_not_trackable (only person, organization, product, topic and channel entities can be tracked), tracker_limit_reached (the plan allows no more trackers; upgrade the plan for more), tracked_in_another_monitor (the account already follows this entity in current_monitor_id; it was left there, so move it with POST /v1/monitors/{id}/trackers if the user wants). A names result can only carry tracker_limit_reached or tracked_in_another_monitor.
     """
 
     current_monitor_id: typing.Optional[str] = pydantic.Field(default=None)

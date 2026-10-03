@@ -8,8 +8,16 @@ from importlib import import_module
 if typing.TYPE_CHECKING:
     from .types import CreateMonitorsRequestNotifyFrequency, UpdateMonitorsRequestNotifyFrequency
     from . import alerts, entities, trackers
-    from .entities import AddEntitiesRequestPersonMatchMode
+    from .entities import (
+        AddEntitiesRequestNamesItem,
+        AddEntitiesRequestNamesItemPersonMatchMode,
+        AddEntitiesRequestNamesItemType,
+        AddEntitiesRequestPersonMatchMode,
+    )
 _dynamic_imports: typing.Dict[str, str] = {
+    "AddEntitiesRequestNamesItem": ".entities",
+    "AddEntitiesRequestNamesItemPersonMatchMode": ".entities",
+    "AddEntitiesRequestNamesItemType": ".entities",
     "AddEntitiesRequestPersonMatchMode": ".entities",
     "CreateMonitorsRequestNotifyFrequency": ".types",
     "UpdateMonitorsRequestNotifyFrequency": ".types",
@@ -41,6 +49,9 @@ def __dir__():
 
 
 __all__ = [
+    "AddEntitiesRequestNamesItem",
+    "AddEntitiesRequestNamesItemPersonMatchMode",
+    "AddEntitiesRequestNamesItemType",
     "AddEntitiesRequestPersonMatchMode",
     "CreateMonitorsRequestNotifyFrequency",
     "UpdateMonitorsRequestNotifyFrequency",

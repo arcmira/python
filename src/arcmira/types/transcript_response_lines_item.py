@@ -25,7 +25,7 @@ class TranscriptResponseLinesItem(UniversalBaseModel):
 
     index: typing.Optional[int] = pydantic.Field(default=None)
     """
-    Line index, present on every Premium line. Echo it as anchor.segmentIndex when you correct the line.
+    Line index, present on every Premium line. Stable within one revision.
     """
 
     if IS_PYDANTIC_V2:

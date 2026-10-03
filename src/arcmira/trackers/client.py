@@ -86,7 +86,7 @@ class TrackersClient:
         Parameters
         ----------
         entity_name : str
-            The exact name to watch, matched case-insensitively against analyzed media, so a tracker can exist before the entity is indexed. For a channel, the YouTube channel id (UC plus 22 characters), never a name: a channel name answers 400 id_required naming GET /v1/entities/resolve?q=...&type=channel and best.youtube_channel_id. Required on create. Creating a duplicate (same name + type) returns 409 tracker_already_exists with the existing tracker id in error.details.existing_id.
+            The exact name to watch, matched case-insensitively against analyzed media, so a tracker can exist before the entity is indexed. For a channel, the YouTube channel id (UC plus 22 characters), never a name: a channel name answers 400 id_required naming GET /v1/entities/resolve?q=...&type=channel and best.youtube_channel_id. Required on create. Creating a duplicate (same name, compared case-insensitively, and type) returns 409 tracker_already_exists with the existing tracker id in error.details.existing_id.
 
         entity_type : CreateTrackersRequestEntityType
             Entity type of the tracked entity. Required on create. org is accepted for organization, and the tracker answers organization.
@@ -378,7 +378,7 @@ class AsyncTrackersClient:
         Parameters
         ----------
         entity_name : str
-            The exact name to watch, matched case-insensitively against analyzed media, so a tracker can exist before the entity is indexed. For a channel, the YouTube channel id (UC plus 22 characters), never a name: a channel name answers 400 id_required naming GET /v1/entities/resolve?q=...&type=channel and best.youtube_channel_id. Required on create. Creating a duplicate (same name + type) returns 409 tracker_already_exists with the existing tracker id in error.details.existing_id.
+            The exact name to watch, matched case-insensitively against analyzed media, so a tracker can exist before the entity is indexed. For a channel, the YouTube channel id (UC plus 22 characters), never a name: a channel name answers 400 id_required naming GET /v1/entities/resolve?q=...&type=channel and best.youtube_channel_id. Required on create. Creating a duplicate (same name, compared case-insensitively, and type) returns 409 tracker_already_exists with the existing tracker id in error.details.existing_id.
 
         entity_type : CreateTrackersRequestEntityType
             Entity type of the tracked entity. Required on create. org is accepted for organization, and the tracker answers organization.

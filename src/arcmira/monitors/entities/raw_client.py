@@ -10,6 +10,7 @@ from ...core.jsonable_encoder import encode_path_param
 from ...core.parse_error import ParsingError
 from ...core.pydantic_utilities import parse_obj_as
 from ...core.request_options import RequestOptions
+from ...core.serialization import convert_and_respect_annotation_metadata
 from ...errors.bad_request_error import BadRequestError
 from ...errors.conflict_error import ConflictError
 from ...errors.forbidden_error import ForbiddenError
@@ -19,6 +20,7 @@ from ...errors.too_many_requests_error import TooManyRequestsError
 from ...errors.unauthorized_error import UnauthorizedError
 from ...types.error import Error
 from ...types.monitor_add_entities_response import MonitorAddEntitiesResponse
+from .types.add_entities_request_names_item import AddEntitiesRequestNamesItem
 from .types.add_entities_request_person_match_mode import AddEntitiesRequestPersonMatchMode
 from pydantic import ValidationError
 
@@ -34,24 +36,28 @@ class RawEntitiesClient:
         self,
         id: str,
         *,
-        entity_ids: typing.Sequence[str],
         idempotency_key: typing.Optional[str] = None,
+        entity_ids: typing.Optional[typing.Sequence[str]] = OMIT,
+        names: typing.Optional[typing.Sequence[AddEntitiesRequestNamesItem]] = OMIT,
         person_match_mode: typing.Optional[AddEntitiesRequestPersonMatchMode] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[MonitorAddEntitiesResponse]:
         """
-        Follows each entity ({ entity_ids: ["ent_..."] }) in the monitor: the account's existing tracker for the entity is reused, else a tracker is created for the canonical entity (a merged id follows its redirect), then the trackers are attached. Attached trackers use the monitor's delivery settings. Supply 1 to 90 ids; duplicates count once. Each id gets one result in request order. An id that cannot be followed comes back with attached: false and a reason (entity_not_found, entity_type_not_trackable, tracker_limit_reached, tracked_in_another_monitor) while the rest still attach; a tracker already in another monitor is left there and named in current_monitor_id. Requires the monitors:write and trackers:write scopes.
+        Follows each entity ({ entity_ids: ["ent_..."] }) and each exact name ({ names: [{ name, type }] }) in the monitor: the monitor account's existing tracker for the entity or name (compared case-insensitively) is reused, else a tracker is created under the monitor's account (the team owner on a team monitor) for the canonical entity (a merged id follows its redirect) or the name as given, then the trackers are attached, all in one write. Use names for something not yet indexed; a channel is named by its YouTube channel id, and a channel name answers 400 id_required. Attached trackers use the monitor's delivery settings. Supply 1 to 90 ids and names together; duplicates count once. Each gets one result, ids first then names, in request order; a names result carries name and type in place of entity_id. An id that cannot be followed comes back with attached: false and a reason (entity_not_found, entity_type_not_trackable, tracker_limit_reached, tracked_in_another_monitor) while the rest still attach; a tracker already in another monitor is left there and named in current_monitor_id. Requires the monitors:write and trackers:write scopes.
 
         Parameters
         ----------
         id : str
             Monitor id.
 
-        entity_ids : typing.Sequence[str]
-            Entity ids ("ent_...") to follow in this monitor, from GET /v1/entities/resolve or search. 1 to 90; duplicates count once. A merged id follows its redirect to the canonical entity.
-
         idempotency_key : typing.Optional[str]
             One key per intent, 1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400 invalid_idempotency_key. Keys are scoped to the account, credential and resource family. The same key and normalized method, path and body returns the committed response with Idempotency-Replayed: true. A changed intent within the same family returns 409 idempotency_conflict. Monitor and tracker families have independent namespaces. Secret recovery is limited as described by the operation.
+
+        entity_ids : typing.Optional[typing.Sequence[str]]
+            Entity ids ("ent_...") to follow in this monitor, from GET /v1/entities/resolve or search. Duplicates count once. A merged id follows its redirect to the canonical entity.
+
+        names : typing.Optional[typing.Sequence[AddEntitiesRequestNamesItem]]
+            Exact names to follow in this monitor, for a name not yet indexed or one you have no id for. The tracker is created under the monitor's account (the team owner on a team monitor) and attached in the same call; the account's tracker for the same name (compared case-insensitively) and type is reused. Duplicates count once.
 
         person_match_mode : typing.Optional[AddEntitiesRequestPersonMatchMode]
             For person trackers this request creates: mentions (default) matches others talking about the person; appearances matches the person present as a speaker, host or guest; both accepts either. Other types ignore it, and a tracker that already exists keeps its own setting (change it with PATCH /v1/trackers/{id}).
@@ -69,6 +75,9 @@ class RawEntitiesClient:
             method="POST",
             json={
                 "entity_ids": entity_ids,
+                "names": convert_and_respect_annotation_metadata(
+                    object_=names, annotation=typing.Sequence[AddEntitiesRequestNamesItem], direction="write"
+                ),
                 "person_match_mode": person_match_mode,
             },
             headers={
@@ -183,24 +192,28 @@ class AsyncRawEntitiesClient:
         self,
         id: str,
         *,
-        entity_ids: typing.Sequence[str],
         idempotency_key: typing.Optional[str] = None,
+        entity_ids: typing.Optional[typing.Sequence[str]] = OMIT,
+        names: typing.Optional[typing.Sequence[AddEntitiesRequestNamesItem]] = OMIT,
         person_match_mode: typing.Optional[AddEntitiesRequestPersonMatchMode] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[MonitorAddEntitiesResponse]:
         """
-        Follows each entity ({ entity_ids: ["ent_..."] }) in the monitor: the account's existing tracker for the entity is reused, else a tracker is created for the canonical entity (a merged id follows its redirect), then the trackers are attached. Attached trackers use the monitor's delivery settings. Supply 1 to 90 ids; duplicates count once. Each id gets one result in request order. An id that cannot be followed comes back with attached: false and a reason (entity_not_found, entity_type_not_trackable, tracker_limit_reached, tracked_in_another_monitor) while the rest still attach; a tracker already in another monitor is left there and named in current_monitor_id. Requires the monitors:write and trackers:write scopes.
+        Follows each entity ({ entity_ids: ["ent_..."] }) and each exact name ({ names: [{ name, type }] }) in the monitor: the monitor account's existing tracker for the entity or name (compared case-insensitively) is reused, else a tracker is created under the monitor's account (the team owner on a team monitor) for the canonical entity (a merged id follows its redirect) or the name as given, then the trackers are attached, all in one write. Use names for something not yet indexed; a channel is named by its YouTube channel id, and a channel name answers 400 id_required. Attached trackers use the monitor's delivery settings. Supply 1 to 90 ids and names together; duplicates count once. Each gets one result, ids first then names, in request order; a names result carries name and type in place of entity_id. An id that cannot be followed comes back with attached: false and a reason (entity_not_found, entity_type_not_trackable, tracker_limit_reached, tracked_in_another_monitor) while the rest still attach; a tracker already in another monitor is left there and named in current_monitor_id. Requires the monitors:write and trackers:write scopes.
 
         Parameters
         ----------
         id : str
             Monitor id.
 
-        entity_ids : typing.Sequence[str]
-            Entity ids ("ent_...") to follow in this monitor, from GET /v1/entities/resolve or search. 1 to 90; duplicates count once. A merged id follows its redirect to the canonical entity.
-
         idempotency_key : typing.Optional[str]
             One key per intent, 1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400 invalid_idempotency_key. Keys are scoped to the account, credential and resource family. The same key and normalized method, path and body returns the committed response with Idempotency-Replayed: true. A changed intent within the same family returns 409 idempotency_conflict. Monitor and tracker families have independent namespaces. Secret recovery is limited as described by the operation.
+
+        entity_ids : typing.Optional[typing.Sequence[str]]
+            Entity ids ("ent_...") to follow in this monitor, from GET /v1/entities/resolve or search. Duplicates count once. A merged id follows its redirect to the canonical entity.
+
+        names : typing.Optional[typing.Sequence[AddEntitiesRequestNamesItem]]
+            Exact names to follow in this monitor, for a name not yet indexed or one you have no id for. The tracker is created under the monitor's account (the team owner on a team monitor) and attached in the same call; the account's tracker for the same name (compared case-insensitively) and type is reused. Duplicates count once.
 
         person_match_mode : typing.Optional[AddEntitiesRequestPersonMatchMode]
             For person trackers this request creates: mentions (default) matches others talking about the person; appearances matches the person present as a speaker, host or guest; both accepts either. Other types ignore it, and a tracker that already exists keeps its own setting (change it with PATCH /v1/trackers/{id}).
@@ -218,6 +231,9 @@ class AsyncRawEntitiesClient:
             method="POST",
             json={
                 "entity_ids": entity_ids,
+                "names": convert_and_respect_annotation_metadata(
+                    object_=names, annotation=typing.Sequence[AddEntitiesRequestNamesItem], direction="write"
+                ),
                 "person_match_mode": person_match_mode,
             },
             headers={

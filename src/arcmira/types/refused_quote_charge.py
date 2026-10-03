@@ -6,23 +6,19 @@ import pydantic
 import typing_extensions
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 from ..core.serialization import FieldMetadata
-from .channel_sponsors_response_access_details_quote_charge_from import (
-    ChannelSponsorsResponseAccessDetailsQuoteChargeFrom,
-)
-from .channel_sponsors_response_access_details_quote_charge_unit import (
-    ChannelSponsorsResponseAccessDetailsQuoteChargeUnit,
-)
+from .refused_quote_charge_from import RefusedQuoteChargeFrom
+from .refused_quote_charge_unit import RefusedQuoteChargeUnit
 
 
-class ChannelSponsorsResponseAccessDetailsQuoteCharge(UniversalBaseModel):
+class RefusedQuoteCharge(UniversalBaseModel):
     """
     What the purchase would charge at the current balance. Absent when no current price could be read.
     """
 
-    unit: ChannelSponsorsResponseAccessDetailsQuoteChargeUnit
+    unit: RefusedQuoteChargeUnit
     amount: float
     from_: typing_extensions.Annotated[
-        ChannelSponsorsResponseAccessDetailsQuoteChargeFrom,
+        RefusedQuoteChargeFrom,
         FieldMetadata(alias="from"),
         pydantic.Field(alias="from", description="Where the charge would come from at the current balance."),
     ]

@@ -6,8 +6,18 @@ import typing
 from importlib import import_module
 
 if typing.TYPE_CHECKING:
-    from .types import AddEntitiesRequestPersonMatchMode
-_dynamic_imports: typing.Dict[str, str] = {"AddEntitiesRequestPersonMatchMode": ".types"}
+    from .types import (
+        AddEntitiesRequestNamesItem,
+        AddEntitiesRequestNamesItemPersonMatchMode,
+        AddEntitiesRequestNamesItemType,
+        AddEntitiesRequestPersonMatchMode,
+    )
+_dynamic_imports: typing.Dict[str, str] = {
+    "AddEntitiesRequestNamesItem": ".types",
+    "AddEntitiesRequestNamesItemPersonMatchMode": ".types",
+    "AddEntitiesRequestNamesItemType": ".types",
+    "AddEntitiesRequestPersonMatchMode": ".types",
+}
 
 
 def __getattr__(attr_name: str) -> typing.Any:
@@ -31,4 +41,9 @@ def __dir__():
     return sorted(lazy_attrs)
 
 
-__all__ = ["AddEntitiesRequestPersonMatchMode"]
+__all__ = [
+    "AddEntitiesRequestNamesItem",
+    "AddEntitiesRequestNamesItemPersonMatchMode",
+    "AddEntitiesRequestNamesItemType",
+    "AddEntitiesRequestPersonMatchMode",
+]

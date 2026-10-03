@@ -6,7 +6,8 @@ Generated from the v1 document of 2026-10-02. The document dropped from 88 opera
 
 Added.
 
-- `client.monitors.entities.add(id, entity_ids=[...], person_match_mode=None)` follows entities by id in a monitor. It reuses the account's tracker for each entity or creates one, then attaches it. Each id gets one result, and an id that cannot be followed comes back with `attached: false` and a reason.
+- `client.monitors.entities.add(id, entity_ids=None, names=None, person_match_mode=None)` follows entities in a monitor by id, or by exact name and type for a name not yet indexed. It reuses the account's tracker for each entity or creates one, then attaches it. Each id or name gets one result, and one that cannot be followed comes back with `attached: false` and a reason.
+- `trackers.create` and `names` accept `org` for `organization`, and the duplicate check ignores case.
 - `client.integrations.slack.list()` lists the account's active Slack workspaces with the `slack_integration_id` and `slack_channel_id` values a monitor needs for Slack delivery. Slack is connected in the dashboard, not through the API.
 - `monitors.create` takes `team_id`. `Monitor` carries `access`, `muted` and `team`.
 - `feedback.submit` takes `category` and `mcp_call_id`, and `type="experience"` reports how a task went as a whole.
@@ -14,7 +15,7 @@ Added.
 
 Breaking changes from 0.3.
 
-- Premium is one read. `transcripts.get(video_id, quality="premium")` answers `ready` (200) when the account owns the transcript. Otherwise it buys the whole video within the plan and the account's on-demand budget and answers `pending` (202) with the `job` and a `Retry-After` header. Read again after `Retry-After`. Repeated reads join the same purchase and never buy twice. `TranscriptResult` is now `TranscriptResult_Ready | TranscriptResult_Pending`. The `preparation_required` state and `TranscriptResult_PreparationRequired` are gone.
+- Premium is one read. `transcripts.get(video_id, quality="premium")` answers `ready` (200) when the account owns the transcript. Otherwise it buys the whole video within the plan and the account's on-demand budget and answers `pending` (202) with the `job` and a `Retry-After` header. Read again after `Retry-After`. Repeated reads join the same purchase and never buy twice. When the last purchase for the video failed or was refunded, the read answers `failed` (200) with the `job` and `last_attempt` and buys nothing; pass `retry=True` to buy it again. `TranscriptResult` is now `TranscriptResult_Ready | TranscriptResult_Pending | TranscriptResult_Failed`. Priced refusals carry one `RefusedQuote` type. The `preparation_required` state and `TranscriptResult_PreparationRequired` are gone.
 - `transcripts.prepare_and_wait` is removed, along with `PreparationError`, `PreparationFailedError`, `PreparationTimeoutError` and `PremiumUnavailableError`. Loop on `transcripts.get(..., quality="premium")` until `state == "ready"`. The README has the loop.
 - `transcripts.request` and `transcripts.status` are removed, with the `TranscriptRequestSubmitResponse` type. The Premium read buys and reports its own job. `transcripts.list_requests` still lists past purchases.
 - A Premium refusal raises from the read itself. `PaymentRequiredError` (402) carries `quota_exceeded` or `spend_limit_exceeded`, and `ForbiddenError` (403) carries `paid_plan_required`. Nothing is charged.

@@ -6,9 +6,15 @@ import typing
 from importlib import import_module
 
 if typing.TYPE_CHECKING:
+    from .add_entities_request_names_item import AddEntitiesRequestNamesItem
+    from .add_entities_request_names_item_person_match_mode import AddEntitiesRequestNamesItemPersonMatchMode
+    from .add_entities_request_names_item_type import AddEntitiesRequestNamesItemType
     from .add_entities_request_person_match_mode import AddEntitiesRequestPersonMatchMode
 _dynamic_imports: typing.Dict[str, str] = {
-    "AddEntitiesRequestPersonMatchMode": ".add_entities_request_person_match_mode"
+    "AddEntitiesRequestNamesItem": ".add_entities_request_names_item",
+    "AddEntitiesRequestNamesItemPersonMatchMode": ".add_entities_request_names_item_person_match_mode",
+    "AddEntitiesRequestNamesItemType": ".add_entities_request_names_item_type",
+    "AddEntitiesRequestPersonMatchMode": ".add_entities_request_person_match_mode",
 }
 
 
@@ -33,4 +39,9 @@ def __dir__():
     return sorted(lazy_attrs)
 
 
-__all__ = ["AddEntitiesRequestPersonMatchMode"]
+__all__ = [
+    "AddEntitiesRequestNamesItem",
+    "AddEntitiesRequestNamesItemPersonMatchMode",
+    "AddEntitiesRequestNamesItemType",
+    "AddEntitiesRequestPersonMatchMode",
+]

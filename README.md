@@ -49,10 +49,12 @@ for _ in range(60):
         for line in read.data.lines:
             print(line.start, line.text)
         break
+    if read.data.state == "failed":
+        raise RuntimeError(f"{read.data.last_attempt.status}: {read.data.last_attempt.error}")
     time.sleep(int(read.headers.get("retry-after") or read.data.job.next_poll_seconds or 10))
 ```
 
-`read.data` is a `TranscriptResult`, discriminated on `state`. `ready` carries the transcript. `pending` carries `job`, with `eta_seconds`, `next_poll_seconds` and `charge`. Without `with_raw_response`, `client.transcripts.get(...)` returns the same union without the status and headers.
+`read.data` is a `TranscriptResult`, discriminated on `state`. `ready` carries the transcript. `pending` carries `job`, with `eta_seconds`, `next_poll_seconds` and `charge`. `failed` means the last purchase failed or was refunded; it carries `job` and `last_attempt`, buys nothing, and `retry=True` buys it again. Without `with_raw_response`, `client.transcripts.get(...)` returns the same union without the status and headers.
 
 A quote is free and changes nothing.
 

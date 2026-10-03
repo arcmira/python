@@ -4,23 +4,23 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2
-from .channel_sponsors_response_access_details_quote_charge import ChannelSponsorsResponseAccessDetailsQuoteCharge
+from .refused_quote_charge import RefusedQuoteCharge
 from .transcript_quote import TranscriptQuote
 
 
-class ChannelSponsorsResponseAccessDetailsQuote(TranscriptQuote):
+class RefusedQuote(TranscriptQuote):
     """
-    The refused price, on a priced refusal: quota_exceeded, max_rows_exceeded, max_charge_exceeded, spend_limit_exceeded, purchase_authority_changed and paid_plan_required.
+    The refused price, on a priced refusal: quota_exceeded, spend_limit_exceeded and paid_plan_required.
     """
 
-    charge: typing.Optional[ChannelSponsorsResponseAccessDetailsQuoteCharge] = pydantic.Field(default=None)
+    charge: typing.Optional[RefusedQuoteCharge] = pydantic.Field(default=None)
     """
     What the purchase would charge at the current balance. Absent when no current price could be read.
     """
 
     max_on_demand_cents: typing.Optional[int] = pydantic.Field(default=None)
     """
-    The money ceiling the current quote needs, in whole cents. Send at least this as max_on_demand_cents with a new intent.
+    The on-demand money, in whole cents, this purchase needs beyond included credits at the current balance.
     """
 
     if IS_PYDANTIC_V2:
