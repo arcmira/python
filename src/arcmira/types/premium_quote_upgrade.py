@@ -6,7 +6,7 @@ import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 
 
-class TranscriptPurchaseQuoteUpgrade(UniversalBaseModel):
+class PremiumQuoteUpgrade(UniversalBaseModel):
     """
     Present when eligible is false. Names the plan that includes Premium transcripts, as a button label and an absolute link to its checkout.
     """

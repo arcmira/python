@@ -63,12 +63,12 @@ class Recommendation(UniversalBaseModel):
 
     sentiment_score: typing.Optional[float] = pydantic.Field(default=None)
     """
-    Raw sentiment score between -1 and 1, same semantics as sentiment_score on mention rows. Null when not computed.
+    Raw sentiment score between -1 and 1, same semantics as sentiment_score on mentions. Null when not computed.
     """
 
     confidence: float = pydantic.Field()
     """
-    Classifier confidence between 0 and 1. Rows below the min_confidence filter (default 0.7) are excluded from list responses.
+    Classifier confidence between 0 and 1. Recommendations below the min_confidence filter (default 0.7) are excluded from list responses.
     """
 
     speaker_role: str = pydantic.Field()
@@ -78,7 +78,7 @@ class Recommendation(UniversalBaseModel):
 
     conflict_status: typing.Optional[str] = pydantic.Field(default=None)
     """
-    Set when community feedback disputes the classification (e.g. "disputed"). Null when undisputed. Disputed rows are excluded unless include_disputed=true.
+    Set when community feedback disputes the classification (e.g. "disputed"). Null when undisputed. Disputed recommendations are excluded unless include_disputed=true.
     """
 
     resolution: typing.Optional[str] = pydantic.Field(default=None)

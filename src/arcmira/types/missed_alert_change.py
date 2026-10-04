@@ -8,7 +8,7 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 
 class MissedAlertChange(UniversalBaseModel):
     """
-    For issue_type missed_alert: an expectation with no alert row to target. Omit the correction id and describe where the alert should have fired.
+    For issue_type missed_alert: an expectation with no alert to target. Omit the correction id and describe where the alert should have fired.
     """
 
     source_url: str = pydantic.Field()

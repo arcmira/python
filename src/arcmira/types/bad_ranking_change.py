@@ -8,17 +8,17 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 
 class BadRankingChange(UniversalBaseModel):
     """
-    For issue_type bad_ranking: the expected and observed positions of the row.
+    For issue_type bad_ranking: the expected and observed positions of the result.
     """
 
     expected_rank: typing.Optional[int] = pydantic.Field(default=None)
     """
-    Where the row should have ranked (1-based).
+    Where the result should have ranked (1-based).
     """
 
     observed_rank: typing.Optional[int] = pydantic.Field(default=None)
     """
-    Where the row actually ranked (1-based). Most useful on search feedback.
+    Where the result actually ranked (1-based). Most useful on search feedback.
     """
 
     if IS_PYDANTIC_V2:

@@ -18,7 +18,7 @@ class MentionListResponse(UniversalBaseModel):
 
     has_more: bool = pydantic.Field()
     """
-    True when more rows exist past this page.
+    True when more results exist past this page.
     """
 
     next_cursor: typing.Optional[str] = pydantic.Field(default=None)

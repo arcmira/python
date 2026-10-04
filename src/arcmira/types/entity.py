@@ -24,7 +24,7 @@ class Entity(UniversalBaseModel):
 
     type: str = pydantic.Field()
     """
-    Entity type. Values: person (an individual), organization (a company or institution; legacy rows may read company or brand), product (a product or service), topic (a subject or theme), channel (a media source such as a YouTube channel), unknown (type was never classified).
+    Entity type. Values: person (an individual), organization (a company or institution; legacy entities may read company or brand), product (a product or service), topic (a subject or theme), channel (a media source such as a YouTube channel), unknown (type was never classified).
     """
 
     platform: typing.Optional[str] = pydantic.Field(default=None)
@@ -49,7 +49,7 @@ class Entity(UniversalBaseModel):
 
     appearance_count: typing.Optional[int] = pydantic.Field(default=None)
     """
-    Number of indexed appearance/mention rows for this entity. 0 when never counted.
+    Number of indexed appearances and mentions of this entity. 0 when never counted.
     """
 
     owner_entity_id: typing.Optional[str] = pydantic.Field(default=None)

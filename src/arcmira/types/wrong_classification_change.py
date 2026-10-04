@@ -11,7 +11,7 @@ from .wrong_classification_change_class import WrongClassificationChangeClass
 
 class WrongClassificationChange(UniversalBaseModel):
     """
-    For issue_type wrong_classification: the commercial class the row should carry.
+    For issue_type wrong_classification: the commercial class the result should carry.
     """
 
     class_: typing_extensions.Annotated[

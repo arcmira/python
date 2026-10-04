@@ -4,28 +4,36 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
-from .transcript_purchase_quote_billing_scope import TranscriptPurchaseQuoteBillingScope
-from .transcript_purchase_quote_charge import TranscriptPurchaseQuoteCharge
-from .transcript_purchase_quote_upgrade import TranscriptPurchaseQuoteUpgrade
+from .premium_quote_billing_scope import PremiumQuoteBillingScope
+from .premium_quote_charge import PremiumQuoteCharge
+from .premium_quote_upgrade import PremiumQuoteUpgrade
 from .transcript_quote import TranscriptQuote
 
 
-class TranscriptPurchaseQuote(UniversalBaseModel):
+class PremiumQuote(UniversalBaseModel):
     video_id: str
     duration_seconds: float
-    billing_scope: TranscriptPurchaseQuoteBillingScope
+    billing_scope: PremiumQuoteBillingScope
     owned: bool
     eligible: bool
-    upgrade: typing.Optional[TranscriptPurchaseQuoteUpgrade] = pydantic.Field(default=None)
+    upgrade: typing.Optional[PremiumQuoteUpgrade] = pydantic.Field(default=None)
     """
     Present when eligible is false. Names the plan that includes Premium transcripts, as a button label and an absolute link to its checkout.
     """
 
     quote: TranscriptQuote
-    charge: TranscriptPurchaseQuoteCharge
-    credits_per_row: float
+    charge: PremiumQuoteCharge
+    credits_per_row: float = pydantic.Field()
+    """
+    Credits in a row: 4.
+    """
+
     max_on_demand_cents: float
-    on_demand_cents_per_unit: float
+    on_demand_cents_per_unit: float = pydantic.Field()
+    """
+    What one unit of charge.unit costs as on-demand usage, in US cents: 0.2 a credit ($0.002).
+    """
+
     refund_policy: str
 
     if IS_PYDANTIC_V2:

@@ -8,12 +8,12 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 
 class WrongEntityChange(UniversalBaseModel):
     """
-    For issue_type wrong_entity (and wrong_person): the entity the row should have been attributed to.
+    For issue_type wrong_entity (and wrong_person): the entity the result should have been attributed to.
     """
 
     entity_id: typing.Optional[str] = pydantic.Field(default=None)
     """
-    Public id ("ent_{n}") of the entity the row should point at.
+    Public id ("ent_{n}") of the entity the result should point at.
     """
 
     entity_name: typing.Optional[str] = pydantic.Field(default=None)

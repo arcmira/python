@@ -9,7 +9,7 @@ from .entity_resolve_response_ask_options_item import EntityResolveResponseAskOp
 
 class EntityResolveResponseAsk(UniversalBaseModel):
     """
-    Set when best and suggested are both null and several rows fit: show the options to the user, or check every option id against the data and answer per row.
+    Set when best and suggested are both null and several entities fit: show the options to the user, or check every option id against the data and answer per entity.
     """
 
     question: str

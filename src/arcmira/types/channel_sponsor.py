@@ -12,7 +12,7 @@ class ChannelSponsor(UniversalBaseModel):
     entity: EntityRef
     ad_reads: int = pydantic.Field()
     """
-    Number of ad_read recommendation rows for this sponsor on the channel.
+    Number of ad_read recommendations for this sponsor on the channel.
     """
 
     videos: int = pydantic.Field()

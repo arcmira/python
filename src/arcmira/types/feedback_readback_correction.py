@@ -50,7 +50,7 @@ class FeedbackReadbackCorrection(UniversalBaseModel):
 
     created_at: typing.Optional[str] = pydantic.Field(default=None)
     """
-    When the correction row was created.
+    When the correction was created.
     """
 
     if IS_PYDANTIC_V2:

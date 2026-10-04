@@ -10,17 +10,17 @@ from .me_response_usage_credits import MeResponseUsageCredits
 class MeResponseUsage(UniversalBaseModel):
     rows_used: int = pydantic.Field()
     """
-    Premium rows consumed this period.
+    Plan credits used this month, in rows: usage.credits.plan.used divided by 4, rounded up. A row is 4 credits.
     """
 
     rows_remaining: int = pydantic.Field()
     """
-    Premium rows left this period.
+    Credits left from the plan, grants and top-ups, on-demand excluded, in rows: divided by 4, rounded up. A row is 4 credits.
     """
 
     monthly_rows: int = pydantic.Field()
     """
-    Total premium rows included per period.
+    The plan credits a month, in rows: usage.credits.plan.credits divided by 4 when the plan has a limit. A row is 4 credits.
     """
 
     current_spend_cents: int = pydantic.Field()
@@ -30,7 +30,7 @@ class MeResponseUsage(UniversalBaseModel):
 
     credits: typing.Optional[MeResponseUsageCredits] = pydantic.Field(default=None)
     """
-    The month in credits (1 credit is $0.001; a row is 4 credits). Present only when the credits ledger decides access.
+    The month in credits, the primary measure of usage. Every read uses credits from the plan, then the on-demand budget. An included plan credit is valued at $0.001; on-demand usage costs $0.002 a credit. A row is 4 credits. Present only when the credits ledger decides access.
     """
 
     if IS_PYDANTIC_V2:

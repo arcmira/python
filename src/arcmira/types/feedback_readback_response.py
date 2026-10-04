@@ -41,7 +41,7 @@ class FeedbackReadbackResponse(UniversalBaseModel):
 
     corrections: typing.List[FeedbackReadbackCorrection] = pydantic.Field()
     """
-    Per-correction rows with their individual review statuses, in submission order.
+    The corrections, each with its own review status, in submission order.
     """
 
     if IS_PYDANTIC_V2:

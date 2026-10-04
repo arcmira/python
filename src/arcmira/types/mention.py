@@ -40,7 +40,7 @@ class Mention(UniversalBaseModel):
 
     confidence: typing.Optional[float] = pydantic.Field(default=None)
     """
-    Analyzer confidence between 0 and 1. Null for legacy rows analyzed before confidence scoring.
+    Analyzer confidence between 0 and 1. Null for legacy mentions analyzed before confidence scoring.
     """
 
     sentiment_score: typing.Optional[float] = pydantic.Field(default=None)

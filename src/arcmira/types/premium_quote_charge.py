@@ -6,15 +6,15 @@ import pydantic
 import typing_extensions
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 from ..core.serialization import FieldMetadata
-from .transcript_purchase_quote_charge_from import TranscriptPurchaseQuoteChargeFrom
-from .transcript_purchase_quote_charge_unit import TranscriptPurchaseQuoteChargeUnit
+from .premium_quote_charge_from import PremiumQuoteChargeFrom
+from .premium_quote_charge_unit import PremiumQuoteChargeUnit
 
 
-class TranscriptPurchaseQuoteCharge(UniversalBaseModel):
-    unit: TranscriptPurchaseQuoteChargeUnit
+class PremiumQuoteCharge(UniversalBaseModel):
+    unit: PremiumQuoteChargeUnit
     amount: float
     from_: typing_extensions.Annotated[
-        TranscriptPurchaseQuoteChargeFrom,
+        PremiumQuoteChargeFrom,
         FieldMetadata(alias="from"),
         pydantic.Field(alias="from", description="Where the charge would come from at the current balance."),
     ]

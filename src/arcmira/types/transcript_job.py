@@ -32,7 +32,7 @@ class TranscriptJob(UniversalBaseModel):
 
     status: TranscriptJobStatus = pydantic.Field()
     """
-    Request status. Values: queued (accepted; audio download not started), downloading (fetching the video audio), transcribing (premium speech-to-text is running), analyzing (entity/commercial analysis is running), complete (premium transcript is servable via GET /v1/transcripts/{video_id}), failed (rejected intent, or a legacy request needing accounting review), refund_pending (refund transaction must still complete), refunded (terminal failure; the charged rows were returned and the unlock this request granted was revoked).
+    Request status. Values: queued (accepted; audio download not started), downloading (fetching the video audio), transcribing (premium speech-to-text is running), analyzing (entity/commercial analysis is running), complete (premium transcript is servable via GET /v1/transcripts/{video_id}), failed (rejected intent, or a legacy request needing accounting review), refund_pending (refund transaction must still complete), refunded (terminal failure; the charge was returned and the unlock this request granted was revoked).
     """
 
     stage: typing.Optional[TranscriptJobStage] = pydantic.Field(default=None)

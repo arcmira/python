@@ -155,6 +155,12 @@ if typing.TYPE_CHECKING:
     from .open_api_document_info import OpenApiDocumentInfo
     from .open_api_document_info_contact import OpenApiDocumentInfoContact
     from .open_api_document_servers_item import OpenApiDocumentServersItem
+    from .premium_quote import PremiumQuote
+    from .premium_quote_billing_scope import PremiumQuoteBillingScope
+    from .premium_quote_charge import PremiumQuoteCharge
+    from .premium_quote_charge_from import PremiumQuoteChargeFrom
+    from .premium_quote_charge_unit import PremiumQuoteChargeUnit
+    from .premium_quote_upgrade import PremiumQuoteUpgrade
     from .publication_window import PublicationWindow
     from .recommendation import Recommendation
     from .recommendation_class import RecommendationClass
@@ -198,12 +204,6 @@ if typing.TYPE_CHECKING:
     from .transcript_job_status import TranscriptJobStatus
     from .transcript_pending import TranscriptPending
     from .transcript_pending_quality import TranscriptPendingQuality
-    from .transcript_purchase_quote import TranscriptPurchaseQuote
-    from .transcript_purchase_quote_billing_scope import TranscriptPurchaseQuoteBillingScope
-    from .transcript_purchase_quote_charge import TranscriptPurchaseQuoteCharge
-    from .transcript_purchase_quote_charge_from import TranscriptPurchaseQuoteChargeFrom
-    from .transcript_purchase_quote_charge_unit import TranscriptPurchaseQuoteChargeUnit
-    from .transcript_purchase_quote_upgrade import TranscriptPurchaseQuoteUpgrade
     from .transcript_quote import TranscriptQuote
     from .transcript_request_list_response import TranscriptRequestListResponse
     from .transcript_request_list_response_requests_item import TranscriptRequestListResponseRequestsItem
@@ -398,6 +398,12 @@ _dynamic_imports: typing.Dict[str, str] = {
     "OpenApiDocumentInfo": ".open_api_document_info",
     "OpenApiDocumentInfoContact": ".open_api_document_info_contact",
     "OpenApiDocumentServersItem": ".open_api_document_servers_item",
+    "PremiumQuote": ".premium_quote",
+    "PremiumQuoteBillingScope": ".premium_quote_billing_scope",
+    "PremiumQuoteCharge": ".premium_quote_charge",
+    "PremiumQuoteChargeFrom": ".premium_quote_charge_from",
+    "PremiumQuoteChargeUnit": ".premium_quote_charge_unit",
+    "PremiumQuoteUpgrade": ".premium_quote_upgrade",
     "PublicationWindow": ".publication_window",
     "Recommendation": ".recommendation",
     "RecommendationClass": ".recommendation_class",
@@ -439,12 +445,6 @@ _dynamic_imports: typing.Dict[str, str] = {
     "TranscriptJobStatus": ".transcript_job_status",
     "TranscriptPending": ".transcript_pending",
     "TranscriptPendingQuality": ".transcript_pending_quality",
-    "TranscriptPurchaseQuote": ".transcript_purchase_quote",
-    "TranscriptPurchaseQuoteBillingScope": ".transcript_purchase_quote_billing_scope",
-    "TranscriptPurchaseQuoteCharge": ".transcript_purchase_quote_charge",
-    "TranscriptPurchaseQuoteChargeFrom": ".transcript_purchase_quote_charge_from",
-    "TranscriptPurchaseQuoteChargeUnit": ".transcript_purchase_quote_charge_unit",
-    "TranscriptPurchaseQuoteUpgrade": ".transcript_purchase_quote_upgrade",
     "TranscriptQuote": ".transcript_quote",
     "TranscriptRequestListResponse": ".transcript_request_list_response",
     "TranscriptRequestListResponseRequestsItem": ".transcript_request_list_response_requests_item",
@@ -661,6 +661,12 @@ __all__ = [
     "OpenApiDocumentInfo",
     "OpenApiDocumentInfoContact",
     "OpenApiDocumentServersItem",
+    "PremiumQuote",
+    "PremiumQuoteBillingScope",
+    "PremiumQuoteCharge",
+    "PremiumQuoteChargeFrom",
+    "PremiumQuoteChargeUnit",
+    "PremiumQuoteUpgrade",
     "PublicationWindow",
     "Recommendation",
     "RecommendationClass",
@@ -702,12 +708,6 @@ __all__ = [
     "TranscriptJobStatus",
     "TranscriptPending",
     "TranscriptPendingQuality",
-    "TranscriptPurchaseQuote",
-    "TranscriptPurchaseQuoteBillingScope",
-    "TranscriptPurchaseQuoteCharge",
-    "TranscriptPurchaseQuoteChargeFrom",
-    "TranscriptPurchaseQuoteChargeUnit",
-    "TranscriptPurchaseQuoteUpgrade",
     "TranscriptQuote",
     "TranscriptRequestListResponse",
     "TranscriptRequestListResponseRequestsItem",
