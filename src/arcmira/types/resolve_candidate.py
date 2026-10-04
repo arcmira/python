@@ -9,7 +9,7 @@ from .resolve_candidate_match import ResolveCandidateMatch
 
 class ResolveCandidate(UniversalBaseModel):
     """
-    The one row q means. Set on exact and single_fuzzy only. Name it in the answer.
+    The one entity q means. Set on exact and single_fuzzy only. Name it in the answer.
     """
 
     id: str = pydantic.Field()
@@ -29,12 +29,12 @@ class ResolveCandidate(UniversalBaseModel):
 
     type: str = pydantic.Field()
     """
-    Entity type. Values: person (an individual), organization (a company or institution; legacy rows may read company or brand), product (a product or service), topic (a subject or theme), channel (a media source such as a YouTube channel), unknown (type was never classified).
+    Entity type. Values: person (an individual), organization (a company or institution; legacy entities may read company or brand), product (a product or service), topic (a subject or theme), channel (a media source such as a YouTube channel), unknown (type was never classified).
     """
 
     appearance_count: typing.Optional[int] = pydantic.Field(default=None)
     """
-    Number of indexed appearance/mention rows. Results are ordered by this, descending.
+    Number of indexed appearances and mentions. Results are ordered by this, descending.
     """
 
     youtube_channel_id: typing.Optional[str] = pydantic.Field(default=None)
@@ -44,7 +44,7 @@ class ResolveCandidate(UniversalBaseModel):
 
     description: typing.Optional[str] = pydantic.Field(default=None)
     """
-    One catalog sentence that tells rows with the same name apart, for example "Common gender-neutral given name or nickname". Null when the catalog has none.
+    One catalog sentence that tells entities with the same name apart, for example "Common gender-neutral given name or nickname". Null when the catalog has none.
     """
 
     page: typing.Optional[str] = pydantic.Field(default=None)
@@ -54,7 +54,7 @@ class ResolveCandidate(UniversalBaseModel):
 
     match: ResolveCandidateMatch = pydantic.Field()
     """
-    How the row's name relates to q: the whole name, a run of its words (Michael Jordan for Jordan), characters inside a word, the show's initials (My First Million for MFM), or a near spelling.
+    How the entity's name relates to q: the whole name, a run of its words (Michael Jordan for Jordan), characters inside a word, the show's initials (My First Million for MFM), or a near spelling.
     """
 
     if IS_PYDANTIC_V2:

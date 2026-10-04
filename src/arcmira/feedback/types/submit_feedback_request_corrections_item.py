@@ -17,7 +17,7 @@ from .submit_feedback_request_corrections_item_suggested_change import (
 class SubmitFeedbackRequestCorrectionsItem(UniversalBaseModel):
     id: typing.Optional[str] = pydantic.Field(default=None)
     """
-    Public id of the row being corrected, from the response you received: men_* (mentions, appearances), com_* (recommendations), ent_* (entities, sponsors), or the alert row id (monitor_alert). Omit for missed_alert and missing_result corrections, which have no row to target.
+    Public id of the result being corrected, from the response you received: men_* (mentions, appearances), com_* (recommendations), ent_* (entities, sponsors), or the alert id (monitor_alert). Omit for missed_alert and missing_result corrections, which have nothing to target.
     """
 
     class_: typing_extensions.Annotated[
@@ -25,17 +25,17 @@ class SubmitFeedbackRequestCorrectionsItem(UniversalBaseModel):
         FieldMetadata(alias="class"),
         pydantic.Field(
             alias="class",
-            description="On recommendations feedback, the class the row should carry. Values: sponsored (an ad-style promotion heard at that moment: a paid sponsor read, promo code, affiliate plug, thanks for supplied goods or venue, or a show promoting its own product as an ad), organic (an unpaid personal recommendation), mention (a neutral commercial mention).",
+            description="On recommendations feedback, the class the result should carry. Values: sponsored (an ad-style promotion heard at that moment: a paid sponsor read, promo code, affiliate plug, thanks for supplied goods or venue, or a show promoting its own product as an ad), organic (an unpaid personal recommendation), mention (a neutral commercial mention).",
         ),
     ] = None
     """
-    On recommendations feedback, the class the row should carry. Values: sponsored (an ad-style promotion heard at that moment: a paid sponsor read, promo code, affiliate plug, thanks for supplied goods or venue, or a show promoting its own product as an ad), organic (an unpaid personal recommendation), mention (a neutral commercial mention).
+    On recommendations feedback, the class the result should carry. Values: sponsored (an ad-style promotion heard at that moment: a paid sponsor read, promo code, affiliate plug, thanks for supplied goods or venue, or a show promoting its own product as an ad), organic (an unpaid personal recommendation), mention (a neutral commercial mention).
     """
 
     reason: typing.Optional[SubmitFeedbackRequestCorrectionsItemReason] = None
     issue_type: typing.Optional[SubmitFeedbackRequestCorrectionsItemIssueType] = pydantic.Field(default=None)
     """
-    Issue classification for the correction. Entity-family values: wrong_entity_type (right entity, wrong type), wrong_entity (the row points at the wrong canonical entity), duplicate_entity (results split across variants of the same entity), merge_suggestion (propose the canonical merge for split variants), missing_result (a result you know should exist is absent), stale_metadata (name/website/channel metadata is outdated), wrong_classification (class-level error on a commercial row), bad_ranking (duplicates or aliases ranking above the canonical entity). monitor_alert values: false_positive_alert (the alert should not have fired), wrong_media (fired against the wrong video), wrong_timestamp (fired at the wrong position in the video), duplicate_alert (the same occurrence fired more than once), missed_alert (an expectation: an alert that should have fired but did not; no row to target), delivery_issue (the delivery itself was wrong: wrong channel, not received). appearances values: person_not_present (the person does not appear in the media), wrong_person (the appearance is attributed to the wrong person), wrong_appearance_role (right person, wrong role, e.g. guest vs host). other (escape hatch; detail in notes).
+    Issue classification for the correction. Entity-family values: wrong_entity_type (right entity, wrong type), wrong_entity (the result points at the wrong canonical entity), duplicate_entity (results split across variants of the same entity), merge_suggestion (propose the canonical merge for split variants), missing_result (a result you know should exist is absent), stale_metadata (name/website/channel metadata is outdated), wrong_classification (class-level error on a commercial result), bad_ranking (duplicates or aliases ranking above the canonical entity). monitor_alert values: false_positive_alert (the alert should not have fired), wrong_media (fired against the wrong video), wrong_timestamp (fired at the wrong position in the video), duplicate_alert (the same occurrence fired more than once), missed_alert (an expectation: an alert that should have fired but did not; nothing to target), delivery_issue (the delivery itself was wrong: wrong channel, not received). appearances values: person_not_present (the person does not appear in the media), wrong_person (the appearance is attributed to the wrong person), wrong_appearance_role (right person, wrong role, e.g. guest vs host). other (escape hatch; detail in notes).
     """
 
     suggested_change: typing.Optional[SubmitFeedbackRequestCorrectionsItemSuggestedChange] = pydantic.Field(

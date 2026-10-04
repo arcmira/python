@@ -23,19 +23,19 @@ class EntityResolveResponse(UniversalBaseModel):
 
     confidence: EntityResolveResponseConfidence = pydantic.Field()
     """
-    exact: one row is named q (or the handle, id or alias), and no better-known person carries the name. single_fuzzy: the only row returned, not an exact name. ambiguous: several exact rows, or an exact row next to a better-known person sharing the name (Jordan the brand vs Michael Jordan). fuzzy: only loose matches. none: no row.
+    exact: one entity is named q (or the handle, id or alias), and no better-known person carries the name. single_fuzzy: the only entity returned, not an exact name. ambiguous: several exact matches, or an exact match next to a better-known person sharing the name (Jordan the brand vs Michael Jordan). fuzzy: only loose matches. none: no match.
     """
 
     best: typing.Optional[ResolveCandidate] = None
     suggested: typing.Optional[ResolveSuggestion] = None
     ask: typing.Optional[EntityResolveResponseAsk] = pydantic.Field(default=None)
     """
-    Set when best and suggested are both null and several rows fit: show the options to the user, or check every option id against the data and answer per row.
+    Set when best and suggested are both null and several entities fit: show the options to the user, or check every option id against the data and answer per entity.
     """
 
     candidates: typing.List[typing.Optional[ResolveCandidate]] = pydantic.Field()
     """
-    Rows considered: exact names first, then initials, whole-word, spelling and substring matches, each by appearance count.
+    Entities considered: exact names first, then initials, whole-word, spelling and substring matches, each by appearance count.
     """
 
     note: str = pydantic.Field()

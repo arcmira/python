@@ -8,7 +8,7 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 
 class AlertTracker(UniversalBaseModel):
     """
-    The tracker the alert belongs to. Fields are null when the tracker row was deleted.
+    The tracker the alert belongs to. Fields are null when the tracker was deleted.
     """
 
     id: typing.Optional[str] = pydantic.Field(default=None)

@@ -37,7 +37,7 @@ class MeResponse(UniversalBaseModel):
 
     period_resets_at: typing.Optional[str] = pydantic.Field(default=None)
     """
-    ISO 8601 time the monthly row pool resets: 00:00 UTC on the first of next month. Null on the free plan, whose rows are a lifetime pool.
+    ISO 8601 time the plan credits reset: 00:00 UTC on the first of next month. Null on the free plan, whose 1,000 credits a month reset on usage.credits.plan.resets_at.
     """
 
     tier: str = pydantic.Field()
