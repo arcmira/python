@@ -14,7 +14,7 @@ class UpdateSettingsMeRequestTranscripts(UniversalBaseModel):
 
     quality: typing.Optional[UpdateSettingsMeRequestTranscriptsQuality] = pydantic.Field(default=None)
     """
-    Default transcript quality for this account: captions or premium. premium reads require an existing purchase. Owned transcripts remain readable after a plan downgrade; new purchases require an eligible plan.
+    Default transcript quality for this account: captions or premium. As a default, premium reads only transcripts the account already owns. Owned transcripts remain readable after a plan downgrade; starting new ones requires an eligible plan.
     """
 
     language: typing.Optional[str] = pydantic.Field(default=None)

@@ -15,12 +15,12 @@ class RefusedQuote(TranscriptQuote):
 
     charge: typing.Optional[RefusedQuoteCharge] = pydantic.Field(default=None)
     """
-    What the purchase would charge at the current balance. Absent when no current price could be read.
+    What the request would charge at the current balance. Absent when no current price could be read.
     """
 
     max_on_demand_cents: typing.Optional[int] = pydantic.Field(default=None)
     """
-    The on-demand money, in whole cents, this purchase needs beyond included credits at the current balance.
+    The on-demand usage, in whole cents, this request needs beyond the plan's credits at the current balance.
     """
 
     if IS_PYDANTIC_V2:

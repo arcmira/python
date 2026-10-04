@@ -36,9 +36,9 @@ Every dated read takes `after` and `before`. The window is half-open, `[after, b
 
 ## Premium transcripts
 
-A Premium read is one call. It answers 200 `ready` when the account owns the transcript. Otherwise it buys the whole video within the account's plan and answers 202 `pending` with the job. Included credits are spent first, then the account's on-demand budget. The budget is the approval, so the call takes no price ceiling.
+A Premium read is one call. It answers 200 `ready` when the account owns the transcript. Otherwise it starts transcribing the whole video and answers 202 `pending` with the job. The read uses credits from your plan, then your on-demand budget. You set that budget in the dashboard, and it is the approval, so the call takes no price ceiling.
 
-Read again after `Retry-After`. Repeated reads join the same purchase and never buy twice.
+Read again after `Retry-After`. Repeated reads join the same job and never use credits twice.
 
 ```python
 import time
@@ -60,7 +60,7 @@ else:
 
 The timeout only stops this polling loop. It does not cancel the job. Resume with the same video id and `quality="premium"`; do not set `retry=True` while the job is pending.
 
-`read.data` is a `TranscriptResult`, discriminated on `state`. `ready` carries the transcript. `pending` carries `job`, with `eta_seconds`, `next_poll_seconds` and `charge`. `failed` means the last purchase failed or was refunded; it carries `job` and `last_attempt`, buys nothing, and `retry=True` buys it again. Without `with_raw_response`, `client.transcripts.get(...)` returns the same union without the status and headers.
+`read.data` is a `TranscriptResult`, discriminated on `state`. `ready` carries the transcript. `pending` carries `job`, with `eta_seconds`, `next_poll_seconds` and `charge`. `failed` means the last transcription failed or was refunded; it carries `job` and `last_attempt` and uses no credits. `retry=True` transcribes it again and uses credits again. Without `with_raw_response`, `client.transcripts.get(...)` returns the same union without the status and headers.
 
 A quote is free and changes nothing.
 
@@ -69,9 +69,9 @@ quote = client.transcripts.quote("dQw4w9WgXcQ")
 print(quote.quote.rows, quote.charge.amount, quote.charge.from_, quote.max_on_demand_cents)
 ```
 
-`client.transcripts.list_requests()` lists past purchases with their state.
+`client.transcripts.list_requests()` lists past Premium transcriptions with their state.
 
-A read without `quality="premium"` returns captions and buys nothing.
+A read without `quality="premium"` returns captions and starts no transcription.
 
 ## Errors
 
@@ -166,7 +166,7 @@ uv run python -m unittest discover -s tests -v
 uv build
 ```
 
-The tests use a local HTTP server that returns the bodies the API sends. They check both client variants, the ready and pending reads, typed refusals with their quote, the query and body each call sends, and opaque pagination. No live API key or purchase is required.
+The tests use a local HTTP server that returns the bodies the API sends. They check both client variants, the ready and pending reads, typed refusals with their quote, the query and body each call sends, and opaque pagination. They need no live API key and use no credits.
 
 ## License
 

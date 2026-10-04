@@ -8,7 +8,7 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 
 class TranscriptPurchaseQuoteUpgrade(UniversalBaseModel):
     """
-    Present when eligible is false: the plan checkout that can buy this transcript, as a button label and an absolute link.
+    Present when eligible is false. Names the plan that includes Premium transcripts, as a button label and an absolute link to its checkout.
     """
 
     label: str

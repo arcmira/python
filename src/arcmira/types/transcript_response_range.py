@@ -8,7 +8,7 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 
 class TranscriptResponseRange(UniversalBaseModel):
     """
-    Echoed when you sent start and end. Lines overlapping the window are returned. On captions only the window is billed; Premium retrieval is free.
+    Echoed when you sent start and end. Lines overlapping the window are returned. On captions only the window is billed. An explicit Premium read is charged for the whole video, from the account's plan credits and then its on-demand budget; the window only trims the returned content.
     """
 
     start: float

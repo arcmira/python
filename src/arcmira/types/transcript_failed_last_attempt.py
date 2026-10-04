@@ -9,12 +9,12 @@ from .transcript_failed_last_attempt_status import TranscriptFailedLastAttemptSt
 
 class TranscriptFailedLastAttempt(UniversalBaseModel):
     """
-    The failed purchase in brief: job.status and job.error.
+    The failed job in brief, as job.status and job.error.
     """
 
     status: TranscriptFailedLastAttemptStatus = pydantic.Field()
     """
-    How the last purchase ended: failed, refunded (the charge was returned), or refund_pending (the refund is still settling).
+    How the last job ended: failed, refunded (the charge was returned), or refund_pending (the refund is still settling).
     """
 
     error: str = pydantic.Field()

@@ -14,7 +14,7 @@ class TranscriptQuote(UniversalBaseModel):
 
     rows: int = pydantic.Field()
     """
-    Total unlock cost in rows: 75 rows per 15-minute block.
+    Rows the whole video uses, 75 rows per 15-minute block.
     """
 
     if IS_PYDANTIC_V2:

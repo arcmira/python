@@ -99,7 +99,7 @@ class MonitorsClient:
             Desired email recipients. External recipients must confirm before delivery. Free includes one additional recipient per monitor; paid plans allow up to 20 total. Default [].
 
         notify_frequency : typing.Optional[CreateMonitorsRequestNotifyFrequency]
-            Delivery cadence. Default realtime. Values: realtime (as analysis completes), hourly (hourly digest), daily (daily digest). Free-tier email delivery is coerced to daily regardless of the value sent.
+            Delivery cadence. Default realtime. Values: realtime (as analysis completes), hourly (hourly digest), daily (daily digest).
 
         digest_day : typing.Optional[str]
             Digest day of week. Default "monday". Consulted only by weekly digests, which are dashboard-configured today; inert for API-set frequencies.
@@ -239,7 +239,7 @@ class MonitorsClient:
             Desired email recipients. External recipients must confirm before delivery. Free includes one additional recipient per monitor; paid plans allow up to 20 total. Default [].
 
         notify_frequency : typing.Optional[UpdateMonitorsRequestNotifyFrequency]
-            Delivery cadence. Default realtime. Values: realtime (as analysis completes), hourly (hourly digest), daily (daily digest). Free-tier email delivery is coerced to daily regardless of the value sent.
+            Delivery cadence. Default realtime. Values: realtime (as analysis completes), hourly (hourly digest), daily (daily digest).
 
         digest_day : typing.Optional[str]
             Digest day of week. Default "monday". Consulted only by weekly digests, which are dashboard-configured today; inert for API-set frequencies.
@@ -456,7 +456,7 @@ class AsyncMonitorsClient:
             Desired email recipients. External recipients must confirm before delivery. Free includes one additional recipient per monitor; paid plans allow up to 20 total. Default [].
 
         notify_frequency : typing.Optional[CreateMonitorsRequestNotifyFrequency]
-            Delivery cadence. Default realtime. Values: realtime (as analysis completes), hourly (hourly digest), daily (daily digest). Free-tier email delivery is coerced to daily regardless of the value sent.
+            Delivery cadence. Default realtime. Values: realtime (as analysis completes), hourly (hourly digest), daily (daily digest).
 
         digest_day : typing.Optional[str]
             Digest day of week. Default "monday". Consulted only by weekly digests, which are dashboard-configured today; inert for API-set frequencies.
@@ -612,7 +612,7 @@ class AsyncMonitorsClient:
             Desired email recipients. External recipients must confirm before delivery. Free includes one additional recipient per monitor; paid plans allow up to 20 total. Default [].
 
         notify_frequency : typing.Optional[UpdateMonitorsRequestNotifyFrequency]
-            Delivery cadence. Default realtime. Values: realtime (as analysis completes), hourly (hourly digest), daily (daily digest). Free-tier email delivery is coerced to daily regardless of the value sent.
+            Delivery cadence. Default realtime. Values: realtime (as analysis completes), hourly (hourly digest), daily (daily digest).
 
         digest_day : typing.Optional[str]
             Digest day of week. Default "monday". Consulted only by weekly digests, which are dashboard-configured today; inert for API-set frequencies.

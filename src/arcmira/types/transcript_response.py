@@ -60,12 +60,12 @@ class TranscriptResponse(UniversalBaseModel):
 
     range: typing.Optional[TranscriptResponseRange] = pydantic.Field(default=None)
     """
-    Echoed when you sent start and end. Lines overlapping the window are returned. On captions only the window is billed; Premium retrieval is free.
+    Echoed when you sent start and end. Lines overlapping the window are returned. On captions only the window is billed. An explicit Premium read is charged for the whole video, from the account's plan credits and then its on-demand budget; the window only trims the returned content.
     """
 
     rows_billed: int = pydantic.Field()
     """
-    Rows this call charged. 0 on a repeat of the same video, quality, language, and range inside the 7 day dedupe window, and always 0 on Premium retrieval.
+    Caption retrieval rows charged by this call. 0 on a repeat of the same video, quality, language, and range inside the 7 day dedupe window. Premium responses report 0 here even when the read was charged for the whole video; this field does not report Premium charges.
     """
 
     as_of: typing.Optional[str] = pydantic.Field(default=None)
