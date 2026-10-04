@@ -34,7 +34,7 @@ class SignupVerifiedResponse(UniversalBaseModel):
 
     rows_allotted: int = pydantic.Field()
     """
-    On a paid plan, its monthly allowance in rows; a row is 4 credits. On the free plan, the account's row allotment from before credits (1,000 for a new account). The free plan uses 1,000 credits a month, read from usage.credits on GET /v1/me.
+    Plan credits a month, in rows (a row is 4 credits), on a paid plan. On the free plan, the account's allotment from before credits (1,000 for a new account). The free plan has 1,000 credits a month; read the balance from usage.credits on GET /v1/me.
     """
 
     next: str = pydantic.Field()

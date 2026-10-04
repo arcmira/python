@@ -70,7 +70,7 @@ class TranscriptSearchChunk(UniversalBaseModel):
 
     watch_url: str = pydantic.Field()
     """
-    Site-relative watch URL with the timestamp, e.g. /watch?v=...&t=4787.
+    Absolute watch URL on arcmira.com with the timestamp, e.g. https://arcmira.com/watch?v=...&t=4787.
     """
 
     cite_line: typing.Optional[str] = pydantic.Field(default=None)

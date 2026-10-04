@@ -65,7 +65,7 @@ class TranscriptResponse(UniversalBaseModel):
 
     rows_billed: int = pydantic.Field()
     """
-    Rows this captions read used: 1 row per started 15 minutes, and a row is 4 credits. 0 on a repeat of the same video, quality, language, and range inside the 7 day dedupe window. Premium reads report 0, because the Premium transcript job carries their charge.
+    Credits this captions read used, in rows (a row is 4 credits): 4 credits per started 15 minutes. 0 on a repeat of the same video, quality, language, and range inside the 7 day dedupe window. Premium reads report 0, because the Premium transcript job carries their charge.
     """
 
     as_of: typing.Optional[str] = pydantic.Field(default=None)
