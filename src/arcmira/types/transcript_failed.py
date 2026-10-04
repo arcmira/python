@@ -15,12 +15,12 @@ class TranscriptFailed(UniversalBaseModel):
     job: TranscriptJob
     last_attempt: TranscriptFailedLastAttempt = pydantic.Field()
     """
-    The failed purchase in brief: job.status and job.error.
+    The failed job in brief, as job.status and job.error.
     """
 
     note: str = pydantic.Field()
     """
-    What to do next: read again with retry=true to buy the video again, or wait while the refund settles.
+    The next step. Read again with retry=true to start a new Premium transcript, or wait while the refund settles.
     """
 
     if IS_PYDANTIC_V2:

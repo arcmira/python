@@ -33,7 +33,7 @@ for mention in client.mentions.list(entity_id=ramp.id, after="2026-09-01", befor
 
 ## Premium transcripts
 
-`client.transcripts.get(video_id, quality="premium")` is one read. It answers `state == "ready"` (200) with the transcript, or `state == "pending"` (202) with `job` and a `Retry-After` header. Read again after `Retry-After` or `job.next_poll_seconds`. Repeated reads join the same purchase and never buy twice. The read spends included credits first, then the account's on-demand budget. `client.transcripts.quote(video_id)` is free and shows the price. Use `client.transcripts.with_raw_response.get(...)` for the status code and headers.
+`client.transcripts.get(video_id, quality="premium")` is one read. It answers `state == "ready"` (200) with the transcript, or `state == "pending"` (202) with `job` and a `Retry-After` header. Read again after `Retry-After` or `job.next_poll_seconds`. Repeated reads join the same job and never use credits twice. A read of a video not transcribed yet uses credits from the plan, then the account's on-demand budget. `client.transcripts.quote(video_id)` is free and shows how many credits the read uses. Use `client.transcripts.with_raw_response.get(...)` for the status code and headers.
 
 ## Errors
 

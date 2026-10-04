@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.1
+
+Paid reads use credits from your plan, then your on-demand budget.
+
 ## 0.4.0
 
 Generated from the v1 document of 2026-10-02. The document dropped from 88 operations to 36. Routes that left it still serve over HTTP, but the SDK no longer has methods for them.
@@ -15,9 +19,9 @@ Added.
 
 Breaking changes from 0.3.
 
-- Premium is one read. `transcripts.get(video_id, quality="premium")` answers `ready` (200) when the account owns the transcript. Otherwise it buys the whole video within the plan and the account's on-demand budget and answers `pending` (202) with the `job` and a `Retry-After` header. Read again after `Retry-After`. Repeated reads join the same purchase and never buy twice. When the last purchase for the video failed or was refunded, the read answers `failed` (200) with the `job` and `last_attempt` and buys nothing; pass `retry=True` to buy it again. `TranscriptResult` is now `TranscriptResult_Ready | TranscriptResult_Pending | TranscriptResult_Failed`. Priced refusals carry one `RefusedQuote` type. The `preparation_required` state and `TranscriptResult_PreparationRequired` are gone.
+- Premium is one read. `transcripts.get(video_id, quality="premium")` answers `ready` (200) when the account owns the transcript. Otherwise it starts transcribing the whole video, using credits from the plan and then the account's on-demand budget, and answers `pending` (202) with the `job` and a `Retry-After` header. Read again after `Retry-After`. Repeated reads join the same job and never use credits twice. When the last transcription of the video failed or was refunded, the read answers `failed` (200) with the `job` and `last_attempt` and uses no credits; pass `retry=True` to transcribe it again, which uses credits again. `TranscriptResult` is now `TranscriptResult_Ready | TranscriptResult_Pending | TranscriptResult_Failed`. Priced refusals carry one `RefusedQuote` type. The `preparation_required` state and `TranscriptResult_PreparationRequired` are gone.
 - `transcripts.prepare_and_wait` is removed, along with `PreparationError`, `PreparationFailedError`, `PreparationTimeoutError` and `PremiumUnavailableError`. Loop on `transcripts.get(..., quality="premium")` until `state == "ready"`. The README has the loop.
-- `transcripts.request` and `transcripts.status` are removed, with the `TranscriptRequestSubmitResponse` type. The Premium read buys and reports its own job. `transcripts.list_requests` still lists past purchases.
+- `transcripts.request` and `transcripts.status` are removed, with the `TranscriptRequestSubmitResponse` type. The Premium read starts and reports its own job. `transcripts.list_requests` still lists past Premium transcriptions.
 - A Premium refusal raises from the read itself. `PaymentRequiredError` (402) carries `quota_exceeded` or `spend_limit_exceeded`, and `ForbiddenError` (403) carries `paid_plan_required`. Nothing is charged.
 - Error extras moved under `error.details`. `body.quote` is now `body.error.details.quote`, `body.existing_request_id` is `body.error.details.existing_request_id`, and `body.existing_id` (409 `tracker_already_exists`) is `body.error.details.existing_id`.
 - Reads take ids. `mentions.list` and `recommendations.list` require `entity_id` (`ent_N`), and `channel_id` takes a YouTube channel id (`UC` plus 22 characters). `entity_name`, `entity_type` and `channel_name` are gone. A name where an id belongs raises `BadRequestError` with code `id_required` and names the parameter. Resolve names first with `entities.resolve`.

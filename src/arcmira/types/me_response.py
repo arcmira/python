@@ -42,7 +42,7 @@ class MeResponse(UniversalBaseModel):
 
     tier: str = pydantic.Field()
     """
-    Plan tier, e.g. free, hobby, pro, enterprise.
+    Plan tier, e.g. free, pro, pro_plus, ultra, enterprise.
     """
 
     scopes: typing.List[str] = pydantic.Field()

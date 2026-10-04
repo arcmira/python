@@ -12,7 +12,7 @@ from .refused_quote_charge_unit import RefusedQuoteChargeUnit
 
 class RefusedQuoteCharge(UniversalBaseModel):
     """
-    What the purchase would charge at the current balance. Absent when no current price could be read.
+    What the request would charge at the current balance. Absent when no current price could be read.
     """
 
     unit: RefusedQuoteChargeUnit
