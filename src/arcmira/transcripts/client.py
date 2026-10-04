@@ -133,7 +133,7 @@ class TranscriptsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> TranscriptResult:
         """
-        Caption retrieval costs one row per started 15 minutes. quality=premium is one read: an owned transcript answers 200 ready at zero rows; otherwise this call buys the whole video within the account's plan and on-demand budget, included credits first and then on-demand money up to the account limit, and answers 202 pending with the job and Retry-After until the transcript is ready. Read again after Retry-After; repeated reads join the same purchase and never buy twice. When the last purchase for the video failed, the read answers 200 state failed with the job and last_attempt and buys nothing; retry=true buys it again. When the plan or the budget blocks, 403 paid_plan_required (with unlock) or 402 quota_exceeded or spend_limit_exceeded carries the price in quote and nothing is charged. A default-premium account with nothing owned reads captions with a note. start/end only trim the returned content; language selects caption tracks, timestamps=false returns paragraphs. Premium lines carry speaker and index, and the body carries speakers and revision.
+        Caption reads use one row per started 15 minutes. quality=premium is one read. An owned transcript answers 200 ready at zero rows. Otherwise this call starts a Premium transcript of the whole video, using credits from the account's plan first and then the account's on-demand budget up to its limit, and answers 202 pending with the job and Retry-After until the transcript is ready. Read again after Retry-After; repeated reads join the same job and never charge twice. When the last Premium transcript for the video failed, the read answers 200 state failed with the job and last_attempt and charges nothing; retry=true starts a new one. When the plan or the budget blocks, 403 paid_plan_required (with unlock) or 402 quota_exceeded or spend_limit_exceeded carries the price in quote and nothing is charged. A default-premium account with nothing owned reads captions with a note. start/end only trim the returned content; language selects caption tracks, timestamps=false returns paragraphs. Premium lines carry speaker and index, and the body carries speakers and revision.
 
         Parameters
         ----------
@@ -141,7 +141,7 @@ class TranscriptsClient:
             YouTube video id, 11 characters.
 
         quality : typing.Optional[GetTranscriptsRequestQuality]
-            captions reads creator or automatic captions at 1 row per started 15 minutes. premium is one read: an owned transcript returns 200 state ready at zero rows; otherwise the read buys the whole video within the account's plan and on-demand budget (included credits first, then on-demand money up to the account limit) and returns 202 state pending with the job until it is ready. When the last purchase for the video failed it answers 200 state failed and buys again only with retry=true. 402 quota_exceeded or spend_limit_exceeded and 403 paid_plan_required carry the price in quote. It never substitutes captions. Default captions unless changed in account settings.
+            captions reads creator or automatic captions at 1 row per started 15 minutes. premium is one read. An owned transcript returns 200 state ready at zero rows. Otherwise the read starts a Premium transcript of the whole video, using credits from the account's plan first and then the account's on-demand budget up to its limit, and returns 202 state pending with the job until it is ready. When the last Premium transcript for the video failed it answers 200 state failed and starts a new one only with retry=true. 402 quota_exceeded or spend_limit_exceeded and 403 paid_plan_required carry the price in quote. It never substitutes captions. Default captions unless changed in account settings.
 
         language : typing.Optional[str]
             Comma-separated caption language priority list, at most 5, tried in order (e.g. "de,en"). Use asr for the first automatic track and asr-<code> for a specific one. Default en. languages[] in the response lists every track the video offers.
@@ -150,13 +150,13 @@ class TranscriptsClient:
             false returns paragraphs[] of { start, text, speaker? } instead of lines[], for reading rather than citing. Default true.
 
         start : typing.Optional[float]
-            Window start in seconds from the beginning of the video. Send start and end together. On captions the window bills only its own started 15-minute blocks; on Premium it trims an already purchased transcript; this GET does not charge.
+            Window start in seconds from the beginning of the video. Send start and end together. On captions the window bills only its own started 15-minute blocks; on Premium it trims the returned content. An explicit Premium read is charged for the whole video from the account's plan credits and then its on-demand budget; a window does not reduce that charge.
 
         end : typing.Optional[float]
             Window end in seconds, greater than start and no greater than the video duration. Send start and end together.
 
         retry : typing.Optional[bool]
-            Premium only; captions with retry=true returns invalid_query. When the last Premium purchase for this video failed, a read answers 200 state failed with the job and last_attempt and buys nothing; retry=true buys it again under the same quote, budget and one-purchase rules as the first read. While that refund is still settling (job.status refund_pending) even retry=true answers state failed. Without a failed purchase it changes nothing.
+            Premium only; captions with retry=true returns invalid_query. When the last Premium transcript for this video failed, a read answers 200 state failed with the job and last_attempt and charges nothing; retry=true starts a new one under the same quote, budget and one-job-per-video rules as the first read. While that refund is still settling (job.status refund_pending) even retry=true answers state failed. Without a failed job it changes nothing.
 
         refresh : typing.Optional[bool]
             Captions only; Premium with refresh=true returns invalid_query. Refetch the caption track from YouTube instead of serving the stored copy. Available only for videos outside our index; a pipeline-owned video refuses it with invalid_query.
@@ -167,7 +167,7 @@ class TranscriptsClient:
         Returns
         -------
         TranscriptResult
-            state ready: the transcript (video, quality, source, language, languages, lines or paragraphs, speakers and revision on Premium, rows_billed, as_of, note). state failed (Premium only): the last purchase for this video failed; job and last_attempt say why, nothing was bought, and retry=true buys again.
+            state ready: the transcript (video, quality, source, language, languages, lines or paragraphs, speakers and revision on Premium, rows_billed, as_of, note). state failed (Premium only): the last Premium transcript for this video failed; job and last_attempt say why, nothing was charged, and retry=true starts a new one.
 
         Examples
         --------
@@ -197,7 +197,7 @@ class TranscriptsClient:
         self, video_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> TranscriptPurchaseQuote:
         """
-        Optional free quote: the price a Premium read of this video would charge right now, as rows and credits, where the credits would come from, and max_on_demand_cents, the on-demand money the read would need beyond included credits within the account limit. It does not reserve funds or start generation. A video with no known duration, or one past the 12 hour cap, answers 400 invalid_query with param video_id.
+        Optional free quote: what a Premium read of this video would use right now, as rows and credits, where the credits would come from, and max_on_demand_cents, the on-demand budget the read would need beyond the plan's credits within the account limit. It does not reserve credits or budget and does not start a transcript. A video with no known duration, or one past the 12 hour cap, answers 400 invalid_query with param video_id.
 
         Parameters
         ----------
@@ -235,7 +235,7 @@ class TranscriptsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[TranscriptRequestListResponseRequestsItem, TranscriptRequestListResponse]:
         """
-        Your transcription requests in descending creation time and id order. limit defaults to 20 and accepts 1–100. Follow next_cursor with the same video_id, limit and credential; has_more is false and next_cursor is null on the last page. A traversal excludes requests inserted after its first page. Each entry has the same shape as the status poll plus a `title` field (the video title, null when unknown). The scheduled reconciler advances requests; reading this list never dispatches work or changes billing. In-flight entries carry `eta_seconds` and `next_poll_seconds`.
+        Your transcription requests in descending creation time and id order. limit defaults to 20 and accepts 1–100. Follow next_cursor with the same video_id, limit and credential; has_more is false and next_cursor is null on the last page. A traversal excludes requests inserted after its first page. Each entry is a Premium transcript job with its processing and billing state, a `status_url` for the Premium transcript GET, and a `title` field (the video title, null when unknown). The scheduled reconciler advances requests; reading this list never dispatches work or changes billing. In-flight entries carry `eta_seconds` and `next_poll_seconds`.
 
         Parameters
         ----------
@@ -401,7 +401,7 @@ class AsyncTranscriptsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> TranscriptResult:
         """
-        Caption retrieval costs one row per started 15 minutes. quality=premium is one read: an owned transcript answers 200 ready at zero rows; otherwise this call buys the whole video within the account's plan and on-demand budget, included credits first and then on-demand money up to the account limit, and answers 202 pending with the job and Retry-After until the transcript is ready. Read again after Retry-After; repeated reads join the same purchase and never buy twice. When the last purchase for the video failed, the read answers 200 state failed with the job and last_attempt and buys nothing; retry=true buys it again. When the plan or the budget blocks, 403 paid_plan_required (with unlock) or 402 quota_exceeded or spend_limit_exceeded carries the price in quote and nothing is charged. A default-premium account with nothing owned reads captions with a note. start/end only trim the returned content; language selects caption tracks, timestamps=false returns paragraphs. Premium lines carry speaker and index, and the body carries speakers and revision.
+        Caption reads use one row per started 15 minutes. quality=premium is one read. An owned transcript answers 200 ready at zero rows. Otherwise this call starts a Premium transcript of the whole video, using credits from the account's plan first and then the account's on-demand budget up to its limit, and answers 202 pending with the job and Retry-After until the transcript is ready. Read again after Retry-After; repeated reads join the same job and never charge twice. When the last Premium transcript for the video failed, the read answers 200 state failed with the job and last_attempt and charges nothing; retry=true starts a new one. When the plan or the budget blocks, 403 paid_plan_required (with unlock) or 402 quota_exceeded or spend_limit_exceeded carries the price in quote and nothing is charged. A default-premium account with nothing owned reads captions with a note. start/end only trim the returned content; language selects caption tracks, timestamps=false returns paragraphs. Premium lines carry speaker and index, and the body carries speakers and revision.
 
         Parameters
         ----------
@@ -409,7 +409,7 @@ class AsyncTranscriptsClient:
             YouTube video id, 11 characters.
 
         quality : typing.Optional[GetTranscriptsRequestQuality]
-            captions reads creator or automatic captions at 1 row per started 15 minutes. premium is one read: an owned transcript returns 200 state ready at zero rows; otherwise the read buys the whole video within the account's plan and on-demand budget (included credits first, then on-demand money up to the account limit) and returns 202 state pending with the job until it is ready. When the last purchase for the video failed it answers 200 state failed and buys again only with retry=true. 402 quota_exceeded or spend_limit_exceeded and 403 paid_plan_required carry the price in quote. It never substitutes captions. Default captions unless changed in account settings.
+            captions reads creator or automatic captions at 1 row per started 15 minutes. premium is one read. An owned transcript returns 200 state ready at zero rows. Otherwise the read starts a Premium transcript of the whole video, using credits from the account's plan first and then the account's on-demand budget up to its limit, and returns 202 state pending with the job until it is ready. When the last Premium transcript for the video failed it answers 200 state failed and starts a new one only with retry=true. 402 quota_exceeded or spend_limit_exceeded and 403 paid_plan_required carry the price in quote. It never substitutes captions. Default captions unless changed in account settings.
 
         language : typing.Optional[str]
             Comma-separated caption language priority list, at most 5, tried in order (e.g. "de,en"). Use asr for the first automatic track and asr-<code> for a specific one. Default en. languages[] in the response lists every track the video offers.
@@ -418,13 +418,13 @@ class AsyncTranscriptsClient:
             false returns paragraphs[] of { start, text, speaker? } instead of lines[], for reading rather than citing. Default true.
 
         start : typing.Optional[float]
-            Window start in seconds from the beginning of the video. Send start and end together. On captions the window bills only its own started 15-minute blocks; on Premium it trims an already purchased transcript; this GET does not charge.
+            Window start in seconds from the beginning of the video. Send start and end together. On captions the window bills only its own started 15-minute blocks; on Premium it trims the returned content. An explicit Premium read is charged for the whole video from the account's plan credits and then its on-demand budget; a window does not reduce that charge.
 
         end : typing.Optional[float]
             Window end in seconds, greater than start and no greater than the video duration. Send start and end together.
 
         retry : typing.Optional[bool]
-            Premium only; captions with retry=true returns invalid_query. When the last Premium purchase for this video failed, a read answers 200 state failed with the job and last_attempt and buys nothing; retry=true buys it again under the same quote, budget and one-purchase rules as the first read. While that refund is still settling (job.status refund_pending) even retry=true answers state failed. Without a failed purchase it changes nothing.
+            Premium only; captions with retry=true returns invalid_query. When the last Premium transcript for this video failed, a read answers 200 state failed with the job and last_attempt and charges nothing; retry=true starts a new one under the same quote, budget and one-job-per-video rules as the first read. While that refund is still settling (job.status refund_pending) even retry=true answers state failed. Without a failed job it changes nothing.
 
         refresh : typing.Optional[bool]
             Captions only; Premium with refresh=true returns invalid_query. Refetch the caption track from YouTube instead of serving the stored copy. Available only for videos outside our index; a pipeline-owned video refuses it with invalid_query.
@@ -435,7 +435,7 @@ class AsyncTranscriptsClient:
         Returns
         -------
         TranscriptResult
-            state ready: the transcript (video, quality, source, language, languages, lines or paragraphs, speakers and revision on Premium, rows_billed, as_of, note). state failed (Premium only): the last purchase for this video failed; job and last_attempt say why, nothing was bought, and retry=true buys again.
+            state ready: the transcript (video, quality, source, language, languages, lines or paragraphs, speakers and revision on Premium, rows_billed, as_of, note). state failed (Premium only): the last Premium transcript for this video failed; job and last_attempt say why, nothing was charged, and retry=true starts a new one.
 
         Examples
         --------
@@ -473,7 +473,7 @@ class AsyncTranscriptsClient:
         self, video_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> TranscriptPurchaseQuote:
         """
-        Optional free quote: the price a Premium read of this video would charge right now, as rows and credits, where the credits would come from, and max_on_demand_cents, the on-demand money the read would need beyond included credits within the account limit. It does not reserve funds or start generation. A video with no known duration, or one past the 12 hour cap, answers 400 invalid_query with param video_id.
+        Optional free quote: what a Premium read of this video would use right now, as rows and credits, where the credits would come from, and max_on_demand_cents, the on-demand budget the read would need beyond the plan's credits within the account limit. It does not reserve credits or budget and does not start a transcript. A video with no known duration, or one past the 12 hour cap, answers 400 invalid_query with param video_id.
 
         Parameters
         ----------
@@ -519,7 +519,7 @@ class AsyncTranscriptsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[TranscriptRequestListResponseRequestsItem, TranscriptRequestListResponse]:
         """
-        Your transcription requests in descending creation time and id order. limit defaults to 20 and accepts 1–100. Follow next_cursor with the same video_id, limit and credential; has_more is false and next_cursor is null on the last page. A traversal excludes requests inserted after its first page. Each entry has the same shape as the status poll plus a `title` field (the video title, null when unknown). The scheduled reconciler advances requests; reading this list never dispatches work or changes billing. In-flight entries carry `eta_seconds` and `next_poll_seconds`.
+        Your transcription requests in descending creation time and id order. limit defaults to 20 and accepts 1–100. Follow next_cursor with the same video_id, limit and credential; has_more is false and next_cursor is null on the last page. A traversal excludes requests inserted after its first page. Each entry is a Premium transcript job with its processing and billing state, a `status_url` for the Premium transcript GET, and a `title` field (the video title, null when unknown). The scheduled reconciler advances requests; reading this list never dispatches work or changes billing. In-flight entries carry `eta_seconds` and `next_poll_seconds`.
 
         Parameters
         ----------

@@ -8,6 +8,10 @@ from .transcript_job import TranscriptJob
 
 
 class TranscriptRequestListResponseRequestsItem(TranscriptJob):
+    """
+    A Premium transcript job with its processing state, charge and URL for reading the transcript again.
+    """
+
     title: typing.Optional[str] = pydantic.Field(default=None)
     """
     Video title for display. Null when unknown.

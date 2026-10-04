@@ -18,6 +18,16 @@ class TranscriptSearchResponseAccessDetails(UniversalBaseModel):
     On tracker_already_exists, the existing tracker id. Reuse it instead of creating another tracker.
     """
 
+    limit: typing.Optional[int] = pydantic.Field(default=None)
+    """
+    On tracker_limit, the trackers the plan holds.
+    """
+
+    count: typing.Optional[int] = pydantic.Field(default=None)
+    """
+    On tracker_limit, the trackers the account holds now.
+    """
+
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
     else:

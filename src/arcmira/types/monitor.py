@@ -37,7 +37,7 @@ class Monitor(UniversalBaseModel):
 
     notify_frequency: typing.Optional[str] = pydantic.Field(default=None)
     """
-    Delivery cadence. Values: realtime (deliver immediately), hourly (hourly digest), daily (daily digest). Free tier is limited to daily.
+    Delivery cadence. Values: realtime (deliver immediately), hourly (hourly digest), daily (daily digest).
     """
 
     digest_day: typing.Optional[str] = pydantic.Field(default=None)

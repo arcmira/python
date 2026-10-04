@@ -12,7 +12,7 @@ from .transcript_job_status import TranscriptJobStatus
 
 class TranscriptJob(UniversalBaseModel):
     """
-    Your open Premium purchase for this video, when captions were served while it transcribes.
+    A Premium transcript job with its processing state, charge and URL for reading the transcript again.
     """
 
     id: str = pydantic.Field()
@@ -27,12 +27,12 @@ class TranscriptJob(UniversalBaseModel):
 
     state: TranscriptJobState = pydantic.Field()
     """
-    Coarse outcome: pending until the Premium transcript is servable (ready), the purchase failed, or it was refunded.
+    Coarse outcome: pending until the Premium transcript is servable (ready), the job failed, or it was refunded.
     """
 
     status: TranscriptJobStatus = pydantic.Field()
     """
-    Request status. Values: queued (accepted; audio download not started), downloading (fetching the video audio), transcribing (premium speech-to-text is running), analyzing (entity/commercial analysis is running), complete (premium transcript is servable via GET /v1/transcripts/{video_id}), failed (rejected intent or legacy purchase requiring accounting review), refund_pending (refund transaction must still complete), refunded (terminal failure; the charged rows were returned and the unlock this submission bought was revoked).
+    Request status. Values: queued (accepted; audio download not started), downloading (fetching the video audio), transcribing (premium speech-to-text is running), analyzing (entity/commercial analysis is running), complete (premium transcript is servable via GET /v1/transcripts/{video_id}), failed (rejected intent, or a legacy request needing accounting review), refund_pending (refund transaction must still complete), refunded (terminal failure; the charged rows were returned and the unlock this request granted was revoked).
     """
 
     stage: typing.Optional[TranscriptJobStage] = pydantic.Field(default=None)
@@ -42,7 +42,7 @@ class TranscriptJob(UniversalBaseModel):
 
     charge: typing.Optional[TranscriptJobCharge] = pydantic.Field(default=None)
     """
-    What the purchase charged. Present on durable purchases; absent only on legacy requests.
+    What the job charged. Absent only on legacy requests.
     """
 
     eta_seconds: typing.Optional[int] = pydantic.Field(default=None)

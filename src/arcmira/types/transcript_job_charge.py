@@ -12,13 +12,13 @@ from .transcript_job_charge_unit import TranscriptJobChargeUnit
 
 class TranscriptJobCharge(UniversalBaseModel):
     """
-    What the purchase charged. Present on durable purchases; absent only on legacy requests.
+    What the job charged. Absent only on legacy requests.
     """
 
     unit: TranscriptJobChargeUnit
     amount: float = pydantic.Field()
     """
-    Credits this purchase charged. 0 when a prior unlock made it free.
+    Credits this job charged. 0 when a prior unlock made it free.
     """
 
     from_: typing_extensions.Annotated[
@@ -26,11 +26,11 @@ class TranscriptJobCharge(UniversalBaseModel):
         FieldMetadata(alias="from"),
         pydantic.Field(
             alias="from",
-            description="Where the credits came from: the included allowance, on-demand usage, or both. Present once the purchase is funded.",
+            description="Where the credits came from. included is the plan's credits, on_demand is the on-demand budget, mixed is both. Present once the job is funded.",
         ),
     ] = None
     """
-    Where the credits came from: the included allowance, on-demand usage, or both. Present once the purchase is funded.
+    Where the credits came from. included is the plan's credits, on_demand is the on-demand budget, mixed is both. Present once the job is funded.
     """
 
     if IS_PYDANTIC_V2:
