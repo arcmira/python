@@ -10,17 +10,17 @@ from .me_response_usage_credits import MeResponseUsageCredits
 class MeResponseUsage(UniversalBaseModel):
     rows_used: int = pydantic.Field()
     """
-    Plan credits used this month, in rows: usage.credits.plan.used divided by 4, rounded up. A row is 4 credits.
+    Plan credits used this month, in rows (a row is 4 credits): usage.credits.plan.used divided by 4, rounded up.
     """
 
     rows_remaining: int = pydantic.Field()
     """
-    Credits left from the plan, grants and top-ups, on-demand excluded, in rows: divided by 4, rounded up. A row is 4 credits.
+    Credits left from the plan, grants and top-ups, on-demand excluded, in rows (a row is 4 credits): divided by 4, rounded up.
     """
 
     monthly_rows: int = pydantic.Field()
     """
-    The plan credits a month, in rows: usage.credits.plan.credits divided by 4 when the plan has a limit. A row is 4 credits.
+    Plan credits a month, in rows (a row is 4 credits): usage.credits.plan.credits divided by 4 when the plan has a limit.
     """
 
     current_spend_cents: int = pydantic.Field()

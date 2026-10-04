@@ -35,9 +35,9 @@ class MeResponse(UniversalBaseModel):
     The account email with the local part masked after its first character, e.g. z***@example.com. Null when the account has none.
     """
 
-    period_resets_at: typing.Optional[str] = pydantic.Field(default=None)
+    period_resets_at: str = pydantic.Field()
     """
-    ISO 8601 time the plan credits reset: 00:00 UTC on the first of next month. Null on the free plan, whose 1,000 credits a month reset on usage.credits.plan.resets_at.
+    ISO 8601 time the plan credits reset: 00:00 UTC on the first of next month, on every plan.
     """
 
     tier: str = pydantic.Field()

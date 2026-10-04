@@ -1373,7 +1373,7 @@ client.transcripts.get(
 <dl>
 <dd>
 
-Optional free quote: what a Premium read of this video would use right now, as rows and credits (a row is 4 credits), where the credits would come from, and max_on_demand_cents, the on-demand budget the read would need beyond the plan's credits within the account limit. It does not reserve credits or budget and does not start a transcript. A video with no known duration, or one past the 12 hour cap, answers 400 invalid_query with param video_id.
+Optional free quote: what a Premium read of this video would use right now, as credits (charge; quote.rows restates it in rows, and a row is 4 credits), where the credits would come from, and max_on_demand_cents, the on-demand budget the read would need beyond the plan's credits within the account limit. It does not reserve credits or budget and does not start a transcript. A video with no known duration, or one past the 12 hour cap, answers 400 invalid_query with param video_id.
 </dd>
 </dl>
 </dd>

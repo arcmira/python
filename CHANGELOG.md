@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.3
+
+Generated from the API document of 2026-10-04, evening, whose descriptions lead with credits. `MeResponse.period_resets_at` is a string on every plan.
+
 ## 0.4.2
 
 Generated from the v1 document of 2026-10-04, which prices every read in credits. `PremiumQuote` replaces the `TranscriptPurchaseQuote` type.
