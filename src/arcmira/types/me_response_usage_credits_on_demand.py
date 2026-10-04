@@ -14,7 +14,7 @@ class MeResponseUsageCreditsOnDemand(UniversalBaseModel):
 
     cap_credits: typing.Optional[int] = pydantic.Field(default=None)
     """
-    The on-demand cap in credits, at $0.002 a credit. Null when uncapped or off.
+    The on-demand budget in credits. On-demand usage costs $0.002 a credit, so this is the dollar budget divided by 0.002. Null when uncapped or off.
     """
 
     used: int = pydantic.Field()

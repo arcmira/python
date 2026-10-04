@@ -13,12 +13,12 @@ class EntityDetailRecommendationsSummary(UniversalBaseModel):
 
     total_ad_reads: int = pydantic.Field()
     """
-    Total ad_read rows across all channels. 0 when none.
+    Total ad_read recommendations across all channels. 0 when none.
     """
 
     total_endorsements: int = pydantic.Field()
     """
-    Total endorsement rows across all channels. 0 when none.
+    Total endorsement recommendations across all channels. 0 when none.
     """
 
     unique_shows: int = pydantic.Field()

@@ -30,7 +30,7 @@ class TranscriptVideo(UniversalBaseModel):
 
     duration_seconds: typing.Optional[float] = pydantic.Field(default=None)
     """
-    Video length in seconds. Null when unknown, which also means the row estimate was unknown.
+    Video length in seconds. Null when unknown, which also means the credit estimate was unknown.
     """
 
     watch_url: str = pydantic.Field()

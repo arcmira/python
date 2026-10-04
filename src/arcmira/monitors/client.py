@@ -85,7 +85,7 @@ class MonitorsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> MonitorMutationResponse:
         """
-        Creating with notify_webhook: true and a webhook_url enables HMAC-signed webhook delivery and returns the signing secret (monitor.webhook_secret) in this response. Store it securely. A retry with the original Idempotency-Key recovers the same secret for up to 24 hours while it remains the current secret or the valid previous secret. An expired or displaced secret returns 409 idempotency_result_expired without rotating again. Reads do not expose the secret. All subsequent reads expose only webhook_secret_set and webhook_secret_hint.
+        Creating with notify_webhook: true and a webhook_url enables HMAC-signed webhook delivery and returns the signing secret (monitor.webhook_secret) in this response. Store it securely. A retry with the original Idempotency-Key recovers the same secret for up to 24 hours while it remains the current secret or the valid previous secret. An expired or displaced secret returns 409 idempotency_result_expired without rotating again. Reads do not expose the secret. All subsequent reads expose only webhook_secret_set and webhook_secret_hint. Creating monitors and trackers is free. Each alert uses 25 credits once, however many channels and recipients deliver it: credits from your plan, then your on-demand budget. When the account is out of credits, alerts wait instead of sending.
 
         Parameters
         ----------
@@ -442,7 +442,7 @@ class AsyncMonitorsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> MonitorMutationResponse:
         """
-        Creating with notify_webhook: true and a webhook_url enables HMAC-signed webhook delivery and returns the signing secret (monitor.webhook_secret) in this response. Store it securely. A retry with the original Idempotency-Key recovers the same secret for up to 24 hours while it remains the current secret or the valid previous secret. An expired or displaced secret returns 409 idempotency_result_expired without rotating again. Reads do not expose the secret. All subsequent reads expose only webhook_secret_set and webhook_secret_hint.
+        Creating with notify_webhook: true and a webhook_url enables HMAC-signed webhook delivery and returns the signing secret (monitor.webhook_secret) in this response. Store it securely. A retry with the original Idempotency-Key recovers the same secret for up to 24 hours while it remains the current secret or the valid previous secret. An expired or displaced secret returns 409 idempotency_result_expired without rotating again. Reads do not expose the secret. All subsequent reads expose only webhook_secret_set and webhook_secret_hint. Creating monitors and trackers is free. Each alert uses 25 credits once, however many channels and recipients deliver it: credits from your plan, then your on-demand budget. When the account is out of credits, alerts wait instead of sending.
 
         Parameters
         ----------

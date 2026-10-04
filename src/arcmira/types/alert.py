@@ -10,6 +10,10 @@ from .alert_tracker import AlertTracker
 
 
 class Alert(UniversalBaseModel):
+    """
+    One delivery of an alert. Each alert uses 25 credits once, however many channels and recipients deliver it.
+    """
+
     id: str = pydantic.Field()
     """
     Alert delivery id.
@@ -27,12 +31,12 @@ class Alert(UniversalBaseModel):
 
     entity_id: typing.Optional[str] = pydantic.Field(default=None)
     """
-    Public id ("ent_{n}") of the entity that triggered the alert, when recorded. Null on older rows that were written before entity_id was stored on alert_delivery. Resolve the entity through mention_id or the embedded tracker when this is null.
+    Public id ("ent_{n}") of the entity that triggered the alert, when recorded. Null on older alerts recorded before entity_id was stored. Resolve the entity through mention_id or the embedded tracker when this is null.
     """
 
     mention_id: typing.Optional[str] = pydantic.Field(default=None)
     """
-    Public id ("men_{n}") of the mention/appearance row that triggered the alert. Joins directly against mention rows (e.g. /v1/mentions). Null when not appearance-scoped.
+    Public id ("men_{n}") of the mention or appearance that triggered the alert. Matches the id on /v1/mentions results. Null when not appearance-scoped.
     """
 
     video_id: typing.Optional[str] = pydantic.Field(default=None)
@@ -47,7 +51,7 @@ class Alert(UniversalBaseModel):
 
     evidence_kind: typing.Optional[AlertEvidenceKind] = pydantic.Field(default=None)
     """
-    Which evidence layer was sent. Null on older rows.
+    Which evidence layer was sent. Null on older alerts.
     """
 
     channel: str = pydantic.Field()
@@ -82,12 +86,12 @@ class Alert(UniversalBaseModel):
 
     created_at: str = pydantic.Field()
     """
-    When the alert row was created.
+    When the alert was created.
     """
 
     tracker: AlertTracker = pydantic.Field()
     """
-    The tracker the alert belongs to. Fields are null when the tracker row was deleted.
+    The tracker the alert belongs to. Fields are null when the tracker was deleted.
     """
 
     monitor: typing.Optional[AlertMonitor] = pydantic.Field(default=None)

@@ -20,7 +20,7 @@ from ..errors.service_unavailable_error import ServiceUnavailableError
 from ..errors.too_many_requests_error import TooManyRequestsError
 from ..errors.unauthorized_error import UnauthorizedError
 from ..types.error import Error
-from ..types.transcript_purchase_quote import TranscriptPurchaseQuote
+from ..types.premium_quote import PremiumQuote
 from ..types.transcript_request_list_response import TranscriptRequestListResponse
 from ..types.transcript_request_list_response_requests_item import TranscriptRequestListResponseRequestsItem
 from ..types.transcript_result import TranscriptResult
@@ -51,7 +51,7 @@ class RawTranscriptsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[TranscriptSearchResponse]:
         """
-        Search indexed YouTube and podcast transcripts for short spoken slices. Each result includes spoken text, a watch URL, and a publish date. Scope with channel_ids (or channel) and entity_ids (a person id filters to that person's appearances); narrow to passages about entities with about, to a speaker with by, and to sponsored, organic or mention passages with kind. Every filter takes ids, never names: resolve a name first with GET /v1/entities/resolve, or the call answers 400 id_required naming the parameter. Results carry names beside ids (filters.about, filters.by, chunk about and speakers_by). Use one topic per call. Search results include text on every plan within the plan's publication-date window. Explicitly requesting source=arcmira_premium on a plan without Premium transcripts is refused with filter_requires_paid. An after later than the plan's freshness gate is refused with freshness_requires_paid rather than widened. Bills one row per chunk returned. Every gate is a typed error whose error.unlock.url names the plan that lifts it; pass src=mcp-tool only from the Arcmira MCP server.
+        Search indexed YouTube and podcast transcripts for short spoken slices. Each result includes spoken text, a watch URL, and a publish date. Scope with channel_ids (or channel) and entity_ids (a person id filters to that person's appearances); narrow to passages about entities with about, to a speaker with by, and to sponsored, organic or mention passages with kind. Every filter takes ids, never names: resolve a name first with GET /v1/entities/resolve, or the call answers 400 id_required naming the parameter. Results carry names beside ids (filters.about, filters.by, chunk about and speakers_by). Use one topic per call. Search results include text on every plan within the plan's publication-date window. Explicitly requesting source=arcmira_premium on a plan without Premium transcripts is refused with filter_requires_paid. An after later than the plan's freshness gate is refused with freshness_requires_paid rather than widened. Uses 4 credits per chunk returned past the first 5. Every gate is a typed error whose error.unlock.url names the plan that lifts it; pass src=mcp-tool only from the Arcmira MCP server.
 
         Parameters
         ----------
@@ -235,7 +235,7 @@ class RawTranscriptsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[TranscriptResult]:
         """
-        Caption reads use one row per started 15 minutes. quality=premium is one read. An owned transcript answers 200 ready at zero rows. Otherwise this call starts a Premium transcript of the whole video, using credits from the account's plan first and then the account's on-demand budget up to its limit, and answers 202 pending with the job and Retry-After until the transcript is ready. Read again after Retry-After; repeated reads join the same job and never charge twice. When the last Premium transcript for the video failed, the read answers 200 state failed with the job and last_attempt and charges nothing; retry=true starts a new one. When the plan or the budget blocks, 403 paid_plan_required (with unlock) or 402 quota_exceeded or spend_limit_exceeded carries the price in quote and nothing is charged. A default-premium account with nothing owned reads captions with a note. start/end only trim the returned content; language selects caption tracks, timestamps=false returns paragraphs. Premium lines carry speaker and index, and the body carries speakers and revision.
+        Caption reads use 4 credits per started 15 minutes. quality=premium is one read. An owned transcript answers 200 ready at no charge. Otherwise this call starts a Premium transcript of the whole video, 300 credits per started 15 minutes, using credits from the account's plan first and then the account's on-demand budget up to its limit, and answers 202 pending with the job and Retry-After until the transcript is ready. Read again after Retry-After; repeated reads join the same job and never charge twice. When the last Premium transcript for the video failed, the read answers 200 state failed with the job and last_attempt and charges nothing; retry=true starts a new one. When the plan or the budget blocks, 403 paid_plan_required (with unlock) or 402 quota_exceeded or spend_limit_exceeded carries the price in quote and nothing is charged. A default-premium account with nothing owned reads captions with a note. start/end only trim the returned content; language selects caption tracks, timestamps=false returns paragraphs. Premium lines carry speaker and index, and the body carries speakers and revision.
 
         Parameters
         ----------
@@ -243,7 +243,7 @@ class RawTranscriptsClient:
             YouTube video id, 11 characters.
 
         quality : typing.Optional[GetTranscriptsRequestQuality]
-            captions reads creator or automatic captions at 1 row per started 15 minutes. premium is one read. An owned transcript returns 200 state ready at zero rows. Otherwise the read starts a Premium transcript of the whole video, using credits from the account's plan first and then the account's on-demand budget up to its limit, and returns 202 state pending with the job until it is ready. When the last Premium transcript for the video failed it answers 200 state failed and starts a new one only with retry=true. 402 quota_exceeded or spend_limit_exceeded and 403 paid_plan_required carry the price in quote. It never substitutes captions. Default captions unless changed in account settings.
+            captions reads creator or automatic captions at 4 credits per started 15 minutes. premium is one read. An owned transcript returns 200 state ready at no charge. Otherwise the read starts a Premium transcript of the whole video, 300 credits per started 15 minutes, using credits from the account's plan first and then the account's on-demand budget up to its limit, and returns 202 state pending with the job until it is ready. When the last Premium transcript for the video failed it answers 200 state failed and starts a new one only with retry=true. 402 quota_exceeded or spend_limit_exceeded and 403 paid_plan_required carry the price in quote. It never substitutes captions. Default captions unless changed in account settings.
 
         language : typing.Optional[str]
             Comma-separated caption language priority list, at most 5, tried in order (e.g. "de,en"). Use asr for the first automatic track and asr-<code> for a specific one. Default en. languages[] in the response lists every track the video offers.
@@ -394,9 +394,9 @@ class RawTranscriptsClient:
 
     def quote(
         self, video_id: str, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> HttpResponse[TranscriptPurchaseQuote]:
+    ) -> HttpResponse[PremiumQuote]:
         """
-        Optional free quote: what a Premium read of this video would use right now, as rows and credits, where the credits would come from, and max_on_demand_cents, the on-demand budget the read would need beyond the plan's credits within the account limit. It does not reserve credits or budget and does not start a transcript. A video with no known duration, or one past the 12 hour cap, answers 400 invalid_query with param video_id.
+        Optional free quote: what a Premium read of this video would use right now, as rows and credits (a row is 4 credits), where the credits would come from, and max_on_demand_cents, the on-demand budget the read would need beyond the plan's credits within the account limit. It does not reserve credits or budget and does not start a transcript. A video with no known duration, or one past the 12 hour cap, answers 400 invalid_query with param video_id.
 
         Parameters
         ----------
@@ -408,7 +408,7 @@ class RawTranscriptsClient:
 
         Returns
         -------
-        HttpResponse[TranscriptPurchaseQuote]
+        HttpResponse[PremiumQuote]
             Success
         """
         _response = self._client_wrapper.httpx_client.request(
@@ -419,9 +419,9 @@ class RawTranscriptsClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    TranscriptPurchaseQuote,
+                    PremiumQuote,
                     parse_obj_as(
-                        type_=TranscriptPurchaseQuote,  # type: ignore
+                        type_=PremiumQuote,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -657,7 +657,7 @@ class AsyncRawTranscriptsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[TranscriptSearchResponse]:
         """
-        Search indexed YouTube and podcast transcripts for short spoken slices. Each result includes spoken text, a watch URL, and a publish date. Scope with channel_ids (or channel) and entity_ids (a person id filters to that person's appearances); narrow to passages about entities with about, to a speaker with by, and to sponsored, organic or mention passages with kind. Every filter takes ids, never names: resolve a name first with GET /v1/entities/resolve, or the call answers 400 id_required naming the parameter. Results carry names beside ids (filters.about, filters.by, chunk about and speakers_by). Use one topic per call. Search results include text on every plan within the plan's publication-date window. Explicitly requesting source=arcmira_premium on a plan without Premium transcripts is refused with filter_requires_paid. An after later than the plan's freshness gate is refused with freshness_requires_paid rather than widened. Bills one row per chunk returned. Every gate is a typed error whose error.unlock.url names the plan that lifts it; pass src=mcp-tool only from the Arcmira MCP server.
+        Search indexed YouTube and podcast transcripts for short spoken slices. Each result includes spoken text, a watch URL, and a publish date. Scope with channel_ids (or channel) and entity_ids (a person id filters to that person's appearances); narrow to passages about entities with about, to a speaker with by, and to sponsored, organic or mention passages with kind. Every filter takes ids, never names: resolve a name first with GET /v1/entities/resolve, or the call answers 400 id_required naming the parameter. Results carry names beside ids (filters.about, filters.by, chunk about and speakers_by). Use one topic per call. Search results include text on every plan within the plan's publication-date window. Explicitly requesting source=arcmira_premium on a plan without Premium transcripts is refused with filter_requires_paid. An after later than the plan's freshness gate is refused with freshness_requires_paid rather than widened. Uses 4 credits per chunk returned past the first 5. Every gate is a typed error whose error.unlock.url names the plan that lifts it; pass src=mcp-tool only from the Arcmira MCP server.
 
         Parameters
         ----------
@@ -841,7 +841,7 @@ class AsyncRawTranscriptsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[TranscriptResult]:
         """
-        Caption reads use one row per started 15 minutes. quality=premium is one read. An owned transcript answers 200 ready at zero rows. Otherwise this call starts a Premium transcript of the whole video, using credits from the account's plan first and then the account's on-demand budget up to its limit, and answers 202 pending with the job and Retry-After until the transcript is ready. Read again after Retry-After; repeated reads join the same job and never charge twice. When the last Premium transcript for the video failed, the read answers 200 state failed with the job and last_attempt and charges nothing; retry=true starts a new one. When the plan or the budget blocks, 403 paid_plan_required (with unlock) or 402 quota_exceeded or spend_limit_exceeded carries the price in quote and nothing is charged. A default-premium account with nothing owned reads captions with a note. start/end only trim the returned content; language selects caption tracks, timestamps=false returns paragraphs. Premium lines carry speaker and index, and the body carries speakers and revision.
+        Caption reads use 4 credits per started 15 minutes. quality=premium is one read. An owned transcript answers 200 ready at no charge. Otherwise this call starts a Premium transcript of the whole video, 300 credits per started 15 minutes, using credits from the account's plan first and then the account's on-demand budget up to its limit, and answers 202 pending with the job and Retry-After until the transcript is ready. Read again after Retry-After; repeated reads join the same job and never charge twice. When the last Premium transcript for the video failed, the read answers 200 state failed with the job and last_attempt and charges nothing; retry=true starts a new one. When the plan or the budget blocks, 403 paid_plan_required (with unlock) or 402 quota_exceeded or spend_limit_exceeded carries the price in quote and nothing is charged. A default-premium account with nothing owned reads captions with a note. start/end only trim the returned content; language selects caption tracks, timestamps=false returns paragraphs. Premium lines carry speaker and index, and the body carries speakers and revision.
 
         Parameters
         ----------
@@ -849,7 +849,7 @@ class AsyncRawTranscriptsClient:
             YouTube video id, 11 characters.
 
         quality : typing.Optional[GetTranscriptsRequestQuality]
-            captions reads creator or automatic captions at 1 row per started 15 minutes. premium is one read. An owned transcript returns 200 state ready at zero rows. Otherwise the read starts a Premium transcript of the whole video, using credits from the account's plan first and then the account's on-demand budget up to its limit, and returns 202 state pending with the job until it is ready. When the last Premium transcript for the video failed it answers 200 state failed and starts a new one only with retry=true. 402 quota_exceeded or spend_limit_exceeded and 403 paid_plan_required carry the price in quote. It never substitutes captions. Default captions unless changed in account settings.
+            captions reads creator or automatic captions at 4 credits per started 15 minutes. premium is one read. An owned transcript returns 200 state ready at no charge. Otherwise the read starts a Premium transcript of the whole video, 300 credits per started 15 minutes, using credits from the account's plan first and then the account's on-demand budget up to its limit, and returns 202 state pending with the job until it is ready. When the last Premium transcript for the video failed it answers 200 state failed and starts a new one only with retry=true. 402 quota_exceeded or spend_limit_exceeded and 403 paid_plan_required carry the price in quote. It never substitutes captions. Default captions unless changed in account settings.
 
         language : typing.Optional[str]
             Comma-separated caption language priority list, at most 5, tried in order (e.g. "de,en"). Use asr for the first automatic track and asr-<code> for a specific one. Default en. languages[] in the response lists every track the video offers.
@@ -1000,9 +1000,9 @@ class AsyncRawTranscriptsClient:
 
     async def quote(
         self, video_id: str, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> AsyncHttpResponse[TranscriptPurchaseQuote]:
+    ) -> AsyncHttpResponse[PremiumQuote]:
         """
-        Optional free quote: what a Premium read of this video would use right now, as rows and credits, where the credits would come from, and max_on_demand_cents, the on-demand budget the read would need beyond the plan's credits within the account limit. It does not reserve credits or budget and does not start a transcript. A video with no known duration, or one past the 12 hour cap, answers 400 invalid_query with param video_id.
+        Optional free quote: what a Premium read of this video would use right now, as rows and credits (a row is 4 credits), where the credits would come from, and max_on_demand_cents, the on-demand budget the read would need beyond the plan's credits within the account limit. It does not reserve credits or budget and does not start a transcript. A video with no known duration, or one past the 12 hour cap, answers 400 invalid_query with param video_id.
 
         Parameters
         ----------
@@ -1014,7 +1014,7 @@ class AsyncRawTranscriptsClient:
 
         Returns
         -------
-        AsyncHttpResponse[TranscriptPurchaseQuote]
+        AsyncHttpResponse[PremiumQuote]
             Success
         """
         _response = await self._client_wrapper.httpx_client.request(
@@ -1025,9 +1025,9 @@ class AsyncRawTranscriptsClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    TranscriptPurchaseQuote,
+                    PremiumQuote,
                     parse_obj_as(
-                        type_=TranscriptPurchaseQuote,  # type: ignore
+                        type_=PremiumQuote,  # type: ignore
                         object_=_response.json(),
                     ),
                 )

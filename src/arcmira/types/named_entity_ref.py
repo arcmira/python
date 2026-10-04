@@ -19,7 +19,7 @@ class NamedEntityRef(UniversalBaseModel):
 
     type: typing.Optional[str] = pydantic.Field(default=None)
     """
-    Entity type. Values: person (an individual), organization (a company or institution; legacy rows may read company or brand), product (a product or service), topic (a subject or theme), channel (a media source such as a YouTube channel), unknown (type was never classified).
+    Entity type. Values: person (an individual), organization (a company or institution; legacy entities may read company or brand), product (a product or service), topic (a subject or theme), channel (a media source such as a YouTube channel), unknown (type was never classified).
     """
 
     if IS_PYDANTIC_V2:

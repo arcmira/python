@@ -9,7 +9,7 @@ from .delivery_issue_change_channel import DeliveryIssueChangeChannel
 
 class DeliveryIssueChange(UniversalBaseModel):
     """
-    For issue_type delivery_issue: targets the delivery row (the correction id) and names the channel that was wrong or never received.
+    For issue_type delivery_issue: targets the alert delivery (the correction id) and names the channel that was wrong or never received.
     """
 
     channel: DeliveryIssueChangeChannel = pydantic.Field()

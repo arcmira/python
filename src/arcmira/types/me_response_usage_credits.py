@@ -10,7 +10,7 @@ from .me_response_usage_credits_plan import MeResponseUsageCreditsPlan
 
 class MeResponseUsageCredits(UniversalBaseModel):
     """
-    The month in credits (1 credit is $0.001; a row is 4 credits). Present only when the credits ledger decides access.
+    The month in credits, the primary measure of usage. Every read uses credits from the plan, then the on-demand budget. An included plan credit is valued at $0.001; on-demand usage costs $0.002 a credit. A row is 4 credits. Present only when the credits ledger decides access.
     """
 
     available: typing.Optional[int] = pydantic.Field(default=None)
