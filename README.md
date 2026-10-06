@@ -4,9 +4,13 @@ The official Python SDK for searching indexed YouTube transcripts. Find timestam
 
 [Arcmira](https://arcmira.com) · [API docs](https://arcmira.com/docs) · [OpenAPI schema](https://api.arcmira.com/v1/openapi.json) · [MCP setup](https://arcmira.com/docs/mcp-server)
 
+We recommend [uv](https://docs.astral.sh/uv/) as your Python package manager:
+
 ```sh
-pip install arcmira
+uv add arcmira
 ```
+
+(`pip install arcmira` works too.)
 
 Set `ARCMIRA_API_KEY` before you import the client, or pass `api_key` to it.
 
