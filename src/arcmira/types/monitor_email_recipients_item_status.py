@@ -3,8 +3,6 @@
 import typing
 
 MonitorEmailRecipientsItemStatus = typing.Union[
-    typing.Literal[
-        "active", "pending", "unsubscribed", "suppressed", "removed", "owner_unverified", "plan_limited", "muted"
-    ],
+    typing.Literal["active", "pending", "unsubscribed", "suppressed", "removed", "owner_unverified", "plan_limited"],
     typing.Any,
 ]

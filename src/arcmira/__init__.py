@@ -107,7 +107,10 @@ if typing.TYPE_CHECKING:
         HealthResponseStatus,
         HealthResponseVersion,
         MeResponse,
+        MeResponseAccount,
+        MeResponseAccountKind,
         MeResponseCredentialKind,
+        MeResponseRole,
         MeResponseUsage,
         MeResponseUsageCredits,
         MeResponseUsageCreditsOnDemand,
@@ -146,7 +149,6 @@ if typing.TYPE_CHECKING:
         MonitorListResponseMonitorsItemSlackIntegration,
         MonitorMutationResponse,
         MonitorMutationResponseMonitor,
-        MonitorTeam,
         MonitorTrackersResponse,
         MonitorTrackersResponseTrackersItem,
         NamedEntityRef,
@@ -288,11 +290,7 @@ if typing.TYPE_CHECKING:
     from .mentions import CountMentionsRequestMode, ListMentionsRequestDetails, ListMentionsRequestSentiment
     from .monitors import CreateMonitorsRequestNotifyFrequency, UpdateMonitorsRequestNotifyFrequency
     from .recommendations import ListRecommendationsRequestClass
-    from .trackers import (
-        CreateTrackersRequestEntityType,
-        CreateTrackersRequestPersonMatchMode,
-        UpdateTrackersRequestPersonMatchMode,
-    )
+    from .trackers import UpdateTrackersRequestPersonMatchMode
     from .transcripts import GetTranscriptsRequestQuality, SearchTranscriptsRequestSource
 _dynamic_imports: typing.Dict[str, str] = {
     "AccountSettings": ".types",
@@ -328,8 +326,6 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ConflictError": ".errors",
     "CountMentionsRequestMode": ".mentions",
     "CreateMonitorsRequestNotifyFrequency": ".monitors",
-    "CreateTrackersRequestEntityType": ".trackers",
-    "CreateTrackersRequestPersonMatchMode": ".trackers",
     "DefaultAioHttpClient": "._default_clients",
     "DefaultAsyncHttpxClient": "._default_clients",
     "DeliveryIssueChange": ".types",
@@ -412,7 +408,10 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ListMentionsRequestSentiment": ".mentions",
     "ListRecommendationsRequestClass": ".recommendations",
     "MeResponse": ".types",
+    "MeResponseAccount": ".types",
+    "MeResponseAccountKind": ".types",
     "MeResponseCredentialKind": ".types",
+    "MeResponseRole": ".types",
     "MeResponseUsage": ".types",
     "MeResponseUsageCredits": ".types",
     "MeResponseUsageCreditsOnDemand": ".types",
@@ -451,7 +450,6 @@ _dynamic_imports: typing.Dict[str, str] = {
     "MonitorListResponseMonitorsItemSlackIntegration": ".types",
     "MonitorMutationResponse": ".types",
     "MonitorMutationResponseMonitor": ".types",
-    "MonitorTeam": ".types",
     "MonitorTrackersResponse": ".types",
     "MonitorTrackersResponseTrackersItem": ".types",
     "NamedEntityRef": ".types",
@@ -638,8 +636,6 @@ __all__ = [
     "ConflictError",
     "CountMentionsRequestMode",
     "CreateMonitorsRequestNotifyFrequency",
-    "CreateTrackersRequestEntityType",
-    "CreateTrackersRequestPersonMatchMode",
     "DefaultAioHttpClient",
     "DefaultAsyncHttpxClient",
     "DeliveryIssueChange",
@@ -722,7 +718,10 @@ __all__ = [
     "ListMentionsRequestSentiment",
     "ListRecommendationsRequestClass",
     "MeResponse",
+    "MeResponseAccount",
+    "MeResponseAccountKind",
     "MeResponseCredentialKind",
+    "MeResponseRole",
     "MeResponseUsage",
     "MeResponseUsageCredits",
     "MeResponseUsageCreditsOnDemand",
@@ -761,7 +760,6 @@ __all__ = [
     "MonitorListResponseMonitorsItemSlackIntegration",
     "MonitorMutationResponse",
     "MonitorMutationResponseMonitor",
-    "MonitorTeam",
     "MonitorTrackersResponse",
     "MonitorTrackersResponseTrackersItem",
     "NamedEntityRef",

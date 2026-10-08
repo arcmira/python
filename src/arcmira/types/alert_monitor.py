@@ -8,7 +8,7 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 
 class AlertMonitor(UniversalBaseModel):
     """
-    The monitor the tracker belongs to. Null for trackers outside a monitor.
+    The monitor the tracker belongs to. Null when that monitor was deleted.
     """
 
     id: str = pydantic.Field()

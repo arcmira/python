@@ -152,7 +152,6 @@ class RawMonitorsClient:
         notify_slack: typing.Optional[bool] = OMIT,
         slack_integration_id: typing.Optional[str] = OMIT,
         slack_channel_id: typing.Optional[str] = OMIT,
-        team_id: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[MonitorMutationResponse]:
         """
@@ -193,9 +192,6 @@ class RawMonitorsClient:
         slack_channel_id : typing.Optional[str]
             Slack channel id to deliver to.
 
-        team_id : typing.Optional[str]
-            Create the monitor in this team, which the caller must belong to. The team owner pays for it and its plan sets the limits. A member may not set a webhook. Create only.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -218,7 +214,6 @@ class RawMonitorsClient:
                 "notify_slack": notify_slack,
                 "slack_integration_id": slack_integration_id,
                 "slack_channel_id": slack_channel_id,
-                "team_id": team_id,
             },
             headers={
                 "content-type": "application/json",
@@ -331,7 +326,7 @@ class RawMonitorsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[MonitorDeleteResponse]:
         """
-        Deletes the monitor AND every tracker inside it (trackers_deleted reports how many). Cannot be undone. Retrying with the original Idempotency-Key returns the original deleted count without deleting again.
+        Deletes the monitor AND every tracker inside it (trackers_deleted reports how many). Anyone in the account can restore it, with its trackers and recipients, from Recently deleted on the dashboard Monitors page for 30 days. Retrying with the original Idempotency-Key returns the original deleted count without deleting again.
 
         Parameters
         ----------
@@ -897,7 +892,6 @@ class AsyncRawMonitorsClient:
         notify_slack: typing.Optional[bool] = OMIT,
         slack_integration_id: typing.Optional[str] = OMIT,
         slack_channel_id: typing.Optional[str] = OMIT,
-        team_id: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[MonitorMutationResponse]:
         """
@@ -938,9 +932,6 @@ class AsyncRawMonitorsClient:
         slack_channel_id : typing.Optional[str]
             Slack channel id to deliver to.
 
-        team_id : typing.Optional[str]
-            Create the monitor in this team, which the caller must belong to. The team owner pays for it and its plan sets the limits. A member may not set a webhook. Create only.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -963,7 +954,6 @@ class AsyncRawMonitorsClient:
                 "notify_slack": notify_slack,
                 "slack_integration_id": slack_integration_id,
                 "slack_channel_id": slack_channel_id,
-                "team_id": team_id,
             },
             headers={
                 "content-type": "application/json",
@@ -1076,7 +1066,7 @@ class AsyncRawMonitorsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[MonitorDeleteResponse]:
         """
-        Deletes the monitor AND every tracker inside it (trackers_deleted reports how many). Cannot be undone. Retrying with the original Idempotency-Key returns the original deleted count without deleting again.
+        Deletes the monitor AND every tracker inside it (trackers_deleted reports how many). Anyone in the account can restore it, with its trackers and recipients, from Recently deleted on the dashboard Monitors page for 30 days. Retrying with the original Idempotency-Key returns the original deleted count without deleting again.
 
         Parameters
         ----------

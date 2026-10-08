@@ -104,7 +104,7 @@ except (PaymentRequiredError, ForbiddenError) as refusal:
     print(error.code, error.details.quote.rows, error.unlock.url)
 ```
 
-`str(refusal)` reads `402 quota_exceeded: <message>`. A duplicate tracker carries the existing id in `error.details.existing_id`.
+`str(refusal)` reads `402 quota_exceeded: <message>`. `member_limit` and `fair_use_cap` are 402 refusals with no `unlock`: an admin of the account raises the limit, or it resets with the month.
 
 ## Pagination
 
@@ -144,7 +144,7 @@ Each method has the full parameter list in the [generated reference](reference.m
 | `transcripts` | `search`, `get`, `quote`, `list_requests` |
 | `channels` | `coverage`, `videos.list`, `sponsors.list` |
 | `monitors` | `list`, `create`, `update`, `delete`, `rotate_webhook_secret`, `trackers.list`, `trackers.add`, `entities.add`, `alerts.list` |
-| `trackers` | `list`, `create`, `update`, `delete`, `alerts.list` |
+| `trackers` | `list`, `update`, `delete`, `alerts.list` |
 | `integrations` | `slack.list` |
 | `feedback` | `submit`, `get` |
 | `me` | `get`, `update_settings` |
@@ -152,7 +152,9 @@ Each method has the full parameter list in the [generated reference](reference.m
 
 `transcripts.search` returns spoken passages from `GET /v1/search`. Its filters take ids too.
 
-To follow an entity you have an id for, call `monitors.entities.add(monitor_id, entity_ids=["ent_14"])`. To watch an exact name before it is indexed, call `trackers.create(entity_name="Ramp", entity_type="organization")`. A channel tracker takes the YouTube channel id as `entity_name`.
+Every tracker lives in a monitor, which sets how it alerts. To follow an entity you have an id for, call `monitors.entities.add(monitor_id, entity_ids=["ent_14"])`. To watch an exact name before it is indexed, pass `names=[AddEntitiesRequestNamesItem(name="Ramp", type="organization")]` (from `arcmira.monitors`) to the same call. A channel is named by its YouTube channel id.
+
+`me.get()` names the account the key spends as `account` (`id`, `name`, `kind`, `plan`) and your `role` there; `email_masked` is you.
 
 See [CHANGELOG.md](CHANGELOG.md) for what changed from 0.3.
 

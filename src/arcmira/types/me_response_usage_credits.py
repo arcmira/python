@@ -15,18 +15,13 @@ class MeResponseUsageCredits(UniversalBaseModel):
 
     available: typing.Optional[int] = pydantic.Field(default=None)
     """
-    Credits spendable now: plan, granted, purchased, and on-demand up to its cap. Null when nothing limits it.
+    Credits spendable now: plan, granted, and on-demand up to its cap. Null when nothing limits it.
     """
 
     plan: MeResponseUsageCreditsPlan
     granted: int = pydantic.Field()
     """
     Credits left in granted lots that have not expired.
-    """
-
-    purchased: int = pydantic.Field()
-    """
-    Credits left in purchased top-ups.
     """
 
     on_demand: MeResponseUsageCreditsOnDemand

@@ -21,8 +21,6 @@ from ..types.error import Error
 from ..types.message_response import MessageResponse
 from ..types.tracker_list_response import TrackerListResponse
 from ..types.tracker_mutation_response import TrackerMutationResponse
-from .types.create_trackers_request_entity_type import CreateTrackersRequestEntityType
-from .types.create_trackers_request_person_match_mode import CreateTrackersRequestPersonMatchMode
 from .types.update_trackers_request_person_match_mode import UpdateTrackersRequestPersonMatchMode
 from pydantic import ValidationError
 
@@ -138,191 +136,6 @@ class RawTrackersClient:
             )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    def create(
-        self,
-        *,
-        entity_name: str,
-        entity_type: CreateTrackersRequestEntityType,
-        idempotency_key: typing.Optional[str] = None,
-        display_name: typing.Optional[str] = OMIT,
-        notify_email: typing.Optional[bool] = OMIT,
-        notify_webhook: typing.Optional[bool] = OMIT,
-        notify_slack: typing.Optional[bool] = OMIT,
-        webhook_url: typing.Optional[str] = OMIT,
-        slack_channel_id: typing.Optional[str] = OMIT,
-        slack_integration_id: typing.Optional[str] = OMIT,
-        person_match_mode: typing.Optional[CreateTrackersRequestPersonMatchMode] = OMIT,
-        filters: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> HttpResponse[TrackerMutationResponse]:
-        """
-        Creates a standalone tracker watching one exact name and type, matched case-insensitively against entities in newly analyzed media, so a tracker can exist before the entity is indexed. To follow an entity you already have an id for, use POST /v1/monitors/{id}/entities. A channel is followed by its YouTube channel id (UC plus 22 characters); a channel name answers 400 id_required. Attach it to a monitor afterwards via POST /v1/monitors/{id}/trackers. Creating a duplicate (same entity name + type) returns 409 tracker_already_exists with the existing tracker id in error.details.existing_id.
-
-        Parameters
-        ----------
-        entity_name : str
-            The exact name to watch, matched case-insensitively against analyzed media, so a tracker can exist before the entity is indexed. For a channel, the YouTube channel id (UC plus 22 characters), never a name: a channel name answers 400 id_required naming GET /v1/entities/resolve?q=...&type=channel and best.youtube_channel_id. Required on create. Creating a duplicate (same name, compared case-insensitively, and type) returns 409 tracker_already_exists with the existing tracker id in error.details.existing_id.
-
-        entity_type : CreateTrackersRequestEntityType
-            Entity type of the tracked entity. Required on create. org is accepted for organization, and the tracker answers organization.
-
-        idempotency_key : typing.Optional[str]
-            One key per intent, 1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400 invalid_idempotency_key. Keys are scoped to the account, credential and resource family. The same key and normalized method, path and body returns the committed response with Idempotency-Replayed: true. A changed intent within the same family returns 409 idempotency_conflict. Monitor and tracker families have independent namespaces. Secret recovery is limited as described by the operation.
-
-        display_name : typing.Optional[str]
-            Optional label shown in alerts and the dashboard.
-
-        notify_email : typing.Optional[bool]
-            Per-tracker email delivery. Default true.
-
-        notify_webhook : typing.Optional[bool]
-            Per-tracker webhook delivery override. Paid plans only.
-
-        notify_slack : typing.Optional[bool]
-            Per-tracker Slack delivery override. Paid plans only.
-
-        webhook_url : typing.Optional[str]
-            Per-tracker webhook destination override (http/https).
-
-        slack_channel_id : typing.Optional[str]
-            Per-tracker Slack channel override.
-
-        slack_integration_id : typing.Optional[str]
-            Per-tracker Slack integration override.
-
-        person_match_mode : typing.Optional[CreateTrackersRequestPersonMatchMode]
-            Person trackers only. Mentions (default) matches others talking about the person; appearances matches the person present as a speaker, host or guest; both accepts either. Non-person trackers reject this field. PATCH changes future and pending delivery eligibility, without backfill.
-
-        filters : typing.Optional[typing.Dict[str, typing.Any]]
-            Stored filter object. personMatchMode is also accepted here for person trackers. Other filter keys are retained; do not assume they change matching.
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        HttpResponse[TrackerMutationResponse]
-            Success
-        """
-        _response = self._client_wrapper.httpx_client.request(
-            "v1/trackers",
-            method="POST",
-            json={
-                "entity_name": entity_name,
-                "entity_type": entity_type,
-                "display_name": display_name,
-                "notify_email": notify_email,
-                "notify_webhook": notify_webhook,
-                "notify_slack": notify_slack,
-                "webhook_url": webhook_url,
-                "slack_channel_id": slack_channel_id,
-                "slack_integration_id": slack_integration_id,
-                "person_match_mode": person_match_mode,
-                "filters": filters,
-            },
-            headers={
-                "content-type": "application/json",
-                "Idempotency-Key": str(idempotency_key) if idempotency_key is not None else None,
-            },
-            request_options=request_options,
-            omit=OMIT,
-        )
-        try:
-            if 200 <= _response.status_code < 300:
-                _data = typing.cast(
-                    TrackerMutationResponse,
-                    parse_obj_as(
-                        type_=TrackerMutationResponse,  # type: ignore
-                        object_=_response.json(),
-                    ),
-                )
-                return HttpResponse(response=_response, data=_data)
-            if _response.status_code == 400:
-                raise BadRequestError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 401:
-                raise UnauthorizedError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 403:
-                raise ForbiddenError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 404:
-                raise NotFoundError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 409:
-                raise ConflictError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 429:
-                raise TooManyRequestsError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 500:
-                raise InternalServerError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
-        except ValidationError as e:
-            raise ParsingError(
-                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
-            )
-        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
-
     def delete(
         self,
         id: str,
@@ -331,7 +144,7 @@ class RawTrackersClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[MessageResponse]:
         """
-        Deletes the tracker. Cannot be undone.
+        Deletes the tracker. Cannot be undone. Its monitor stays, with its delivery settings, even when this was its last tracker.
 
         Parameters
         ----------
@@ -459,19 +272,13 @@ class RawTrackersClient:
         *,
         idempotency_key: typing.Optional[str] = None,
         display_name: typing.Optional[str] = OMIT,
-        notify_email: typing.Optional[bool] = OMIT,
-        notify_webhook: typing.Optional[bool] = OMIT,
-        notify_slack: typing.Optional[bool] = OMIT,
-        webhook_url: typing.Optional[str] = OMIT,
-        slack_channel_id: typing.Optional[str] = OMIT,
-        slack_integration_id: typing.Optional[str] = OMIT,
         person_match_mode: typing.Optional[UpdateTrackersRequestPersonMatchMode] = OMIT,
         filters: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         paused: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[TrackerMutationResponse]:
         """
-        Partial update: send only the fields to change. The tracked entity itself (entity_name/entity_type) is immutable; delete and recreate to watch a different entity.
+        Partial update: send only the fields to change. The tracked entity itself (entity_name/entity_type) is immutable; delete and recreate to watch a different entity. Delivery is the monitor's: change it with PATCH /v1/monitors/{id}.
 
         Parameters
         ----------
@@ -483,24 +290,6 @@ class RawTrackersClient:
 
         display_name : typing.Optional[str]
             Optional label shown in alerts and the dashboard.
-
-        notify_email : typing.Optional[bool]
-            Per-tracker email delivery. Default true.
-
-        notify_webhook : typing.Optional[bool]
-            Per-tracker webhook delivery override. Paid plans only.
-
-        notify_slack : typing.Optional[bool]
-            Per-tracker Slack delivery override. Paid plans only.
-
-        webhook_url : typing.Optional[str]
-            Per-tracker webhook destination override (http/https).
-
-        slack_channel_id : typing.Optional[str]
-            Per-tracker Slack channel override.
-
-        slack_integration_id : typing.Optional[str]
-            Per-tracker Slack integration override.
 
         person_match_mode : typing.Optional[UpdateTrackersRequestPersonMatchMode]
             Person trackers only. Mentions (default) matches others talking about the person; appearances matches the person present as a speaker, host or guest; both accepts either. Non-person trackers reject this field. PATCH changes future and pending delivery eligibility, without backfill.
@@ -524,12 +313,6 @@ class RawTrackersClient:
             method="PATCH",
             json={
                 "display_name": display_name,
-                "notify_email": notify_email,
-                "notify_webhook": notify_webhook,
-                "notify_slack": notify_slack,
-                "webhook_url": webhook_url,
-                "slack_channel_id": slack_channel_id,
-                "slack_integration_id": slack_integration_id,
                 "person_match_mode": person_match_mode,
                 "filters": filters,
                 "paused": paused,
@@ -748,191 +531,6 @@ class AsyncRawTrackersClient:
             )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    async def create(
-        self,
-        *,
-        entity_name: str,
-        entity_type: CreateTrackersRequestEntityType,
-        idempotency_key: typing.Optional[str] = None,
-        display_name: typing.Optional[str] = OMIT,
-        notify_email: typing.Optional[bool] = OMIT,
-        notify_webhook: typing.Optional[bool] = OMIT,
-        notify_slack: typing.Optional[bool] = OMIT,
-        webhook_url: typing.Optional[str] = OMIT,
-        slack_channel_id: typing.Optional[str] = OMIT,
-        slack_integration_id: typing.Optional[str] = OMIT,
-        person_match_mode: typing.Optional[CreateTrackersRequestPersonMatchMode] = OMIT,
-        filters: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncHttpResponse[TrackerMutationResponse]:
-        """
-        Creates a standalone tracker watching one exact name and type, matched case-insensitively against entities in newly analyzed media, so a tracker can exist before the entity is indexed. To follow an entity you already have an id for, use POST /v1/monitors/{id}/entities. A channel is followed by its YouTube channel id (UC plus 22 characters); a channel name answers 400 id_required. Attach it to a monitor afterwards via POST /v1/monitors/{id}/trackers. Creating a duplicate (same entity name + type) returns 409 tracker_already_exists with the existing tracker id in error.details.existing_id.
-
-        Parameters
-        ----------
-        entity_name : str
-            The exact name to watch, matched case-insensitively against analyzed media, so a tracker can exist before the entity is indexed. For a channel, the YouTube channel id (UC plus 22 characters), never a name: a channel name answers 400 id_required naming GET /v1/entities/resolve?q=...&type=channel and best.youtube_channel_id. Required on create. Creating a duplicate (same name, compared case-insensitively, and type) returns 409 tracker_already_exists with the existing tracker id in error.details.existing_id.
-
-        entity_type : CreateTrackersRequestEntityType
-            Entity type of the tracked entity. Required on create. org is accepted for organization, and the tracker answers organization.
-
-        idempotency_key : typing.Optional[str]
-            One key per intent, 1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400 invalid_idempotency_key. Keys are scoped to the account, credential and resource family. The same key and normalized method, path and body returns the committed response with Idempotency-Replayed: true. A changed intent within the same family returns 409 idempotency_conflict. Monitor and tracker families have independent namespaces. Secret recovery is limited as described by the operation.
-
-        display_name : typing.Optional[str]
-            Optional label shown in alerts and the dashboard.
-
-        notify_email : typing.Optional[bool]
-            Per-tracker email delivery. Default true.
-
-        notify_webhook : typing.Optional[bool]
-            Per-tracker webhook delivery override. Paid plans only.
-
-        notify_slack : typing.Optional[bool]
-            Per-tracker Slack delivery override. Paid plans only.
-
-        webhook_url : typing.Optional[str]
-            Per-tracker webhook destination override (http/https).
-
-        slack_channel_id : typing.Optional[str]
-            Per-tracker Slack channel override.
-
-        slack_integration_id : typing.Optional[str]
-            Per-tracker Slack integration override.
-
-        person_match_mode : typing.Optional[CreateTrackersRequestPersonMatchMode]
-            Person trackers only. Mentions (default) matches others talking about the person; appearances matches the person present as a speaker, host or guest; both accepts either. Non-person trackers reject this field. PATCH changes future and pending delivery eligibility, without backfill.
-
-        filters : typing.Optional[typing.Dict[str, typing.Any]]
-            Stored filter object. personMatchMode is also accepted here for person trackers. Other filter keys are retained; do not assume they change matching.
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        AsyncHttpResponse[TrackerMutationResponse]
-            Success
-        """
-        _response = await self._client_wrapper.httpx_client.request(
-            "v1/trackers",
-            method="POST",
-            json={
-                "entity_name": entity_name,
-                "entity_type": entity_type,
-                "display_name": display_name,
-                "notify_email": notify_email,
-                "notify_webhook": notify_webhook,
-                "notify_slack": notify_slack,
-                "webhook_url": webhook_url,
-                "slack_channel_id": slack_channel_id,
-                "slack_integration_id": slack_integration_id,
-                "person_match_mode": person_match_mode,
-                "filters": filters,
-            },
-            headers={
-                "content-type": "application/json",
-                "Idempotency-Key": str(idempotency_key) if idempotency_key is not None else None,
-            },
-            request_options=request_options,
-            omit=OMIT,
-        )
-        try:
-            if 200 <= _response.status_code < 300:
-                _data = typing.cast(
-                    TrackerMutationResponse,
-                    parse_obj_as(
-                        type_=TrackerMutationResponse,  # type: ignore
-                        object_=_response.json(),
-                    ),
-                )
-                return AsyncHttpResponse(response=_response, data=_data)
-            if _response.status_code == 400:
-                raise BadRequestError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 401:
-                raise UnauthorizedError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 403:
-                raise ForbiddenError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 404:
-                raise NotFoundError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 409:
-                raise ConflictError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 429:
-                raise TooManyRequestsError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 500:
-                raise InternalServerError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
-        except ValidationError as e:
-            raise ParsingError(
-                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
-            )
-        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
-
     async def delete(
         self,
         id: str,
@@ -941,7 +539,7 @@ class AsyncRawTrackersClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[MessageResponse]:
         """
-        Deletes the tracker. Cannot be undone.
+        Deletes the tracker. Cannot be undone. Its monitor stays, with its delivery settings, even when this was its last tracker.
 
         Parameters
         ----------
@@ -1069,19 +667,13 @@ class AsyncRawTrackersClient:
         *,
         idempotency_key: typing.Optional[str] = None,
         display_name: typing.Optional[str] = OMIT,
-        notify_email: typing.Optional[bool] = OMIT,
-        notify_webhook: typing.Optional[bool] = OMIT,
-        notify_slack: typing.Optional[bool] = OMIT,
-        webhook_url: typing.Optional[str] = OMIT,
-        slack_channel_id: typing.Optional[str] = OMIT,
-        slack_integration_id: typing.Optional[str] = OMIT,
         person_match_mode: typing.Optional[UpdateTrackersRequestPersonMatchMode] = OMIT,
         filters: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         paused: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[TrackerMutationResponse]:
         """
-        Partial update: send only the fields to change. The tracked entity itself (entity_name/entity_type) is immutable; delete and recreate to watch a different entity.
+        Partial update: send only the fields to change. The tracked entity itself (entity_name/entity_type) is immutable; delete and recreate to watch a different entity. Delivery is the monitor's: change it with PATCH /v1/monitors/{id}.
 
         Parameters
         ----------
@@ -1093,24 +685,6 @@ class AsyncRawTrackersClient:
 
         display_name : typing.Optional[str]
             Optional label shown in alerts and the dashboard.
-
-        notify_email : typing.Optional[bool]
-            Per-tracker email delivery. Default true.
-
-        notify_webhook : typing.Optional[bool]
-            Per-tracker webhook delivery override. Paid plans only.
-
-        notify_slack : typing.Optional[bool]
-            Per-tracker Slack delivery override. Paid plans only.
-
-        webhook_url : typing.Optional[str]
-            Per-tracker webhook destination override (http/https).
-
-        slack_channel_id : typing.Optional[str]
-            Per-tracker Slack channel override.
-
-        slack_integration_id : typing.Optional[str]
-            Per-tracker Slack integration override.
 
         person_match_mode : typing.Optional[UpdateTrackersRequestPersonMatchMode]
             Person trackers only. Mentions (default) matches others talking about the person; appearances matches the person present as a speaker, host or guest; both accepts either. Non-person trackers reject this field. PATCH changes future and pending delivery eligibility, without backfill.
@@ -1134,12 +708,6 @@ class AsyncRawTrackersClient:
             method="PATCH",
             json={
                 "display_name": display_name,
-                "notify_email": notify_email,
-                "notify_webhook": notify_webhook,
-                "notify_slack": notify_slack,
-                "webhook_url": webhook_url,
-                "slack_channel_id": slack_channel_id,
-                "slack_integration_id": slack_integration_id,
                 "person_match_mode": person_match_mode,
                 "filters": filters,
                 "paused": paused,

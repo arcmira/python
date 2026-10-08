@@ -6,18 +6,9 @@ import typing
 from importlib import import_module
 
 if typing.TYPE_CHECKING:
-    from .types import (
-        CreateTrackersRequestEntityType,
-        CreateTrackersRequestPersonMatchMode,
-        UpdateTrackersRequestPersonMatchMode,
-    )
+    from .types import UpdateTrackersRequestPersonMatchMode
     from . import alerts
-_dynamic_imports: typing.Dict[str, str] = {
-    "CreateTrackersRequestEntityType": ".types",
-    "CreateTrackersRequestPersonMatchMode": ".types",
-    "UpdateTrackersRequestPersonMatchMode": ".types",
-    "alerts": ".alerts",
-}
+_dynamic_imports: typing.Dict[str, str] = {"UpdateTrackersRequestPersonMatchMode": ".types", "alerts": ".alerts"}
 
 
 def __getattr__(attr_name: str) -> typing.Any:
@@ -41,9 +32,4 @@ def __dir__():
     return sorted(lazy_attrs)
 
 
-__all__ = [
-    "CreateTrackersRequestEntityType",
-    "CreateTrackersRequestPersonMatchMode",
-    "UpdateTrackersRequestPersonMatchMode",
-    "alerts",
-]
+__all__ = ["UpdateTrackersRequestPersonMatchMode", "alerts"]
