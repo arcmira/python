@@ -1,5 +1,5 @@
 # Written by scripts/install-generated.py from VERSION.
-__version__ = '0.4.3'
+__version__ = '0.5.0'
 homepage = "https://arcmira.com"
 docs = "https://arcmira.com/docs"
 api_base = "https://api.arcmira.com/v1"

@@ -15,7 +15,7 @@ class MeResponseUsage(UniversalBaseModel):
 
     rows_remaining: int = pydantic.Field()
     """
-    Credits left from the plan, grants and top-ups, on-demand excluded, in rows (a row is 4 credits): divided by 4, rounded up.
+    Credits left from the plan and grants, on-demand excluded, in rows (a row is 4 credits): divided by 4, rounded up.
     """
 
     monthly_rows: int = pydantic.Field()

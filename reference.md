@@ -62,7 +62,7 @@ client.health.check()
 <dl>
 <dd>
 
-Available even when the account has exhausted its usage allowance. Returns the credential making the request (key_id, key_label, credential_kind), the masked account email, the tier, scopes, rate limit, usage with period_resets_at, and account settings. usage.credits is the primary measure: credits from the plan, then the on-demand budget. The row fields restate it at 4 credits a row. settings.transcripts is what a transcript request that names no parameter of its own receives: every key of the account resolves against it.
+Available even when the account has exhausted its usage allowance. Returns the credential making the request (key_id, key_label, credential_kind), the masked email of the person, the account whose credits it spends (account: id, name, kind, plan) and the role the person holds on it, the tier, scopes, rate limit, usage with period_resets_at, and account settings. usage.credits is the primary measure: credits from the plan, then the on-demand budget. The row fields restate it at 4 credits a row. settings.transcripts is what a transcript request that names no parameter of its own receives: every key of the account resolves against it.
 </dd>
 </dl>
 </dd>
@@ -1801,14 +1801,6 @@ client.monitors.create(
 <dl>
 <dd>
 
-**team_id:** `typing.Optional[str]` — Create the monitor in this team, which the caller must belong to. The team owner pays for it and its plan sets the limits. A member may not set a webhook. Create only.
-
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
 
 </dd>
@@ -1833,7 +1825,7 @@ client.monitors.create(
 <dl>
 <dd>
 
-Deletes the monitor AND every tracker inside it (trackers_deleted reports how many). Cannot be undone. Retrying with the original Idempotency-Key returns the original deleted count without deleting again.
+Deletes the monitor AND every tracker inside it (trackers_deleted reports how many). Anyone in the account can restore it, with its trackers and recipients, from Recently deleted on the dashboard Monitors page for 30 days. Retrying with the original Idempotency-Key returns the original deleted count without deleting again.
 </dd>
 </dl>
 </dd>
@@ -2219,169 +2211,6 @@ client.trackers.list()
 </dl>
 </details>
 
-<details><summary><code>client.trackers.<a href="src/arcmira/trackers/client.py">create</a>(...) -> TrackerMutationResponse</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-Creates a standalone tracker watching one exact name and type, matched case-insensitively against entities in newly analyzed media, so a tracker can exist before the entity is indexed. To follow an entity you already have an id for, use POST /v1/monitors/{id}/entities. A channel is followed by its YouTube channel id (UC plus 22 characters); a channel name answers 400 id_required. Attach it to a monitor afterwards via POST /v1/monitors/{id}/trackers. Creating a duplicate (same entity name + type) returns 409 tracker_already_exists with the existing tracker id in error.details.existing_id.
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```python
-from arcmira import Arcmira
-from arcmira.environment import ArcmiraEnvironment
-
-client = Arcmira(
-    api_key="<token>",
-    environment=ArcmiraEnvironment.DEFAULT,
-)
-
-client.trackers.create(
-    idempotency_key="8b2f6c3e-4d1a-4e7b-9c05-2f6a1b7d3e90",
-    entity_name="entity_name",
-    entity_type="person",
-)
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**entity_name:** `str` — The exact name to watch, matched case-insensitively against analyzed media, so a tracker can exist before the entity is indexed. For a channel, the YouTube channel id (UC plus 22 characters), never a name: a channel name answers 400 id_required naming GET /v1/entities/resolve?q=...&type=channel and best.youtube_channel_id. Required on create. Creating a duplicate (same name, compared case-insensitively, and type) returns 409 tracker_already_exists with the existing tracker id in error.details.existing_id.
-
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**entity_type:** `CreateTrackersRequestEntityType` — Entity type of the tracked entity. Required on create. org is accepted for organization, and the tracker answers organization.
-
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**idempotency_key:** `typing.Optional[str]` — One key per intent, 1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400 invalid_idempotency_key. Keys are scoped to the account, credential and resource family. The same key and normalized method, path and body returns the committed response with Idempotency-Replayed: true. A changed intent within the same family returns 409 idempotency_conflict. Monitor and tracker families have independent namespaces. Secret recovery is limited as described by the operation.
-
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**display_name:** `typing.Optional[str]` — Optional label shown in alerts and the dashboard.
-
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**notify_email:** `typing.Optional[bool]` — Per-tracker email delivery. Default true.
-
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**notify_webhook:** `typing.Optional[bool]` — Per-tracker webhook delivery override. Paid plans only.
-
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**notify_slack:** `typing.Optional[bool]` — Per-tracker Slack delivery override. Paid plans only.
-
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**webhook_url:** `typing.Optional[str]` — Per-tracker webhook destination override (http/https).
-
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**slack_channel_id:** `typing.Optional[str]` — Per-tracker Slack channel override.
-
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**slack_integration_id:** `typing.Optional[str]` — Per-tracker Slack integration override.
-
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**person_match_mode:** `typing.Optional[CreateTrackersRequestPersonMatchMode]` — Person trackers only. Mentions (default) matches others talking about the person; appearances matches the person present as a speaker, host or guest; both accepts either. Non-person trackers reject this field. PATCH changes future and pending delivery eligibility, without backfill.
-
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**filters:** `typing.Optional[typing.Dict[str, typing.Any]]` — Stored filter object. personMatchMode is also accepted here for person trackers. Other filter keys are retained; do not assume they change matching.
-
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
-
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
 <details><summary><code>client.trackers.<a href="src/arcmira/trackers/client.py">delete</a>(...) -> MessageResponse</code></summary>
 <dl>
 <dd>
@@ -2394,7 +2223,7 @@ client.trackers.create(
 <dl>
 <dd>
 
-Deletes the tracker. Cannot be undone.
+Deletes the tracker. Cannot be undone. Its monitor stays, with its delivery settings, even when this was its last tracker.
 </dd>
 </dl>
 </dd>
@@ -2476,7 +2305,7 @@ client.trackers.delete(
 <dl>
 <dd>
 
-Partial update: send only the fields to change. The tracked entity itself (entity_name/entity_type) is immutable; delete and recreate to watch a different entity.
+Partial update: send only the fields to change. The tracked entity itself (entity_name/entity_type) is immutable; delete and recreate to watch a different entity. Delivery is the monitor's: change it with PATCH /v1/monitors/{id}.
 </dd>
 </dl>
 </dd>
@@ -2535,54 +2364,6 @@ client.trackers.update(
 <dd>
 
 **display_name:** `typing.Optional[str]` — Optional label shown in alerts and the dashboard.
-
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**notify_email:** `typing.Optional[bool]` — Per-tracker email delivery. Default true.
-
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**notify_webhook:** `typing.Optional[bool]` — Per-tracker webhook delivery override. Paid plans only.
-
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**notify_slack:** `typing.Optional[bool]` — Per-tracker Slack delivery override. Paid plans only.
-
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**webhook_url:** `typing.Optional[str]` — Per-tracker webhook destination override (http/https).
-
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**slack_channel_id:** `typing.Optional[str]` — Per-tracker Slack channel override.
-
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**slack_integration_id:** `typing.Optional[str]` — Per-tracker Slack integration override.
 
 </dd>
 </dl>
@@ -2966,7 +2747,7 @@ client.monitors.trackers.list(
 <dl>
 <dd>
 
-Attaches EXISTING trackers to the monitor by id ({ tracker_ids: ["trk_..."] }). It does not create trackers: create them first via POST /v1/trackers, then attach. Attached trackers use the monitor's delivery settings. Supply 1 to 90 IDs. Duplicate IDs count once. Every ID must belong to the account; a missing or foreign ID returns tracker_not_found and none are attached. attached_count reports the unique attached count.
+Moves the account's trackers into this monitor by id ({ tracker_ids: ["trk_..."] }), out of the monitors they are in. A tracker always sits in one monitor and alerts through its delivery settings. It does not create trackers: POST /v1/monitors/{id}/entities does. Supply 1 to 90 IDs. Duplicate IDs count once. Every ID must belong to the account; a missing or foreign ID returns tracker_not_found and none move. attached_count reports the unique moved count.
 </dd>
 </dl>
 </dd>
@@ -3019,7 +2800,7 @@ client.monitors.trackers.add(
 <dl>
 <dd>
 
-**tracker_ids:** `typing.List[str]` — Ids of existing trackers ("trk_...") to attach to this monitor. Create trackers first via POST /v1/trackers. At most 90 IDs per request; duplicates count once. All IDs must belong to the account or none are attached.
+**tracker_ids:** `typing.List[str]` — Ids of the account's trackers ("trk_...") to move into this monitor from the monitors they are in. At most 90 IDs per request; duplicates count once. All IDs must belong to the account or none move.
 
 </dd>
 </dl>
@@ -3142,7 +2923,7 @@ client.monitors.alerts.list(
 <dl>
 <dd>
 
-Follows each entity ({ entity_ids: ["ent_..."] }) and each exact name ({ names: [{ name, type }] }) in the monitor: the monitor account's existing tracker for the entity or name (compared case-insensitively) is reused, else a tracker is created under the monitor's account (the team owner on a team monitor) for the canonical entity (a merged id follows its redirect) or the name as given, then the trackers are attached, all in one write. Use names for something not yet indexed; a channel is named by its YouTube channel id, and a channel name answers 400 id_required. Attached trackers use the monitor's delivery settings. Supply 1 to 90 ids and names together; duplicates count once. Each gets one result, ids first then names, in request order; a names result carries name and type in place of entity_id. An id that cannot be followed comes back with attached: false and a reason (entity_not_found, entity_type_not_trackable, tracker_limit_reached, tracked_in_another_monitor) while the rest still attach; a tracker already in another monitor is left there and named in current_monitor_id. Requires the monitors:write and trackers:write scopes.
+Follows each entity ({ entity_ids: ["ent_..."] }) and each exact name ({ names: [{ name, type }] }) in the monitor: the monitor account's existing tracker for the entity or name (compared case-insensitively) is reused, else a tracker is created in the monitor's account for the canonical entity (a merged id follows its redirect) or the name as given, then the trackers are attached, all in one write. Use names for something not yet indexed; a channel is named by its YouTube channel id, and a channel name answers 400 id_required. Attached trackers use the monitor's delivery settings. Supply 1 to 90 ids and names together; duplicates count once. Each gets one result, ids first then names, in request order; a names result carries name and type in place of entity_id. An id that cannot be followed comes back with attached: false and a reason (entity_not_found, entity_type_not_trackable, tracker_limit_reached, tracked_in_another_monitor) while the rest still attach; a tracker already in another monitor is left there and named in current_monitor_id. Requires the monitors:write and trackers:write scopes.
 </dd>
 </dl>
 </dd>
@@ -3208,7 +2989,7 @@ client.monitors.entities.add(
 <dl>
 <dd>
 
-**names:** `typing.Optional[typing.List[AddEntitiesRequestNamesItem]]` — Exact names to follow in this monitor, for a name not yet indexed or one you have no id for. The tracker is created under the monitor's account (the team owner on a team monitor) and attached in the same call; the account's tracker for the same name (compared case-insensitively) and type is reused. Duplicates count once.
+**names:** `typing.Optional[typing.List[AddEntitiesRequestNamesItem]]` — Exact names to follow in this monitor, for a name not yet indexed or one you have no id for. The tracker is created in the monitor's account and attached in the same call; the account's tracker for the same name (compared case-insensitively) and type is reused. Duplicates count once.
 
 </dd>
 </dl>

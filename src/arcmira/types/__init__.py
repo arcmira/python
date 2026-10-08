@@ -108,7 +108,10 @@ if typing.TYPE_CHECKING:
     from .health_response_status import HealthResponseStatus
     from .health_response_version import HealthResponseVersion
     from .me_response import MeResponse
+    from .me_response_account import MeResponseAccount
+    from .me_response_account_kind import MeResponseAccountKind
     from .me_response_credential_kind import MeResponseCredentialKind
+    from .me_response_role import MeResponseRole
     from .me_response_usage import MeResponseUsage
     from .me_response_usage_credits import MeResponseUsageCredits
     from .me_response_usage_credits_on_demand import MeResponseUsageCreditsOnDemand
@@ -147,7 +150,6 @@ if typing.TYPE_CHECKING:
     from .monitor_list_response_monitors_item_slack_integration import MonitorListResponseMonitorsItemSlackIntegration
     from .monitor_mutation_response import MonitorMutationResponse
     from .monitor_mutation_response_monitor import MonitorMutationResponseMonitor
-    from .monitor_team import MonitorTeam
     from .monitor_trackers_response import MonitorTrackersResponse
     from .monitor_trackers_response_trackers_item import MonitorTrackersResponseTrackersItem
     from .named_entity_ref import NamedEntityRef
@@ -351,7 +353,10 @@ _dynamic_imports: typing.Dict[str, str] = {
     "HealthResponseStatus": ".health_response_status",
     "HealthResponseVersion": ".health_response_version",
     "MeResponse": ".me_response",
+    "MeResponseAccount": ".me_response_account",
+    "MeResponseAccountKind": ".me_response_account_kind",
     "MeResponseCredentialKind": ".me_response_credential_kind",
+    "MeResponseRole": ".me_response_role",
     "MeResponseUsage": ".me_response_usage",
     "MeResponseUsageCredits": ".me_response_usage_credits",
     "MeResponseUsageCreditsOnDemand": ".me_response_usage_credits_on_demand",
@@ -390,7 +395,6 @@ _dynamic_imports: typing.Dict[str, str] = {
     "MonitorListResponseMonitorsItemSlackIntegration": ".monitor_list_response_monitors_item_slack_integration",
     "MonitorMutationResponse": ".monitor_mutation_response",
     "MonitorMutationResponseMonitor": ".monitor_mutation_response_monitor",
-    "MonitorTeam": ".monitor_team",
     "MonitorTrackersResponse": ".monitor_trackers_response",
     "MonitorTrackersResponseTrackersItem": ".monitor_trackers_response_trackers_item",
     "NamedEntityRef": ".named_entity_ref",
@@ -614,7 +618,10 @@ __all__ = [
     "HealthResponseStatus",
     "HealthResponseVersion",
     "MeResponse",
+    "MeResponseAccount",
+    "MeResponseAccountKind",
     "MeResponseCredentialKind",
+    "MeResponseRole",
     "MeResponseUsage",
     "MeResponseUsageCredits",
     "MeResponseUsageCreditsOnDemand",
@@ -653,7 +660,6 @@ __all__ = [
     "MonitorListResponseMonitorsItemSlackIntegration",
     "MonitorMutationResponse",
     "MonitorMutationResponseMonitor",
-    "MonitorTeam",
     "MonitorTrackersResponse",
     "MonitorTrackersResponseTrackersItem",
     "NamedEntityRef",

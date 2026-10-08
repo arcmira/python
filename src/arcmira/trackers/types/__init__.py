@@ -6,13 +6,9 @@ import typing
 from importlib import import_module
 
 if typing.TYPE_CHECKING:
-    from .create_trackers_request_entity_type import CreateTrackersRequestEntityType
-    from .create_trackers_request_person_match_mode import CreateTrackersRequestPersonMatchMode
     from .update_trackers_request_person_match_mode import UpdateTrackersRequestPersonMatchMode
 _dynamic_imports: typing.Dict[str, str] = {
-    "CreateTrackersRequestEntityType": ".create_trackers_request_entity_type",
-    "CreateTrackersRequestPersonMatchMode": ".create_trackers_request_person_match_mode",
-    "UpdateTrackersRequestPersonMatchMode": ".update_trackers_request_person_match_mode",
+    "UpdateTrackersRequestPersonMatchMode": ".update_trackers_request_person_match_mode"
 }
 
 
@@ -37,8 +33,4 @@ def __dir__():
     return sorted(lazy_attrs)
 
 
-__all__ = [
-    "CreateTrackersRequestEntityType",
-    "CreateTrackersRequestPersonMatchMode",
-    "UpdateTrackersRequestPersonMatchMode",
-]
+__all__ = ["UpdateTrackersRequestPersonMatchMode"]

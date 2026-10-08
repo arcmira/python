@@ -27,36 +27,6 @@ class Tracker(UniversalBaseModel):
     User-facing display name. Falls back to entity_name when not customized.
     """
 
-    notify_email: bool = pydantic.Field()
-    """
-    True when this tracker delivers by email (default true at creation).
-    """
-
-    notify_webhook: bool = pydantic.Field()
-    """
-    True when this tracker has a per-tracker webhook override enabled.
-    """
-
-    notify_slack: bool = pydantic.Field()
-    """
-    True when this tracker has a per-tracker Slack override enabled.
-    """
-
-    webhook_url: typing.Optional[str] = pydantic.Field(default=None)
-    """
-    Per-tracker webhook destination override. Null when the tracker uses its monitor's delivery settings. Absent when the tracker is in a team monitor the caller does not own.
-    """
-
-    slack_channel_id: typing.Optional[str] = pydantic.Field(default=None)
-    """
-    Per-tracker Slack channel override. Null when not set.
-    """
-
-    slack_integration_id: typing.Optional[str] = pydantic.Field(default=None)
-    """
-    Per-tracker Slack integration override. Null when not set.
-    """
-
     filters: typing.Optional[typing.Dict[str, typing.Any]] = pydantic.Field(default=None)
     """
     Optional matching filters as submitted. Null when none were set.
@@ -87,9 +57,9 @@ class Tracker(UniversalBaseModel):
     When the tracker was last updated.
     """
 
-    monitor_id: typing.Optional[str] = pydantic.Field(default=None)
+    monitor_id: str = pydantic.Field()
     """
-    The monitor this tracker belongs to. Absent for standalone trackers.
+    The monitor this tracker wakes, whose delivery its alerts use. Every tracker is in exactly one monitor.
     """
 
     email_delivery_count: int = pydantic.Field()
