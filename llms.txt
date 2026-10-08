@@ -47,12 +47,12 @@ A refusal raises a typed error from `arcmira.errors` (`BadRequestError`, `Paymen
 - `transcripts`: `search` (spoken passages, `GET /v1/search`), `get`, `quote`, `list_requests`.
 - `channels`: `coverage`, `videos.list`, `sponsors.list`.
 - `monitors`: `list`, `create`, `update`, `delete`, `rotate_webhook_secret`, `trackers.list`, `trackers.add`, `entities.add`, `alerts.list`.
-- `trackers`: `list`, `create`, `update`, `delete`, `alerts.list`.
+- `trackers`: `list`, `update`, `delete`, `alerts.list`. Trackers are created in a monitor with `monitors.entities.add`.
 - `integrations`: `slack.list`.
 - `feedback`: `submit`, `get`.
 - `me`: `get`, `update_settings`. `health`: `check`.
 
-Follow an entity you have an id for with `monitors.entities.add(monitor_id, entity_ids=[...])`. Watch an exact name before it is indexed with `trackers.create(entity_name=..., entity_type=...)`.
+Follow an entity you have an id for with `monitors.entities.add(monitor_id, entity_ids=[...])`. Watch an exact name before it is indexed with `monitors.entities.add(monitor_id, names=[AddEntitiesRequestNamesItem(name=..., type=...)])`. `me.get()` carries `account` and `role`.
 
 ## Clients and pagination
 

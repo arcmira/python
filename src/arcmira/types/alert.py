@@ -24,9 +24,9 @@ class Alert(UniversalBaseModel):
     Id of the tracker (tracked entity) that produced the alert.
     """
 
-    monitor_id: typing.Optional[str] = pydantic.Field(default=None)
+    monitor_id: str = pydantic.Field()
     """
-    Id of the monitor the tracker belongs to. Null for trackers outside a monitor.
+    Id of the monitor whose delivery sent the alert.
     """
 
     entity_id: typing.Optional[str] = pydantic.Field(default=None)
@@ -96,7 +96,7 @@ class Alert(UniversalBaseModel):
 
     monitor: typing.Optional[AlertMonitor] = pydantic.Field(default=None)
     """
-    The monitor the tracker belongs to. Null for trackers outside a monitor.
+    The monitor the tracker belongs to. Null when that monitor was deleted.
     """
 
     if IS_PYDANTIC_V2:

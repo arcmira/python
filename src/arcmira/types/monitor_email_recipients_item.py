@@ -13,7 +13,7 @@ class MonitorEmailRecipientsItem(UniversalBaseModel):
     email: str
     role: MonitorEmailRecipientsItemRole = pydantic.Field()
     """
-    owner: the paying account. member: a member of the monitor's team, who receives its alerts without an invitation and does not count toward the recipient limits. external: anyone else, who must confirm first.
+    owner: the address of the account the monitor belongs to. member: a teammate in that account. external: anyone else, who must confirm first.
     """
 
     user_id: typing.Optional[str] = pydantic.Field(default=None)
@@ -21,11 +21,7 @@ class MonitorEmailRecipientsItem(UniversalBaseModel):
     The Arcmira user behind an owner or member address. Null for external recipients.
     """
 
-    status: MonitorEmailRecipientsItemStatus = pydantic.Field()
-    """
-    muted: a team member muted this monitor for themselves.
-    """
-
+    status: MonitorEmailRecipientsItemStatus
     invitation_status: typing.Optional[MonitorEmailRecipientsItemInvitationStatus] = None
 
     if IS_PYDANTIC_V2:

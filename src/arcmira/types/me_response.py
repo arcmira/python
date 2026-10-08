@@ -5,7 +5,9 @@ import typing
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 from .account_settings import AccountSettings
+from .me_response_account import MeResponseAccount
 from .me_response_credential_kind import MeResponseCredentialKind
+from .me_response_role import MeResponseRole
 from .me_response_usage import MeResponseUsage
 
 
@@ -32,12 +34,22 @@ class MeResponse(UniversalBaseModel):
 
     email_masked: typing.Optional[str] = pydantic.Field(default=None)
     """
-    The account email with the local part masked after its first character, e.g. z***@example.com. Null when the account has none.
+    The email of the person calling (user_id), with the local part masked after its first character, e.g. z***@example.com. Null when the person has none.
     """
 
     period_resets_at: str = pydantic.Field()
     """
     ISO 8601 time the plan credits reset: 00:00 UTC on the first of next month, on every plan.
+    """
+
+    account: MeResponseAccount = pydantic.Field()
+    """
+    The account whose credits and plan this request uses. user_id is the person; this is who pays.
+    """
+
+    role: MeResponseRole = pydantic.Field()
+    """
+    The person's role on the account: owner of their own account, or admin or member of a team.
     """
 
     tier: str = pydantic.Field()

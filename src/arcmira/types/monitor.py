@@ -6,7 +6,6 @@ import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 from .monitor_access import MonitorAccess
 from .monitor_email_recipients_item import MonitorEmailRecipientsItem
-from .monitor_team import MonitorTeam
 
 
 class Monitor(UniversalBaseModel):
@@ -57,22 +56,22 @@ class Monitor(UniversalBaseModel):
 
     webhook_url: typing.Optional[str] = pydantic.Field(default=None)
     """
-    Webhook destination URL. Null when no webhook is configured. Absent when access is member: only the team owner sees the webhook.
+    Webhook destination URL. Null when no webhook is configured.
     """
 
     webhook_secret_set: typing.Optional[bool] = pydantic.Field(default=None)
     """
-    True when a webhook signing secret exists for this monitor. The secret itself is never returned on reads; enablement and rotation responses support recovery with the original Idempotency-Key during the valid recovery window. Absent when access is member.
+    True when a webhook signing secret exists for this monitor. The secret itself is never returned on reads; enablement and rotation responses support recovery with the original Idempotency-Key during the valid recovery window.
     """
 
     webhook_secret_hint: typing.Optional[str] = pydantic.Field(default=None)
     """
-    Last 4 characters of the current signing secret, for identifying which secret you hold. Null until a secret exists. Absent when access is member.
+    Last 4 characters of the current signing secret, for identifying which secret you hold. Null until a secret exists.
     """
 
     webhook_failures: typing.Optional[int] = pydantic.Field(default=None)
     """
-    Consecutive webhook delivery failures recorded for this monitor. Reset by a secret rotation or PATCHing notify_webhook: true; 10 consecutive failures auto-disable a webhook. Note: the delivery pipeline currently accrues failures on the tracker that fired, so this monitor-level counter can lag.
+    Consecutive webhook delivery failures recorded for this monitor. Reset by a secret rotation or PATCHing notify_webhook: true; 10 consecutive failures auto-disable a webhook.
     """
 
     webhook_disabled_at: typing.Optional[str] = pydantic.Field(default=None)
@@ -110,19 +109,9 @@ class Monitor(UniversalBaseModel):
     When the monitor was last updated.
     """
 
-    team: typing.Optional[MonitorTeam] = pydantic.Field(default=None)
-    """
-    The team the monitor is shared with. Null for a personal monitor.
-    """
-
     access: MonitorAccess = pydantic.Field()
     """
-    account: the caller pays for the monitor, as its personal owner or the team owner. member: the caller is another member of its team, who may edit it but not its webhook, and may not delete it.
-    """
-
-    muted: bool = pydantic.Field()
-    """
-    True when the caller muted this team monitor for themselves. Always false on a personal monitor.
+    account: the caller owns the account the monitor belongs to, or is an admin in it. member: the caller is a member of that team account, who may edit the monitor and its webhook but may not delete it.
     """
 
     if IS_PYDANTIC_V2:

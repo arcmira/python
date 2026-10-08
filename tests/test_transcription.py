@@ -10,6 +10,7 @@ from urllib.parse import parse_qs, urlparse
 from arcmira import Arcmira, AsyncArcmira
 from arcmira.core.api_error import ApiError
 from arcmira.errors import ForbiddenError, PaymentRequiredError
+from arcmira.monitors import AddEntitiesRequestNamesItem
 from arcmira.types.transcript_result import TranscriptResult_Pending, TranscriptResult_Ready
 
 FIXTURES = json.loads((Path(__file__).parent / 'fixtures/transcription-responses.json').read_text())
@@ -19,6 +20,7 @@ PAID_PLAN = FIXTURES['paid_plan_required']['body']
 QUOTE = FIXTURES['quote_transcription']['body']
 REQUEST = FIXTURES['list_transcriptions']['body']['requests'][0]
 REFUNDED = {**FIXTURES['job_refunded']['body'], 'title': None}
+ME = dict(user_id='usr_1', key_id='key_1', key_label='laptop', credential_kind='account_key', email_masked='z***@example.com', period_resets_at='2026-11-01T00:00:00Z', tier='ultra', scopes=['read'], rate_limit=60, recommendations_api_enabled=True, usage=dict(rows_used=1, rows_remaining=1, monthly_rows=1, current_spend_cents=0), settings=dict(transcripts=dict(quality='captions', language='en', timestamps=True)))
 
 PAGE_CAP = 5
 CURSOR = 'signed+/opaque==&cursor'
@@ -37,12 +39,8 @@ def mention(video_id):
     return dict(id='men_' + video_id, entity=ENTITY_REF, media=dict(video_id=video_id), is_appearance=False, sentiment='neutral', start_seconds=0, end_seconds=20)
 
 
-def tracker(body):
-    return dict(id='trk_1', entity_name=body['entity_name'], entity_type=body['entity_type'], display_name=body['entity_name'], notify_email=True, notify_webhook=False, notify_slack=False, paused=False, created_at='2026-10-02T00:00:00Z', email_delivery_count=0, webhook_delivery_count=0, slack_delivery_count=0)
-
-
 def monitor(id, body):
-    return dict(id=id, name='Fixture', paused=body.get('paused', False), notify_emails=[], notify_webhook=False, notify_slack=False, created_at='2026-10-01T00:00:00Z', updated_at='2026-10-02T00:00:00Z', access='account', muted=False, tracker_count=1)
+    return dict(id=id, name='Fixture', paused=body.get('paused', False), notify_emails=[], notify_webhook=False, notify_slack=False, created_at='2026-10-01T00:00:00Z', updated_at='2026-10-02T00:00:00Z', access='account', tracker_count=1)
 
 
 def transcript(video_id, query):
@@ -78,8 +76,11 @@ def route(method, path, query, body):
     if method == 'GET' and path == '/v1/recommendations':
         row = dict(id='com_1', entity=ENTITY_REF, media=dict(video_id='video-1'), confidence=0.9, speaker_role='host', start_seconds=10, end_seconds=40, **{'class': 'sponsored'})
         return 200, dict(recommendations=[row], entity=ENTITY, window=WINDOW, has_more=False, next_cursor=None)
-    if method == 'POST' and path == '/v1/trackers':
-        return 201, dict(tracker=tracker(body), message='Tracker created.')
+    if method == 'POST' and parts[:2] == ['v1', 'monitors'] and parts[3:] == ['entities']:
+        results = [dict(name=item['name'], type=item['type'], tracker_id='trk_' + str(index + 1), created=True, attached=True) for index, item in enumerate(body['names'])]
+        return 200, dict(monitor_id=parts[2], results=results)
+    if method == 'GET' and path == '/v1/me':
+        return 200, dict(ME, account=dict(id='acc_1', name='Acme', kind='team', plan='ultra'), role='admin')
     if method == 'PATCH' and parts[:2] == ['v1', 'monitors']:
         return 200, dict(monitor=monitor(parts[2], body), message='Monitor updated.')
     return 404, dict(error=dict(type='not_found', code='not_found', message=f'No fixture for {method} {path}', doc_url='https://arcmira.com/docs/errors', request_id='fixture'))
@@ -219,12 +220,16 @@ class GeneratedClientTests(unittest.TestCase):
         query = self.calls_since(before, '/v1/recommendations')[0]['query']
         self.assertEqual(query, {'entity_id': ['ent_14'], 'class': ['sponsored']})
 
-    def test_trackers_create_sends_entity_name_and_type(self):
+    def test_monitor_entities_follow_an_exact_name(self):
         before = len(CALLS)
-        created = self.client.trackers.create(entity_name='Ramp', entity_type='organization')
-        self.assertEqual(self.calls_since(before, '/v1/trackers')[0]['body'], {'entity_name': 'Ramp', 'entity_type': 'organization'})
-        self.assertEqual(created.tracker.entity_name, 'Ramp')
-        self.assertFalse(created.tracker.paused)
+        added = self.client.monitors.entities.add('mon_1', names=[AddEntitiesRequestNamesItem(name='Ramp', type='organization')])
+        self.assertEqual(self.calls_since(before, '/v1/monitors/mon_1/entities')[0]['body'], {'names': [{'name': 'Ramp', 'type': 'organization'}]})
+        self.assertEqual([(row.name, row.attached) for row in added.results], [('Ramp', True)])
+        self.assertFalse(hasattr(self.client.trackers, 'create'))
+
+    def test_me_names_the_account_and_the_role(self):
+        me = self.client.me.get()
+        self.assertEqual((me.account.name, me.account.kind, me.role), ('Acme', 'team', 'admin'))
 
     def test_monitors_update_sends_paused(self):
         before = len(CALLS)

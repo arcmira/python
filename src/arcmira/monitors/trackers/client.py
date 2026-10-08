@@ -65,7 +65,7 @@ class TrackersClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> MonitorAddTrackersResponse:
         """
-        Attaches EXISTING trackers to the monitor by id ({ tracker_ids: ["trk_..."] }). It does not create trackers: create them first via POST /v1/trackers, then attach. Attached trackers use the monitor's delivery settings. Supply 1 to 90 IDs. Duplicate IDs count once. Every ID must belong to the account; a missing or foreign ID returns tracker_not_found and none are attached. attached_count reports the unique attached count.
+        Moves the account's trackers into this monitor by id ({ tracker_ids: ["trk_..."] }), out of the monitors they are in. A tracker always sits in one monitor and alerts through its delivery settings. It does not create trackers: POST /v1/monitors/{id}/entities does. Supply 1 to 90 IDs. Duplicate IDs count once. Every ID must belong to the account; a missing or foreign ID returns tracker_not_found and none move. attached_count reports the unique moved count.
 
         Parameters
         ----------
@@ -73,7 +73,7 @@ class TrackersClient:
             Monitor id.
 
         tracker_ids : typing.Sequence[str]
-            Ids of existing trackers ("trk_...") to attach to this monitor. Create trackers first via POST /v1/trackers. At most 90 IDs per request; duplicates count once. All IDs must belong to the account or none are attached.
+            Ids of the account's trackers ("trk_...") to move into this monitor from the monitors they are in. At most 90 IDs per request; duplicates count once. All IDs must belong to the account or none move.
 
         idempotency_key : typing.Optional[str]
             One key per intent, 1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400 invalid_idempotency_key. Keys are scoped to the account, credential and resource family. The same key and normalized method, path and body returns the committed response with Idempotency-Replayed: true. A changed intent within the same family returns 409 idempotency_conflict. Monitor and tracker families have independent namespaces. Secret recovery is limited as described by the operation.
@@ -168,7 +168,7 @@ class AsyncTrackersClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> MonitorAddTrackersResponse:
         """
-        Attaches EXISTING trackers to the monitor by id ({ tracker_ids: ["trk_..."] }). It does not create trackers: create them first via POST /v1/trackers, then attach. Attached trackers use the monitor's delivery settings. Supply 1 to 90 IDs. Duplicate IDs count once. Every ID must belong to the account; a missing or foreign ID returns tracker_not_found and none are attached. attached_count reports the unique attached count.
+        Moves the account's trackers into this monitor by id ({ tracker_ids: ["trk_..."] }), out of the monitors they are in. A tracker always sits in one monitor and alerts through its delivery settings. It does not create trackers: POST /v1/monitors/{id}/entities does. Supply 1 to 90 IDs. Duplicate IDs count once. Every ID must belong to the account; a missing or foreign ID returns tracker_not_found and none move. attached_count reports the unique moved count.
 
         Parameters
         ----------
@@ -176,7 +176,7 @@ class AsyncTrackersClient:
             Monitor id.
 
         tracker_ids : typing.Sequence[str]
-            Ids of existing trackers ("trk_...") to attach to this monitor. Create trackers first via POST /v1/trackers. At most 90 IDs per request; duplicates count once. All IDs must belong to the account or none are attached.
+            Ids of the account's trackers ("trk_...") to move into this monitor from the monitors they are in. At most 90 IDs per request; duplicates count once. All IDs must belong to the account or none move.
 
         idempotency_key : typing.Optional[str]
             One key per intent, 1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400 invalid_idempotency_key. Keys are scoped to the account, credential and resource family. The same key and normalized method, path and body returns the committed response with Idempotency-Replayed: true. A changed intent within the same family returns 409 idempotency_conflict. Monitor and tracker families have independent namespaces. Secret recovery is limited as described by the operation.
