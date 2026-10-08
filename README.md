@@ -104,7 +104,7 @@ except (PaymentRequiredError, ForbiddenError) as refusal:
     print(error.code, error.details.quote.rows, error.unlock.url)
 ```
 
-`str(refusal)` reads `402 quota_exceeded: <message>`. `member_limit` and `fair_use_cap` are 402 refusals with no `unlock`: an admin of the account raises the limit, or it resets with the month.
+`str(refusal)` reads `402 quota_exceeded: <message>`. `member_limit` and `fair_use_cap` are 402 refusals with no `unlock`: an admin of the account raises the limit, or it resets with the month. `on_demand_paused` is a 402 refusal with no `unlock` too: a payment for on-demand usage was declined, and an admin of the account updates the card at https://arcmira.com/dashboard/billing.
 
 ## Pagination
 
