@@ -6,6 +6,8 @@ import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 from .channel_videos_response_channel import ChannelVideosResponseChannel
 from .channel_videos_response_episodes_item import ChannelVideosResponseEpisodesItem
+from .channel_videos_response_unlock import ChannelVideosResponseUnlock
+from .freshness import Freshness
 from .publication_window import PublicationWindow
 
 
@@ -41,6 +43,12 @@ class ChannelVideosResponse(UniversalBaseModel):
     as_of: typing.Optional[str] = pydantic.Field(default=None)
     """
     Same as indexed_through.
+    """
+
+    freshness: typing.Optional[Freshness] = None
+    unlock: typing.Optional[ChannelVideosResponseUnlock] = pydantic.Field(default=None)
+    """
+    Present with freshness when your plan's freshness gate cut the window; note says so.
     """
 
     note: str = pydantic.Field()

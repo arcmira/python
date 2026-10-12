@@ -107,14 +107,19 @@ class EntitiesClient:
         _response = self._raw_client.get(id, request_options=request_options)
         return _response.data
 
-    def momentum(self, id: str, *, request_options: typing.Optional[RequestOptions] = None) -> EntityMomentumResponse:
+    def momentum(
+        self, id: str, *, days: typing.Optional[int] = None, request_options: typing.Optional[RequestOptions] = None
+    ) -> EntityMomentumResponse:
         """
-        Mentions in the last 7 and 30 days against the prior 30, an absolute-delta verdict (accelerating, flat, fading, none), the newest media date, and the top shows in the window. It counts the shows we index, not the whole internet, and it is a count, not a score. On a Pro+ plan the card also carries paid_vs_organic; otherwise that field is absent and access names the gate. Free; uses no credits. Every gate is a typed error whose error.unlock.url names the plan that lifts it; pass src=mcp-tool only from the Arcmira MCP server.
+        Mentions in a lookback window of days (7 to 365, default 30) against the same number of days before it, an absolute-delta verdict on that window (accelerating, flat, fading, none), the newest media date, and the top shows in the window. Pass the window the rest of your answer uses: days=90 for a 90-day answer. The fixed 7, 30 and 90 day counts stay on every card. It counts the shows we index, not the whole internet, and it is a count, not a score. On a Pro+ plan the card also carries paid_vs_organic for the window; otherwise that field is absent and access names the gate. On a plan with a freshness gate, the window ends at the cutoff and the card carries freshness, unlock, and a note that says where results stop. Uses 10 credits from your plan at any window, the default included. Every gate is a typed error whose error.unlock.url names the plan that lifts it; pass src=mcp-tool only from the Arcmira MCP server.
 
         Parameters
         ----------
         id : str
             Entity id, ent_{n} or the numeric id. Merged ids follow their redirect.
+
+        days : typing.Optional[int]
+            Lookback window in days, 7 to 365. Default 30. The card counts mentions in that many days, and in as many days before them, as mentions_window and mentions_prior_window. Pass the window the rest of your answer uses.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -135,7 +140,7 @@ class EntitiesClient:
             id="id",
         )
         """
-        _response = self._raw_client.momentum(id, request_options=request_options)
+        _response = self._raw_client.momentum(id, days=days, request_options=request_options)
         return _response.data
 
 
@@ -252,15 +257,18 @@ class AsyncEntitiesClient:
         return _response.data
 
     async def momentum(
-        self, id: str, *, request_options: typing.Optional[RequestOptions] = None
+        self, id: str, *, days: typing.Optional[int] = None, request_options: typing.Optional[RequestOptions] = None
     ) -> EntityMomentumResponse:
         """
-        Mentions in the last 7 and 30 days against the prior 30, an absolute-delta verdict (accelerating, flat, fading, none), the newest media date, and the top shows in the window. It counts the shows we index, not the whole internet, and it is a count, not a score. On a Pro+ plan the card also carries paid_vs_organic; otherwise that field is absent and access names the gate. Free; uses no credits. Every gate is a typed error whose error.unlock.url names the plan that lifts it; pass src=mcp-tool only from the Arcmira MCP server.
+        Mentions in a lookback window of days (7 to 365, default 30) against the same number of days before it, an absolute-delta verdict on that window (accelerating, flat, fading, none), the newest media date, and the top shows in the window. Pass the window the rest of your answer uses: days=90 for a 90-day answer. The fixed 7, 30 and 90 day counts stay on every card. It counts the shows we index, not the whole internet, and it is a count, not a score. On a Pro+ plan the card also carries paid_vs_organic for the window; otherwise that field is absent and access names the gate. On a plan with a freshness gate, the window ends at the cutoff and the card carries freshness, unlock, and a note that says where results stop. Uses 10 credits from your plan at any window, the default included. Every gate is a typed error whose error.unlock.url names the plan that lifts it; pass src=mcp-tool only from the Arcmira MCP server.
 
         Parameters
         ----------
         id : str
             Entity id, ent_{n} or the numeric id. Merged ids follow their redirect.
+
+        days : typing.Optional[int]
+            Lookback window in days, 7 to 365. Default 30. The card counts mentions in that many days, and in as many days before them, as mentions_window and mentions_prior_window. Pass the window the rest of your answer uses.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -289,5 +297,5 @@ class AsyncEntitiesClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.momentum(id, request_options=request_options)
+        _response = await self._raw_client.momentum(id, days=days, request_options=request_options)
         return _response.data

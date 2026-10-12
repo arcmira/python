@@ -7,6 +7,7 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 from .account_settings import AccountSettings
 from .me_response_account import MeResponseAccount
 from .me_response_credential_kind import MeResponseCredentialKind
+from .me_response_freshness import MeResponseFreshness
 from .me_response_role import MeResponseRole
 from .me_response_usage import MeResponseUsage
 
@@ -70,6 +71,11 @@ class MeResponse(UniversalBaseModel):
     recommendations_api_enabled: bool = pydantic.Field()
     """
     True when the plan includes the Recommendations API (commercial intelligence endpoints).
+    """
+
+    freshness: typing.Optional[MeResponseFreshness] = pydantic.Field(default=None)
+    """
+    Where results stop for this account now: the free plan, and a paid plan past its usage limit, read media after a delay. Dated reads cut their window at served_through and say so. Null when results are current.
     """
 
     usage: MeResponseUsage

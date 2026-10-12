@@ -40,7 +40,7 @@ Every dated read takes `after` and `before`. The window is half-open, `[after, b
 
 ## Premium transcripts
 
-A Premium read is one call. It answers 200 `ready` when the account owns the transcript. Otherwise it starts transcribing the whole video and answers 202 `pending` with the job. The read uses credits from your plan, then your on-demand budget. You set that budget in the dashboard, and it is the approval, so the call takes no price ceiling.
+A Premium read is one call. It answers 200 `ready` when the account owns the transcript. Otherwise it starts transcribing the whole video and answers 202 `pending` with the job. The read uses credits from your plan, then your on-demand budget. You set that budget in the dashboard, and Arcmira enforces it, so the call takes no spending amount.
 
 Read again after `Retry-After`. Repeated reads join the same job and never use credits twice.
 

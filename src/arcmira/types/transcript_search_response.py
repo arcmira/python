@@ -4,6 +4,7 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
+from .freshness import Freshness
 from .publication_window import PublicationWindow
 from .transcript_search_chunk import TranscriptSearchChunk
 from .transcript_search_response_access import TranscriptSearchResponseAccess
@@ -35,16 +36,6 @@ class TranscriptSearchResponse(UniversalBaseModel):
     Ranked slices. Empty means no hit in the shows we index; say so, never search the open web.
     """
 
-    partial: typing.Optional[bool] = pydantic.Field(default=None)
-    """
-    True when some retrieval batches failed and these chunks are what survived.
-    """
-
-    failed_batches: typing.Optional[int] = pydantic.Field(default=None)
-    """
-    How many batches failed when partial is true.
-    """
-
     as_of: typing.Optional[str] = pydantic.Field(default=None)
     """
     Newest published_at among the chunks. Null when there are none.
@@ -60,9 +51,10 @@ class TranscriptSearchResponse(UniversalBaseModel):
     The gate that reduced this response. Present only when something was withheld; carries the same code, gate, and unlock an outright refusal would.
     """
 
+    freshness: typing.Optional[Freshness] = None
     unlock: typing.Optional[TranscriptSearchResponseUnlock] = pydantic.Field(default=None)
     """
-    Present when your plan's freshness gate cut the window and nothing older matched; note says so.
+    Present with freshness when your plan's freshness gate cut the window; note says so.
     """
 
     note: str = pydantic.Field()

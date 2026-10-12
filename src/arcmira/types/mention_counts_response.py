@@ -4,9 +4,11 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
+from .freshness import Freshness
 from .mention_counts_response_mode import MentionCountsResponseMode
 from .mention_counts_response_rows_item import MentionCountsResponseRowsItem
 from .mention_counts_response_shared_item import MentionCountsResponseSharedItem
+from .mention_counts_response_unlock import MentionCountsResponseUnlock
 from .publication_window import PublicationWindow
 
 
@@ -46,6 +48,12 @@ class MentionCountsResponse(UniversalBaseModel):
     as_of: typing.Optional[str] = pydantic.Field(default=None)
     """
     Newest media across rows. Null when there are none.
+    """
+
+    freshness: typing.Optional[Freshness] = None
+    unlock: typing.Optional[MentionCountsResponseUnlock] = pydantic.Field(default=None)
+    """
+    Present with freshness when your plan's freshness gate cut the window; note says so.
     """
 
     note: str = pydantic.Field()

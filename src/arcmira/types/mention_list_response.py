@@ -5,6 +5,7 @@ import typing
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 from .entity import Entity
+from .freshness import Freshness
 from .mention import Mention
 from .mention_list_response_unlock import MentionListResponseUnlock
 from .publication_window import PublicationWindow
@@ -37,6 +38,8 @@ class MentionListResponse(UniversalBaseModel):
     """
     Present with note on a free preview page.
     """
+
+    freshness: typing.Optional[Freshness] = None
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

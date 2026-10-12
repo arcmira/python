@@ -8,7 +8,7 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 
 class TranscriptSearchResponseUnlock(UniversalBaseModel):
     """
-    Present when your plan's freshness gate cut the window and nothing older matched; note says so.
+    Present with freshness when your plan's freshness gate cut the window; note says so.
     """
 
     tier: str = pydantic.Field()

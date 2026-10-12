@@ -9,6 +9,10 @@ from ..core.serialization import FieldMetadata
 
 
 class EntityMomentumResponseVolume(UniversalBaseModel):
+    """
+    Each count ends where window ends. On a plan whose freshness gate cut the window, nothing published after window.before is counted.
+    """
+
     mentions7d: typing_extensions.Annotated[
         int, FieldMetadata(alias="mentions_7d"), pydantic.Field(alias="mentions_7d")
     ]
@@ -39,6 +43,22 @@ class EntityMomentumResponseVolume(UniversalBaseModel):
     total: int = pydantic.Field()
     """
     All-time mentions in the index.
+    """
+
+    mentions_window: int = pydantic.Field()
+    """
+    Mentions in window. Equals mentions_30d when days is 30.
+    """
+
+    mentions_prior_window: int = pydantic.Field()
+    """
+    Mentions in the same number of days before window.after. Equals mentions_prior_30d when days is 30.
+    """
+
+    delta_window_absolute: int
+    delta_window_pct: typing.Optional[float] = pydantic.Field(default=None)
+    """
+    Percent change against the prior window. Null when the prior window was zero.
     """
 
     if IS_PYDANTIC_V2:
