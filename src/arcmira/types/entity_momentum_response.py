@@ -7,16 +7,19 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 from .entity_momentum_response_access import EntityMomentumResponseAccess
 from .entity_momentum_response_paid_vs_organic import EntityMomentumResponsePaidVsOrganic
 from .entity_momentum_response_top_shows_item import EntityMomentumResponseTopShowsItem
+from .entity_momentum_response_unlock import EntityMomentumResponseUnlock
 from .entity_momentum_response_verdict import EntityMomentumResponseVerdict
 from .entity_momentum_response_volume import EntityMomentumResponseVolume
 from .entity_ref import EntityRef
+from .freshness import Freshness
+from .momentum_window import MomentumWindow
 
 
 class EntityMomentumResponse(UniversalBaseModel):
     entity: EntityRef
     verdict: EntityMomentumResponseVerdict = pydantic.Field()
     """
-    Absolute delta of the last 30 days against the prior 30. none when the entity has no mentions at all.
+    Absolute delta of the window against the prior window of the same length. The delta it needs grows with the square root of the window: 3 at 7 days, 5 at 30, 9 at 90, 18 at 365. none when the entity has no mentions at all.
     """
 
     as_of: typing.Optional[str] = pydantic.Field(default=None)
@@ -24,25 +27,36 @@ class EntityMomentumResponse(UniversalBaseModel):
     Newest indexed media that mentions the entity. Lead with it; it is the date the verdict is true as of.
     """
 
+    window: MomentumWindow
     coverage: str = pydantic.Field()
     """
     What the count measures. Always the shows we index, never the whole internet.
     """
 
-    volume: EntityMomentumResponseVolume
+    volume: EntityMomentumResponseVolume = pydantic.Field()
+    """
+    Each count ends where window ends. On a plan whose freshness gate cut the window, nothing published after window.before is counted.
+    """
+
     top_shows: typing.List[EntityMomentumResponseTopShowsItem] = pydantic.Field()
     """
-    Up to five channels by mentions in the last 30 days.
+    Up to five channels by mentions in window.
     """
 
     paid_vs_organic: typing.Optional[EntityMomentumResponsePaidVsOrganic] = pydantic.Field(default=None)
     """
-    Commercial split for the last 30 days. Present only on a Pro+ plan; otherwise access names the gate.
+    Commercial split in window. Present only on a Pro+ plan; otherwise access names the gate.
     """
 
     access: typing.Optional[EntityMomentumResponseAccess] = pydantic.Field(default=None)
     """
     The gate that reduced this response. Present only when something was withheld; carries the same code, gate, and unlock an outright refusal would.
+    """
+
+    freshness: typing.Optional[Freshness] = None
+    unlock: typing.Optional[EntityMomentumResponseUnlock] = pydantic.Field(default=None)
+    """
+    Present with freshness when your plan's freshness gate cut the window; note says so.
     """
 
     note: str = pydantic.Field()

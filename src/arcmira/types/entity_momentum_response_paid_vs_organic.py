@@ -8,7 +8,7 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 
 class EntityMomentumResponsePaidVsOrganic(UniversalBaseModel):
     """
-    Commercial split for the last 30 days. Present only on a Pro+ plan; otherwise access names the gate.
+    Commercial split in window. Present only on a Pro+ plan; otherwise access names the gate.
     """
 
     ad_reads: int
