@@ -61,7 +61,7 @@ class ReadmeTests(unittest.TestCase):
             ('GET', '/v1/entities/resolve'), ('GET', '/v1/search'), ('GET', '/v1/search'),
         ])
         self.assertEqual(dict(requests[0].url.params), dict(
-            q='Jensen Huang', type='person', context='NVIDIA CEO discussing chip suppliers',
+            q='Jensen Huang', type='person', context='NVIDIA CEO',
         ))
         self.assertEqual([dict(r.url.params) for r in requests[1:]], [
             dict(q='TSMC', by='ent_14', after='2026-08-01', before='2026-09-01', limit='5'),
