@@ -34,6 +34,39 @@ for mention in client.mentions.list(entity_id=ramp.id, after="2026-09-01", befor
 
 A name where an id belongs raises `BadRequestError` with the code `id_required`. Its message names the parameter and the resolve call.
 
+## Compare a speaker's comments over time
+
+Compare what Jensen Huang said about TSMC in August and September 2026. Resolve his name, filter by who is speaking, and retrieve dated passages to review side by side.
+
+```python
+from urllib.parse import urljoin
+from arcmira import Arcmira
+
+client = Arcmira()
+match = client.entities.resolve(
+    q="Jensen Huang",
+    type="person",
+    context="NVIDIA CEO discussing chip suppliers",
+)
+if match.best is None:
+    raise LookupError(match.ask or match.suggested or match.note)
+
+for after, before in [("2026-08-01", "2026-09-01"), ("2026-09-01", "2026-10-01")]:
+    hits = client.transcripts.search(q="TSMC", by=match.best.id, after=after, before=before, limit=5)
+    print(hits.window, hits.search_index, hits.note)
+    for hit in hits.chunks:
+        print(hit.published_at, hit.text)
+        print(urljoin("https://arcmira.com", hit.watch_url))
+```
+
+If the resolver returns a suggested match or several options, confirm the intended person before continuing.
+
+The `by` filter selects passages in which the resolved person speaks. Passages can include other speakers, so keep the speaker labels and read the surrounding exchange. Dates filter publication time, which may differ from when a recording was made.
+
+In a search on October 15, 2026, these windows returned comments about [wafer demand in August](https://arcmira.com/watch?v=JAg8MM5onsE&t=511) and [US manufacturing commitments in September](https://arcmira.com/watch?v=HjurAWAr_nY&t=5274). They also returned a shorter upload of the same August exchange. Treat repeated clips as one source when comparing statements.
+
+Use the reported `window`, `search_index`, and `note` to describe coverage. Speaker labels cover only part of the index, and results depend on your plan's date window. Review the passages before concluding that a stance changed. Replace the dates and topic to investigate another period or supplier.
+
 ## Dates
 
 Every dated read takes `after` and `before`. The window is half-open, `[after, before)`. Each accepts an ISO date (`2026-09-01`) or a datetime with an offset (`2026-09-01T00:00:00Z`), read in UTC. Each dated read echoes the window it applied in `window`.

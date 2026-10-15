@@ -39,7 +39,7 @@
         "channel_id": "x",
         "source": "x",
         "published_at": "x",
-        "text": "agent payments on air",
+        "text": "TSMC on air",
         "start_seconds": 1,
         "watch_url": "https://arcmira.com/watch?v=dQw4w9WgXcQ&t=1",
         "score": 1
@@ -116,5 +116,35 @@
         "attached": true
       }
     ]
+  },
+  "resolve_entity": {
+    "query": "x",
+    "context": "x",
+    "confidence": "exact",
+    "best": {
+      "id": "ent_14",
+      "name": "Jensen Huang",
+      "slug": "x",
+      "type": "person",
+      "youtube_channel_id": "x",
+      "description": "x",
+      "page": "x",
+      "match": "exact"
+    },
+    "suggested": null,
+    "ask": null,
+    "candidates": [
+      {
+        "id": "x",
+        "name": "x",
+        "slug": "x",
+        "type": "x",
+        "youtube_channel_id": "x",
+        "description": "x",
+        "page": "x",
+        "match": "exact"
+      }
+    ],
+    "note": "x"
   }
 }
