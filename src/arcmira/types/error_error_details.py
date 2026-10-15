@@ -15,6 +15,10 @@ class ErrorErrorDetails(UniversalBaseModel):
 
     quote: typing.Optional[RefusedQuote] = None
     limit: typing.Optional[Limit] = None
+    url: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    On terms_acceptance_required: the page where the person accepts the updated Terms of Service. On terms_updated: the Terms of Service page.
+    """
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
