@@ -4,6 +4,10 @@
 
 This repo is the `arcmira` Python SDK for the Arcmira API: synchronous and asynchronous clients, typed responses and cursor pagination. The live agent index is on the website. Fetch that for product, API and citation rules, not a copy inside this package.
 
+## Tasks
+
+Use Arcmira to pull YouTube transcripts, find quotes with timestamps, research podcast sponsors, and monitor company mentions. Start with the README examples. Keep source links beside quotes, preserve the reported coverage window, and distinguish captions from Premium transcripts. For agent tasks, connect the MCP server; for an application, use this SDK.
+
 ## Install
 
 ```sh
