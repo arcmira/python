@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.6.2
+
+- Lead the README with tested examples for transcript reads, quotes with source links, and company monitoring.
+- Keep detailed async, pagination, error, and Premium polling examples in the SDK guide.
+
 ## 0.6.1
 
 Generated from the API document of 2026-10-15.

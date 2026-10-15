@@ -1,0 +1,120 @@
+{
+  "search": {
+    "query": "x",
+    "limit": 1,
+    "returned": 1,
+    "filters": {
+      "channel_ids": [
+        "x"
+      ],
+      "entity_ids": [
+        "x"
+      ],
+      "about": [
+        {
+          "id": "x",
+          "name": "x",
+          "type": "x"
+        }
+      ],
+      "by": [
+        {
+          "id": "x",
+          "name": "x",
+          "type": "x"
+        }
+      ],
+      "kind": [
+        "sponsored"
+      ]
+    },
+    "window": {
+      "after": "x",
+      "before": "x"
+    },
+    "chunks": [
+      {
+        "id": "x",
+        "video_id": "x",
+        "channel_id": "x",
+        "source": "x",
+        "published_at": "x",
+        "text": "agent payments on air",
+        "start_seconds": 1,
+        "watch_url": "https://arcmira.com/watch?v=dQw4w9WgXcQ&t=1",
+        "score": 1
+      }
+    ],
+    "as_of": "x",
+    "search_index": {
+      "state": "live",
+      "missing_before": "x"
+    },
+    "note": "x"
+  },
+  "get_transcript": {
+    "state": "ready",
+    "video": {
+      "id": "x",
+      "title": "x",
+      "channel_id": "x",
+      "channel_name": "x",
+      "published_at": "x",
+      "duration_seconds": 1,
+      "watch_url": "x"
+    },
+    "quality": "captions",
+    "source": "creator_captions",
+    "language": "x",
+    "languages": [
+      {
+        "code": "x",
+        "name": "x",
+        "generated": true
+      }
+    ],
+    "rows_billed": 1,
+    "as_of": "x",
+    "note": "x",
+    "lines": [
+      {
+        "start": 0,
+        "end": 4,
+        "text": "Welcome back to the show."
+      }
+    ]
+  },
+  "create_monitor": {
+    "monitor": {
+      "id": "mon_2",
+      "name": "x",
+      "paused": true,
+      "notify_emails": [
+        "x"
+      ],
+      "notify_webhook": true,
+      "webhook_disabled_at": "x",
+      "webhook_disabled_reason": "x",
+      "notify_slack": true,
+      "slack_integration_id": "x",
+      "slack_channel_id": "x",
+      "created_at": "x",
+      "updated_at": "x",
+      "access": "account",
+      "tracker_count": 1
+    },
+    "message": "x"
+  },
+  "add_entities": {
+    "monitor_id": "mon_2",
+    "results": [
+      {
+        "name": "Ramp",
+        "type": "organization",
+        "tracker_id": "trk_200",
+        "created": true,
+        "attached": true
+      }
+    ]
+  }
+}
