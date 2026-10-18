@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 import contextlib
 import io
 import json
@@ -11,6 +12,12 @@ from arcmira import Arcmira
 
 ROOT = Path(__file__).resolve().parents[1]
 RESPONSES = json.loads((ROOT / 'tests/fixtures/readme-responses.json').read_text())
+
+
+class FixedDatetime(datetime):
+    @classmethod
+    def now(cls, tz=None):
+        return cls(2026, 10, 17, 12, tzinfo=timezone.utc)
 
 
 class ReadmeTests(unittest.TestCase):
@@ -30,18 +37,18 @@ class ReadmeTests(unittest.TestCase):
             output = io.StringIO()
             examples = re.findall(r'```python\n(.*?)```', (ROOT / 'README.md').read_text(), re.S)
             self.assertEqual(len(examples), 3)
-            with patch('arcmira.Arcmira', return_value=client), contextlib.redirect_stdout(output):
+            with patch('arcmira.Arcmira', return_value=client), patch('datetime.datetime', FixedDatetime), contextlib.redirect_stdout(output):
                 for code in examples:
                     exec(compile(code, 'README.md', 'exec'), {})
         printed = output.getvalue().splitlines()
         self.assertIn('TSMC on air', printed)
-        self.assertIn('https://arcmira.com/watch?v=dQw4w9WgXcQ&t=1', printed)
+        self.assertIn('Watch:      https://arcmira.com/watch?v=dQw4w9WgXcQ&t=1', printed)
         self.assertIn('0.0 Welcome back to the show.', printed)
         self.assertIn('trk_200', printed)
         self.assertEqual([(r.method, r.url.path) for r in requests], list(routes))
-        self.assertEqual(dict(requests[0].url.params), dict(q='TSMC', limit='5'))
-        self.assertEqual(json.loads(requests[2].content), dict(name='Company watch', notify_frequency='daily', notify_emails=['you@example.com']))
-        self.assertEqual(json.loads(requests[3].content), dict(names=[dict(name='Ramp', type='organization')]))
+        self.assertEqual(dict(requests[0].url.params), dict(q='GPU demand', after='2026-08-18T12:00:00+00:00', before='2026-10-17T12:00:00+00:00', limit='20'))
+        self.assertEqual(json.loads(requests[2].content), dict(name='Company watch', notify_frequency='realtime', notify_emails=['you@example.com']))
+        self.assertEqual(json.loads(requests[3].content), dict(names=[dict(name='PlanetScale', type='organization')]))
         self.assertTrue(all(r.headers['Authorization'] == 'Bearer fixture-key' for r in requests))
 
     def test_supplier_comparison_resolves_speaker_and_searches_both_windows(self):
@@ -55,17 +62,21 @@ class ReadmeTests(unittest.TestCase):
         output = io.StringIO()
         with httpx.Client(transport=httpx.MockTransport(respond)) as http:
             client = Arcmira(api_key='fixture-key', httpx_client=http, max_retries=0)
-            with patch('arcmira.Arcmira', return_value=client), contextlib.redirect_stdout(output):
+            with patch('arcmira.Arcmira', return_value=client), patch('datetime.datetime', FixedDatetime), contextlib.redirect_stdout(output):
                 exec(compile(code, 'GUIDE.md', 'exec'), {})
         self.assertEqual([(r.method, r.url.path) for r in requests], [
-            ('GET', '/v1/entities/resolve'), ('GET', '/v1/search'), ('GET', '/v1/search'),
+            ('GET', '/v1/entities/resolve'), *[('GET', '/v1/search')] * 6,
         ])
         self.assertEqual(dict(requests[0].url.params), dict(
             q='Jensen Huang', type='person', context='NVIDIA CEO',
         ))
-        self.assertEqual([dict(r.url.params) for r in requests[1:]], [
-            dict(q='TSMC', by='ent_14', after='2026-08-01', before='2026-09-01', limit='5'),
-            dict(q='TSMC', by='ent_14', after='2026-09-01', before='2026-10-01', limit='5'),
-        ])
-        self.assertEqual(output.getvalue().count('TSMC on air'), 2)
-        self.assertEqual(output.getvalue().count('https://arcmira.com/watch?v=dQw4w9WgXcQ&t=1'), 2)
+        expected = []
+        for after, before in [
+            ('2026-08-18T12:00:00+00:00', '2026-09-17T12:00:00+00:00'),
+            ('2026-09-17T12:00:00+00:00', '2026-10-17T12:00:00+00:00'),
+        ]:
+            for query in ['TSMC', 'GPU demand', 'capacity']:
+                expected.append(dict(q=query, by='ent_14', after=after, before=before, limit='20'))
+        self.assertEqual([dict(r.url.params) for r in requests[1:]], expected)
+        self.assertEqual(output.getvalue().count('TSMC on air'), 6)
+        self.assertEqual(output.getvalue().count('https://arcmira.com/watch?v=dQw4w9WgXcQ&t=1'), 6)
