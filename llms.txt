@@ -6,7 +6,7 @@ This repo is the `arcmira` Python SDK for the Arcmira API: synchronous and async
 
 ## Tasks
 
-Use Arcmira to pull YouTube transcripts, search clips and quotes in YouTube videos, compare a speaker's comments over time, research podcast sponsors, and set up YouTube monitoring for a company. Search returns passages with links to the matching moment. It does not export video clips. Start with the README examples. Keep source links beside quotes, preserve the reported coverage window, and distinguish captions from Premium transcripts. For agent tasks, connect the MCP server; for an application, use this SDK.
+Use Arcmira to pull YouTube transcripts, search YouTube videos and podcast transcripts for quotes and clips, compare a speaker's comments over time, research podcast sponsors, and set up YouTube monitoring for a person, company, product, or topic. Search returns passages with links to the matching moment. It does not export video clips. Start with the README examples. Keep source links beside quotes, preserve the reported coverage window, and distinguish captions from Premium transcripts. For agent tasks, connect the MCP server; for an application, use this SDK.
 
 ## Install
 
@@ -18,16 +18,30 @@ Set `ARCMIRA_API_KEY` or pass `api_key` to the client.
 
 ## Ids first
 
-Reads take ids, never names. Resolve a name, then read with the id.
+Entity and channel filters take IDs. Resolve a name before using those filters. Plain transcript keyword search does not need a resolver call.
 
 ```python
+from datetime import datetime, timedelta, timezone
 from arcmira import Arcmira
 
 client = Arcmira()
-match = client.entities.resolve(q="Ramp", type="organization", context="the corporate card")
-ramp = match.best or match.suggested
-for mention in client.mentions.list(entity_id=ramp.id, after="2026-09-01", before="2026-10-01"):
-    print(mention.media.video_id, mention.start_seconds)
+match = client.entities.resolve(
+    q="PlanetScale", type="organization", context="Database platform",
+)
+company = match.best or match.suggested
+if company is None:
+    raise LookupError("Confirm the company before continuing.")
+if match.suggested:
+    print(f"Assuming {company.name}.")
+now = datetime.now(timezone.utc)
+after = (now - timedelta(days=60)).isoformat()
+before = now.isoformat()
+for i, mention in enumerate(client.mentions.list(
+    entity_id=company.id, after=after, before=before, limit=5,
+), 1):
+    print(mention.description, mention.media.video_id, mention.start_seconds)
+    if i == 5:
+        break
 ```
 
 - `entities.resolve` answers `best` (certain), `suggested` (likeliest, with a reason; tell the user you assumed it) or `ask` (several fit; show `ask.options`).
@@ -64,6 +78,10 @@ Follow an entity you have an id for with `monitors.entities.add(monitor_id, enti
 - `mentions.list`, `recommendations.list`, `channels.videos.list` and `transcripts.list_requests` return pagers that follow `next_cursor`. Cursors are opaque. Keep filters the same between pages. Async pagers are async iterators after you await the first page.
 
 ## Canonical
+
+- [SDK guide](GUIDE.md): Research examples, entity mentions, media appearances, organic endorsements, sponsors, momentum, and monitoring.
+- [Investment research workflow](https://arcmira.com/docs/workflows/investment-research): Test competing explanations, inspect source exchanges, and write a sourced research brief.
+- [Help shape Arcmira](https://arcmira.com/docs/feedback): Request coverage and capabilities, correct results, or explain what would make a paid plan useful.
 
 - [Site llms.txt](https://arcmira.com/llms.txt): Fetch this first. Product, API, citation rules.
 - [Docs index](https://arcmira.com/docs/llms.txt): Catalog of every docs page.

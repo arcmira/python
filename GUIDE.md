@@ -1,6 +1,6 @@
-# SDK guide
+# Arcmira SDK Guide (Python)
 
-The official Python SDK for searching indexed YouTube transcripts. Find timestamped quotes, speaker appearances, mentions, sponsors and recommendations with synchronous and asynchronous clients, typed responses and cursor pagination.
+Search YouTube video and podcast transcripts, read the surrounding conversation, and follow company mentions with the Arcmira Python SDK. Use synchronous or asynchronous clients with typed responses.
 
 [Arcmira](https://arcmira.com) · [API docs](https://arcmira.com/docs) · [OpenAPI schema](https://api.arcmira.com/v1/openapi.json) · [MCP setup](https://arcmira.com/docs/mcp-server)
 
@@ -14,60 +14,237 @@ uv add arcmira
 
 Set `ARCMIRA_API_KEY` before you import the client, or pass `api_key` to it.
 
-## First call
+[Investigate a research question](#investigate-a-research-question-with-youtube-video-and-podcast-transcript-search) · [Read a Premium transcript](#premium-transcripts) · [SDK building blocks](#arcmira-sdk-building-blocks)
 
-Reads take ids. Resolve a name to an id, then read with the id.
+## Investigate a research question with YouTube video and podcast transcript search
+
+Find evidence that could change your mind. Continue the [README](README.md#search-youtube-videos-and-podcast-transcripts-for-quotes-and-clips)'s `GPU demand` search. The TBPN passage gives you a starting claim: compute demand exceeds supply. The next question is whether that demand becomes profitable, funded capacity. Search company mentions, executive interviews, and expert commentary to test what could support or challenge that thesis.
+
+With the [Arcmira MCP server](https://arcmira.com/docs/mcp-server) connected, ask your agent:
+
+> Investigate the semiconductor investment thesis using the last 60 days of public conversations. Look for changes in demand, customer commitments, financing, and usable capacity. Find evidence for and against each explanation, cite the original moments, and verify material claims against filings and earnings disclosures.
+
+### Search the next question
+
+Keep the search broad enough to find customers and suppliers outside the first interview. Start with `GPU financing`, then try `compute margins` or `capacity commitments` as the evidence develops. This example searches the latest 60 days and prints up to 20 full passages, using the same layout as the [README](README.md#search-youtube-videos-and-podcast-transcripts-for-quotes-and-clips).
 
 ```python
+from datetime import datetime, timedelta, timezone
+from urllib.parse import urljoin
 from arcmira import Arcmira
 
 client = Arcmira()
-match = client.entities.resolve(q="Ramp", type="organization")
-ramp = match.best or match.suggested
-if ramp is None:
-    raise LookupError(match.note)
-for mention in client.mentions.list(entity_id=ramp.id, after="2026-09-01", before="2026-10-01"):
-    print(mention.media.video_id, mention.start_seconds, mention.description)
+query = "GPU financing"
+
+# Search the last 60 days.
+now = datetime.now(timezone.utc)
+after = (now - timedelta(days=60)).isoformat()
+before = now.isoformat()
+
+hits = client.transcripts.search(q=query, after=after, before=before, limit=20)
+print(f"\n{query} ({len(hits.chunks)} passages)")
+print(
+    f"{(hits.window.after or 'unknown')[:10]} - "
+    f"{(hits.window.before or 'unknown')[:10]}\n"
+)
+for i, hit in enumerate(hits.chunks, 1):
+    print(f"{i:02d}\n{hit.text}\n")
+    print(f"Video:      {hit.video_title or hit.video_id}")
+    print(f"Channel:    {hit.channel_name or 'Unknown'}")
+    print(f"Published:  {(hit.published_at or 'Unknown')[:10]}")
+    print(f"Transcript: {hit.source_label or 'Unknown'}")
+    print(f"Watch:      {urljoin('https://arcmira.com', hit.watch_url)}\n--\n")
+
 ```
 
-`entities.resolve` answers one of three ways. `best` is a certain match. `suggested` is the likeliest row, with a reason, when no row is certain. `ask` lists the options when several rows fit, and `best` and `suggested` are both `None`. For a show, pass `type="channel"` and use `best.youtube_channel_id` as `channel_id`.
+**Sample console output**
 
-A name where an id belongs raises `BadRequestError` with the code `id_required`. Its message names the parameter and the resolve call.
+Excerpt from result 20 of the October 17, 2026 run. The script prints full passages; `...` marks omitted output here.
+
+```text
+GPU financing (20 passages)
+2026-08-18 - 2026-10-17
+
+...
+
+20
+...
+Gavin Baker: And then also, like, we should also talk if particularly if you're
+buying NVIDIA GPUs to a lesser extent TPUs, you can finance these.
+David George: Yes.
+David George: And there's a very sophisticated, you know, yeah, it's a very low
+cost of capital to finance 'em today.
+Gavin Baker: Yeah.
+Gavin Baker: And everybody's, you know, worked up about, you know, circularity
+and it's like, well, I don't know.
+Gavin Baker: I know a lot of smart people who work at Blackstone and KKR and
+Apollo, and they're the ones that are financing it.
+
+Video:      Why AI Demand Is Outrunning Compute Supply
+Channel:    a16z
+Published:  2026-08-31
+Transcript: Arcmira Premium
+Watch:      https://arcmira.com/watch?v=FGC4ofTcg2k&t=760
+--
+```
+
+### Read the surrounding exchange
+
+Result 20 in this capture points to a financing counterargument. Choose the result number you want from your own output; ranks and results change. The next block continues the same script and prints the surrounding transcript with speaker names and start/end seconds.
+
+Premium uses credits from your plan, then your on-demand budget. It reads the full video even though this example prints only nearby lines. Get a free estimate with `client.transcripts.quote` first; see [Premium states, polling, and retries](https://arcmira.com/docs/transcripts).
+
+```python
+# Choose a result from the output above. This capture uses result 20.
+selected_number = 20
+if not 1 <= selected_number <= len(hits.chunks):
+    raise ValueError("Choose a result number from your search.")
+selected = hits.chunks[selected_number - 1]
+
+transcript = client.transcripts.get(
+    selected.video_id, quality="premium", timestamps=True,
+)
+if transcript.state == "ready":
+    names = {speaker.id: speaker.name for speaker in transcript.speakers or []}
+    start = max(0, (selected.start_seconds or 0) - 30)
+    end = (selected.start_seconds or 0) + 120
+    print(f"Video: {transcript.video.title}\n")
+    for line in transcript.lines or []:
+        if line.end <= start or line.start >= end:
+            continue
+        speaker = names.get(line.speaker, "Unknown speaker")
+        print(f"{line.start} - {line.end} seconds | {speaker}")
+        print(f"{line.text}\n")
+elif transcript.state == "pending":
+    print(f"Try again in {transcript.job.next_poll_seconds} seconds.")
+else:
+    print(transcript.last_attempt.error)
+```
+
+**Sample transcript output**
+
+Excerpt from the same video, beyond the search passage. Wording is unchanged; lines are wrapped for readability.
+
+```text
+Video: Why AI Demand Is Outrunning Compute Supply
+
+...
+
+825.1 - 827.32 seconds | David George
+They're the ones who are financing it at a relatively low cost.
+
+827.32 - 829.28 seconds | Gavin Baker
+At a relatively low cost.
+
+829.28 - 833.94 seconds | Gavin Baker
+And I think one reason that's happening is useful lives just keep getting
+extended.
+
+833.94 - 843.42 seconds | Gavin Baker
+And as these models get better and better and better and the ROI on token spend
+goes up, you know, the monetization rate per gigawatt goes up.
+
+843.42 - 852.53 seconds | Gavin Baker
+So I mean, the true equity payback like might be way inside of a year.
+
+...
+```
+
+The surrounding exchange adds an assumption: useful GPU lifetimes keep extending. That gives you something concrete to test against depreciation schedules, rental prices, utilization, and financing terms. Preserve the distinction between what the speakers claim and what you have verified.
+
+### Follow the speaker
+
+The captured result identifies Gavin Baker as `ent_158280`. Resolve the name to get the current ID rather than guessing it, then use `by` to find his comments on the same topic. The returned `speakers_by` field is another source of these public person IDs.
+
+```python
+person = client.entities.resolve(
+    q="Gavin Baker",
+    type="person",
+    context="Technology investor discussing GPU financing",
+)
+if person.best is None:
+    raise LookupError("Confirm the person before continuing.")
+print(f"Speaker: {person.best.name} ({person.best.id})")
+
+related = client.transcripts.search(
+    q=query, by=person.best.id, after=after, before=before, limit=20,
+)
+print(f"{query} ({len(related.chunks)} passages)")
+for hit in related.chunks:
+    print(f"\n{hit.text}\n")
+    print(f"Published: {(hit.published_at or 'Unknown')[:10]}")
+    print(f"Watch:     {hit.watch_url}\n--")
+```
+
+```text
+Speaker: Gavin Baker (ent_158280)
+GPU financing (3 passages)
+...
+```
+
+This output is from the same captured window; your count may differ. A search filter uses the public entity ID. In a transcript response, `line.speaker` is a local numeric ID joined to `transcript.speakers`, as the preceding example shows.
+
+Follow the companies and terms you discover, seek counterevidence, and deduplicate repeated clips before comparing sources.
+
+Search and transcript reads use credits from your plan. See [Plans and usage](https://arcmira.com/docs/usage-and-billing). Publication dates can differ from recording dates. An empty search does not prove that a risk is absent. If coverage leaves a gap in your research, [tell us what you need](#help-shape-the-index).
+
+Give your agent access to the latest indexed conversations, speaker-labeled Premium transcripts, and company alerts. The most up-to-date coverage is only available via paid plans, starting at $20/month. [Try Pro free for 7 days at no risk.](https://arcmira.com/pricing) Put Arcmira to work on a real research question, then keep it only if it earns a place in your research stack.
+
+Not ready for a paid plan? [Tell us why and what you would pay for](https://arcmira.com/docs/feedback#not-ready-for-a-paid-plan). Feedback is free to give and helps us build what you want.
+
+[Continue this investment research example workflow](https://arcmira.com/docs/workflows/investment-research). You will learn how to test competing explanations, compare demand with margins and financing, verify claims against disclosures, and turn the evidence into a research brief.
 
 ## Compare a speaker's comments over time
 
-Look for changes in supplier commitments, capacity constraints, and demand expectations across executive interviews. Compare what Jensen Huang said about TSMC in August and September 2026, with dates and links to the original passages.
+Resolve Jensen Huang as NVIDIA's CEO, then compare several topics across two adjacent 30-day windows. Replace the person and topics to investigate another executive, expert, or supplier.
 
 ```python
+from datetime import datetime, timedelta, timezone
 from urllib.parse import urljoin
 from arcmira import Arcmira
 
 client = Arcmira()
 match = client.entities.resolve(
-    q="Jensen Huang",
-    type="person",
-    context="NVIDIA CEO",
+    q="Jensen Huang", type="person", context="NVIDIA CEO",
 )
 if match.best is None:
     raise LookupError(match.ask or match.suggested or match.note)
 
-for after, before in [("2026-08-01", "2026-09-01"), ("2026-09-01", "2026-10-01")]:
-    hits = client.transcripts.search(q="TSMC", by=match.best.id, after=after, before=before, limit=5)
-    print(hits.window, hits.search_index, hits.note)
-    for hit in hits.chunks:
-        print(hit.published_at, hit.text)
-        print(urljoin("https://arcmira.com", hit.watch_url))
+now = datetime.now(timezone.utc)
+day = timedelta(days=1)
+windows = [
+    (now - 60 * day, now - 30 * day),
+    (now - 30 * day, now),
+]
+for start, end in windows:
+    for q in ["TSMC", "GPU demand", "capacity"]:
+        hits = client.transcripts.search(
+            q=q, by=match.best.id, limit=20,
+            after=start.isoformat(), before=end.isoformat(),
+        )
+        print(f"\n{q} ({len(hits.chunks)} passages)")
+        print(
+            f"{(hits.window.after or 'unknown')[:10]} - "
+            f"{(hits.window.before or 'unknown')[:10]}\n"
+        )
+        for i, hit in enumerate(hits.chunks, 1):
+            print(f"{i:02d}\n{hit.text}\n")
+            print(f"Video:      {hit.video_title or hit.video_id}")
+            print(f"Channel:    {hit.channel_name or 'Unknown'}")
+            print(f"Published:  {(hit.published_at or 'Unknown')[:10]}")
+            print(f"Transcript: {hit.source_label or 'Unknown'}")
+            print(f"Watch:      {urljoin('https://arcmira.com', hit.watch_url)}\n--\n")
 ```
 
-If the resolver returns a suggested match or several options, confirm the intended person before continuing.
+If there is no certain match, confirm the person before continuing. The `by` filter relies on speaker labels, which cover only part of the index. Want better coverage of a speaker or show? [Help us prioritize it](#help-shape-the-index).
 
-The `by` filter selects passages in which the resolved person speaks. Passages can include other speakers, so keep the speaker labels and read the surrounding exchange. Dates filter publication time, which may differ from when a recording was made.
+Ask whether the newer passages add a commitment, name a constraint, or repeat an existing view. Check recording dates and earlier disclosures before concluding that a position changed.
 
-In a search on October 15, 2026, these windows returned comments about [a wafer-demand analogy in August](https://arcmira.com/watch?v=JAg8MM5onsE&t=511) and [US manufacturing commitments in September](https://arcmira.com/watch?v=HjurAWAr_nY&t=5274). The August passage uses wafer demand as an analogy for AI token demand. The results also included a shorter upload of that exchange. Treat repeated clips as one source when comparing statements.
+## Help shape the index
 
-Does a passage add a new commitment, name a constraint, or repeat an existing view? Check recording dates and earlier disclosures before treating a difference as new information.
+We want to build the index around work that matters to you. Use [`client.feedback.submit`](https://github.com/arcmira/python/blob/master/reference.md#feedback) with `type: "experience"`, `category: "missing"`, and `notes` describing the coverage you need. Include source links, your workflow, and how much better coverage would be worth to you and others doing similar work. Use `category: "other"` for a broader capability request.
 
-Use the reported `window`, `search_index`, and `note` to describe coverage. Speaker labels cover only part of the index, and results depend on your plan's date window. Review the passages before concluding that a stance changed. Replace the dates and topic to investigate another period or supplier.
+Feedback is free to give and helps us prioritize the coverage and workflows you need. Keep it coming as your needs evolve. Your requests help us decide what to index and improve next. You can also [ask your agent to send feedback](https://arcmira.com/docs/feedback#help-shape-the-index).
 
 ## Dates
 
@@ -99,7 +276,15 @@ else:
 
 The timeout only stops this polling loop. It does not cancel the job. Resume with the same video id and `quality="premium"`; do not set `retry=True` while the job is pending.
 
-`read.data` is a `TranscriptResult`, discriminated on `state`. `ready` carries the transcript. `pending` carries `job`, with `eta_seconds`, `next_poll_seconds` and `charge`. `failed` means the last transcription failed or was refunded; it carries `job` and `last_attempt` and uses no credits. `retry=True` transcribes it again and uses credits again. Without `with_raw_response`, `client.transcripts.get(...)` returns the same union without the status and headers.
+Check `read.data.state` before using the result:
+
+| State | Next step |
+| --- | --- |
+| `ready` | Use the transcript and speaker labels. |
+| `pending` | Wait for `Retry-After` or `job.next_poll_seconds`, then repeat the same read. The `job` also carries `eta_seconds` and `charge`. |
+| `failed` | Inspect `last_attempt`. To start a new transcription, pass `retry=True` once, then omit it while polling. This uses credits again. |
+
+A failed or refunded attempt returns `failed` without using credits until you request a retry. Without `with_raw_response`, `client.transcripts.get(...)` returns the same result without status and headers.
 
 A quote is free and changes nothing.
 
@@ -111,6 +296,240 @@ print(quote.quote.rows, quote.charge.amount, quote.charge.from_, quote.max_on_de
 `client.transcripts.list_requests()` lists past Premium transcriptions with their state.
 
 A read without `quality="premium"` returns captions and starts no transcription.
+
+<a id="first-call"></a>
+
+## Arcmira SDK building blocks
+
+### Find mentions of an entity
+
+Find where people discuss a person, company, product, or topic. This example uses a company, PlanetScale.
+
+```python
+from datetime import datetime, timedelta, timezone
+from urllib.parse import urlencode, urljoin
+from arcmira import Arcmira
+
+client = Arcmira()
+resolved = client.entities.resolve(
+    q="PlanetScale", type="organization", context="Database platform",
+)
+company = resolved.best or resolved.suggested
+if company is None:
+    raise LookupError("Confirm the company before continuing.")
+if resolved.suggested:
+    print(f"Assuming {company.name}.")
+print(f"Company: {company.name} ({company.id})")
+
+# Look back over the last 60 days.
+now = datetime.now(timezone.utc)
+after = (now - timedelta(days=60)).isoformat()
+before = now.isoformat()
+
+for i, mention in enumerate(client.mentions.list(
+    entity_id=company.id, after=after, before=before, limit=5,
+), 1):
+    print(f"\n{mention.description or 'No description available.'}\n")
+    print(f"Video:     {mention.media.title or mention.media.video_id}")
+    print(f"Published: {(mention.media.published_at or 'Unknown')[:10]}")
+    params = {"v": mention.media.video_id}
+    if mention.start_seconds is not None:
+        params["t"] = str(mention.start_seconds)
+    print(f"Watch:     https://arcmira.com/watch?{urlencode(params)}\n--")
+    if i == 5:
+        break
+```
+
+`best` is a certain match. `suggested` is a likely match; state the assumption when using it. If the resolver returns `ask`, confirm the company before continuing. Entity filters take IDs. Date windows include `after` and exclude `before`.
+
+List methods fetch more pages as you iterate. This example stops after five mentions.
+
+### Find a person's appearances
+
+Find a person's media appearances across YouTube and podcasts. Arcmira records appearances as a type of mention, so the same `mentions.list` method finds both appearances and mentions by others.
+
+| `is_appearance` | For a person, returns |
+| --- | --- |
+| `True` | Their appearances |
+| `False` | Mentions of them by others |
+| Omitted | Both |
+
+Continue with the same `client`, `after`, and `before` to find Scott Wu's appearances in the last 60 days. Each result is an indexed video; separate clips from an interview can appear as separate results.
+
+```python
+person_match = client.entities.resolve(q="Scott Wu", type="person")
+person = person_match.best or person_match.suggested
+if person is None:
+    raise LookupError("Confirm the person before continuing.")
+if person_match.suggested:
+    print(f"Assuming {person.name}.")
+print(f"\nAppearances: {person.name}\n")
+
+for i, appearance in enumerate(client.mentions.list(
+    entity_id=person.id, is_appearance=True, after=after, before=before, limit=5,
+), 1):
+    media = appearance.media
+    channel = media.source_channel
+    print(f"Video:     {media.title or media.video_id}")
+    print(f"Channel:   {channel.name if channel else 'Unknown'}")
+    print(f"Published: {(media.published_at or 'Unknown')[:10]}")
+    params = {"v": media.video_id}
+    print(f"Watch:     https://arcmira.com/watch?{urlencode(params)}\n--\n")
+    if i == 5:
+        break
+```
+
+### Narrow your search
+
+Search transcript passages mentioning that subject for specific words or phrases. Continue with the same `client`, `company`, `after`, and `before` to search for "database" in passages associated with PlanetScale.
+
+```python
+query = "database"
+hits = client.transcripts.search(
+    q=query, about=company.id, after=after, before=before, limit=20,
+)
+print(f"\n{query} ({len(hits.chunks)} passages)")
+print(
+    f"{(hits.window.after or 'unknown')[:10]} - "
+    f"{(hits.window.before or 'unknown')[:10]}\n"
+)
+for i, hit in enumerate(hits.chunks, 1):
+    print(f"{i:02d}\n{hit.text}\n")
+    print(f"Video:      {hit.video_title or hit.video_id}")
+    print(f"Channel:    {hit.channel_name or 'Unknown'}")
+    print(f"Published:  {(hit.published_at or 'Unknown')[:10]}")
+    print(f"Transcript: {hit.source_label or 'Unknown'}")
+    print(f"Watch:      {urljoin('https://arcmira.com', hit.watch_url)}\n--\n")
+```
+
+### Find organic endorsements
+
+Continue with the same `client` and `company`. The `organic` filter selects unpaid personal recommendations. This example uses Pro+ commercial data.
+
+```python
+for i, row in enumerate(client.recommendations.list(
+    entity_id=company.id, class_="organic", after=after, before=before, limit=5,
+), 1):
+    print(f"\n{row.verbatim_quote}\n")
+    print(f"Type: {row.class_}\n--")
+    if i == 5:
+        break
+```
+
+### Find ad reads and sponsors
+
+Find a brand's ad reads, inspect the pitch, and discover which sponsors recur on a channel. These examples use Pro+ commercial data.
+
+Continue with the same `client`, `company`, `after`, and `before` to find PlanetScale promotions in the last 60 days. `sponsored` includes ad reads, affiliate promotions, and other ad-style pitches.
+
+```python
+for i, row in enumerate(client.recommendations.list(
+    entity_id=company.id, class_="sponsored", after=after, before=before, limit=5,
+), 1):
+    media = row.media
+    channel = media.source_channel
+    print(f"\n{row.verbatim_quote or 'No quote available.'}\n")
+    print(f"Video:     {media.title or media.video_id}")
+    print(f"Channel:   {channel.name if channel else 'Unknown'}")
+    print(f"Published: {(media.published_at or 'Unknown')[:10]}")
+    params = {"v": media.video_id}
+    if row.start_seconds is not None:
+        params["t"] = str(row.start_seconds)
+    print(f"Watch:     https://arcmira.com/watch?{urlencode(params)}\n--")
+    if i == 5:
+        break
+```
+
+To explore sponsorship opportunities, list a channel's recurring sponsors, ordered by ad-read count. This rollup covers its indexed history rather than the date window above.
+
+```python
+channel_match = client.entities.resolve(q="ThePrimeTime", type="channel")
+channel = channel_match.best or channel_match.suggested
+if channel is None or not channel.youtube_channel_id:
+    raise LookupError("Confirm the channel before continuing.")
+if channel_match.suggested:
+    print(f"Assuming {channel.name}.")
+sponsors = client.channels.sponsors.list(channel.youtube_channel_id, limit=5)
+print(f"\nSponsors on {sponsors.channel.name or channel.name}\n")
+for sponsor in sponsors.sponsors:
+    print(f"{sponsor.entity.name}: {sponsor.ad_reads} ad reads")
+    print(f"Videos: {sponsor.videos}")
+    print(f"Latest: {(sponsor.last_seen or 'Unknown')[:10]}\n")
+```
+
+Other plans can preview the channel sponsor list by omitting `limit`. See [plans and usage](https://arcmira.com/docs/usage-and-billing) for access and credit usage. Missing a show or seeing a misclassified promotion? [Send feedback](#help-shape-the-index) to help us improve the coverage and classifications.
+
+### Check mention momentum
+
+See whether a company is gaining attention, which shows mention it most, and where to look next. Compare a competitor's mentions with the previous period, then search its transcripts to understand what changed.
+
+Continue with the same `client`. This example investigates Cloudflare. Choose a rolling window of 7 to 365 days. Momentum returns an `accelerating`, `flat`, `fading`, or `none` verdict, mention counts for both periods, the change, the latest source date, and the top shows.
+
+```python
+match = client.entities.resolve(
+    q="Cloudflare", type="organization",
+    context="Internet infrastructure and developer platform",
+)
+subject = match.best or match.suggested
+if subject is None:
+    raise LookupError("Confirm the company before continuing.")
+if match.suggested:
+    print(f"Assuming {subject.name}.")
+
+# Compare the latest 7 days available on your plan with the prior 7 days.
+momentum = client.entities.momentum(subject.id, days=7)
+volume = momentum.volume
+start = (momentum.window.after or "Unknown")[:10]
+end = (momentum.window.before or "Unknown")[:10]
+print(f"\nCompany:   {momentum.entity.name}")
+print(f"Momentum:  {momentum.verdict}")
+print(f"Window:    {start} - {end}")
+print(
+    f"Mentions:  {volume.mentions_window} vs "
+    f"{volume.mentions_prior_window} prior"
+)
+delta = volume.delta_window_absolute
+percent = volume.delta_window_pct
+percentage = f" ({'+' if percent > 0 else ''}{percent:g}%)" if percent is not None else ""
+print(f"Change:    {'+' if delta > 0 else ''}{delta} mentions{percentage}")
+print(f"Latest:    {(momentum.as_of or 'No dated source')[:10]}")
+```
+
+Output captured on October 17, 2026. The code samples a new rolling window each time you run it; `window` records the dates actually returned. Save the response with your research brief to preserve the counts you used.
+
+```text
+Company:   Cloudflare
+Momentum:  accelerating
+Window:    2026-10-10 - 2026-10-17
+Mentions:  22 vs 17 prior
+Change:    +5 mentions (+29.4%)
+Latest:    2026-10-16
+```
+
+Available on every plan. Free coverage ends 30 days ago; paid plans include the latest indexed conversations. Pro+ and higher also return `paid_vs_organic`, with separate counts for ad reads, endorsements, and organic recommendations. Each momentum lookup uses 10 credits from your plan. See [plans and usage](https://arcmira.com/docs/usage-and-billing).
+
+Search Cloudflare transcripts to find what drove the increase and whether people are enthusiastic, critical, or concerned. The response also includes `top_shows` when you want to choose which shows to investigate first.
+
+[See which companies are gaining attention in Famous Rankings](https://arcmira.com/famous/companies/view/rising). Explore rising companies, the shows discussing them, and eight weeks of history to find your next research lead.
+
+Momentum measures mention volume across indexed shows. Famous Rankings uses its own [ranking method](https://arcmira.com/famous/method) to compare companies. Follow the mentions to learn whether an increase reflects a product launch, customer enthusiasm, sponsorships, or controversy. Need more coverage for your market? [Help shape the index](#help-shape-the-index).
+
+### Set up YouTube monitoring
+
+Set up YouTube monitoring for a person, company, product, or topic to get alerts when they are mentioned across videos and podcasts.
+
+This example creates a monitor in your account for PlanetScale, using the company resolved above. A monitor sets delivery preferences; each tracker follows a name or channel. See [monitor delivery options](https://arcmira.com/docs/monitors#delivery) to choose email, Slack or a webhook.
+
+```python
+created = client.monitors.create(
+    name=f"{company.name} mentions", notify_frequency="daily",
+)
+added = client.monitors.entities.add(created.monitor.id, entity_ids=[company.id])
+for result in added.results:
+    print(f"Tracker: {result.tracker_id}" if result.attached else result.reason)
+```
+
+Every method is listed with its request and response types in [reference.md](reference.md). The same operations, with `curl` samples, are in the [API reference](https://arcmira.com/docs/api-reference).
 
 ## Errors
 
@@ -197,17 +616,9 @@ See [CHANGELOG.md](CHANGELOG.md) for what changed from 0.3.
 
 The [Arcmira MCP server](https://github.com/arcmira/mcp) gives AI agents the same data at `https://mcp.arcmira.com/mcp`. [llms.txt](llms.txt) describes this package for agents.
 
-## Regenerate and verify
+## Contributing
 
-Run `bash scripts/generate.sh` with Node 22 or newer, Python 3, Docker, and Fern access for the `arcmira` organization. Generation pins Fern CLI 5.131.1 and Python generator 5.31.0, disables CLI version redirection and telemetry, and reads `fern/openapi.json`. `fern/method-names.json` names the group and method of every operation by operationId. An operation without a name, or a name for an operation the document lacks, fails the build. The overlay combines the transcript read's success schemas into `TranscriptResult` and rejects unknown or ambiguous cursor collections. Generated source is never edited by hand. `scripts/overrides/api_error.py` holds the `ApiError` text, and the installer copies it back after every generation.
-
-```sh
-uv sync
-uv run python -m unittest discover -s tests -v
-uv build
-```
-
-The tests use a local HTTP server that returns the bodies the API sends. They check both client variants, the ready and pending reads, typed refusals with their quote, the query and body each call sends, and opaque pagination. They need no live API key and use no credits.
+We are hiring. ASI-pilled technical people only. Figure it out.
 
 ## License
 
