@@ -34,7 +34,7 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://arcmira.com/docs"
+Homepage = "https://arcmira.com"
 Website = "https://arcmira.com"
 Documentation = "https://arcmira.com/docs"
 Repository = "https://github.com/arcmira/python"
