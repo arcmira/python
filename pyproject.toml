@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "arcmira"
 dynamic = ["version"]
-description = "YouTube transcript search with timestamps, mentions, sponsors and recommendations. Official Arcmira Python SDK."
+description = "YouTube and podcast transcript search with the official Arcmira Python SDK. Find timestamped quotes, mentions, sponsors and recommendations."
 readme = "README.md"
 license = "Apache-2.0"
 license-files = ["LICENSE"]
@@ -20,6 +20,7 @@ keywords = [
   "youtube monitoring",
   "mcp",
   "youtube-transcript-search",
+  "podcast-transcript-search",
   "youtube-transcript-api",
   "transcript-search",
   "youtube-transcript",
