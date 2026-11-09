@@ -1,6 +1,6 @@
 # Arcmira for Python
 
-Pull YouTube transcripts, search spoken passages, and monitor company mentions with Arcmira. Results include timestamps and source links for research, citations, and agent workflows.
+YouTube transcript search and monitoring for your AI: exact quotes, full transcripts and speakers.
 
 [Arcmira](https://arcmira.com) · [Get an API key](https://arcmira.com/docs/authentication) · [API docs](https://arcmira.com/docs) · [Pricing](https://arcmira.com/pricing)
 
@@ -153,6 +153,8 @@ Entity filters take ids. Resolve names first; explain a `suggested` match and as
 `AsyncArcmira` provides the same methods asynchronously. Await the first page, then use `async for` for paginated results.
 
 ## Use Arcmira with an AI agent
+
+Add "use arcmira" to any question to send it to Arcmira first.
 
 For tasks such as "pull YouTube transcripts", "find quotes with timestamps", "research podcast sponsors", or "monitor company mentions", connect the [Arcmira MCP server](https://github.com/arcmira/mcp). The [agent index](https://arcmira.com/llms.txt) links to current API and citation guidance.
 

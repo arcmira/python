@@ -51,7 +51,12 @@
       ],
       "rows_billed": 4,
       "as_of": "2026-09-01T09:00:00.000Z",
-      "note": "This transcript is the video's own caption track. `creator_captions` were written or approved by the channel; `third_party_quick` are YouTube's automatic captions and can misspell names and drop punctuation. `language` says which track you got."
+      "note": "This transcript is the video's own caption track. `creator_captions` were written or approved by the channel; `third_party_quick` are YouTube's automatic captions and can misspell names and drop punctuation. `language` says which track you got.",
+      "base_language": "en",
+      "translation_languages": [
+        "en",
+        "es"
+      ]
     },
     "responses": {
       "200": {
@@ -106,7 +111,12 @@
           ],
           "rows_billed": 4,
           "as_of": "2026-09-01T09:00:00.000Z",
-          "note": "This transcript is the video's own caption track. `creator_captions` were written or approved by the channel; `third_party_quick` are YouTube's automatic captions and can misspell names and drop punctuation. `language` says which track you got."
+          "note": "This transcript is the video's own caption track. `creator_captions` were written or approved by the channel; `third_party_quick` are YouTube's automatic captions and can misspell names and drop punctuation. `language` says which track you got.",
+          "base_language": "en",
+          "translation_languages": [
+            "en",
+            "es"
+          ]
         }
       },
       "202": {
@@ -272,7 +282,12 @@
       "revision": "rev_1",
       "rows_billed": 0,
       "as_of": "2026-08-05T00:00:00.000Z",
-      "note": "Premium transcripts are Arcmira's own. Every Premium transcript is diarized: each line carries a speaker. We identify each speaker from the audio, the video, and internal and community review. We are right most of the time and wrong sometimes, so when a name matters, say it came from Arcmira's speaker identification and cite the line."
+      "note": "Premium transcripts are Arcmira's own. Every Premium transcript is diarized: each line carries a speaker. We identify each speaker from the audio, the video, and internal and community review. We are right most of the time and wrong sometimes, so when a name matters, say it came from Arcmira's speaker identification and cite the line.",
+      "base_language": "en",
+      "translation_languages": [
+        "en",
+        "es"
+      ]
     }
   },
   "job_ready": {

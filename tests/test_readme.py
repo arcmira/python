@@ -51,6 +51,19 @@ class ReadmeTests(unittest.TestCase):
         self.assertEqual(json.loads(requests[3].content), dict(names=[dict(name='PlanetScale', type='organization')]))
         self.assertTrue(all(r.headers['Authorization'] == 'Bearer fixture-key' for r in requests))
 
+    def test_search_exposes_match_and_nullable_line_timestamp(self):
+        for seconds in (1, None):
+            with self.subTest(seconds=seconds):
+                body = json.loads(json.dumps(RESPONSES['search']))
+                body['chunks'][0]['line_start_seconds'] = seconds
+                with httpx.Client(transport=httpx.MockTransport(
+                    lambda request: httpx.Response(200, json=body)
+                )) as http:
+                    client = Arcmira(api_key='fixture-key', httpx_client=http, max_retries=0)
+                    hit = client.transcripts.search(q='GPU demand', limit=20).chunks[0]
+                    self.assertEqual(hit.match, 'phrase')
+                    self.assertEqual(hit.line_start_seconds, seconds)
+
     def test_supplier_comparison_resolves_speaker_and_searches_both_windows(self):
         requests = []
         def respond(request):

@@ -35,7 +35,7 @@ class Mention(UniversalBaseModel):
 
     description: typing.Optional[str] = pydantic.Field(default=None)
     """
-    One-sentence description of the mention context. Null when not generated.
+    One sentence on why the entity comes up in this video, written to sit under the quoted line. Some mentions read in October 2026 hold the quoted transcript line instead. Null when not generated.
     """
 
     confidence: typing.Optional[float] = pydantic.Field(default=None)

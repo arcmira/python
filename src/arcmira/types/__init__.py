@@ -251,6 +251,7 @@ if typing.TYPE_CHECKING:
         TranscriptResult_Ready,
     )
     from .transcript_search_chunk import TranscriptSearchChunk
+    from .transcript_search_chunk_match import TranscriptSearchChunkMatch
     from .transcript_search_response import TranscriptSearchResponse
     from .transcript_search_response_access import TranscriptSearchResponseAccess
     from .transcript_search_response_access_details import TranscriptSearchResponseAccessDetails
@@ -513,6 +514,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "TranscriptResult_Pending": ".transcript_result",
     "TranscriptResult_Ready": ".transcript_result",
     "TranscriptSearchChunk": ".transcript_search_chunk",
+    "TranscriptSearchChunkMatch": ".transcript_search_chunk_match",
     "TranscriptSearchResponse": ".transcript_search_response",
     "TranscriptSearchResponseAccess": ".transcript_search_response_access",
     "TranscriptSearchResponseAccessDetails": ".transcript_search_response_access_details",
@@ -799,6 +801,7 @@ __all__ = [
     "TranscriptResult_Pending",
     "TranscriptResult_Ready",
     "TranscriptSearchChunk",
+    "TranscriptSearchChunkMatch",
     "TranscriptSearchResponse",
     "TranscriptSearchResponseAccess",
     "TranscriptSearchResponseAccessDetails",

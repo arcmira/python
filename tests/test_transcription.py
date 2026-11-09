@@ -141,10 +141,14 @@ class GeneratedClientTests(unittest.TestCase):
         self.assertEqual(ready.status_code, 200)
         self.assertIsInstance(ready.data, TranscriptResult_Ready)
         self.assertEqual(ready.data.quality, 'captions')
+        self.assertEqual(ready.data.base_language, 'en')
+        self.assertEqual(ready.data.translation_languages, ['en', 'es'])
         self.assertEqual(ready.data.lines[0].text, FIXTURES['get_transcript']['body']['lines'][0]['text'])
         premium = self.client.transcripts.get('dQw4w9WgXcQ', quality='premium')
         self.assertIsInstance(premium, TranscriptResult_Ready)
         self.assertEqual(premium.quality, 'premium')
+        self.assertEqual(premium.base_language, 'en')
+        self.assertEqual(premium.translation_languages, ['en', 'es'])
         self.assertEqual(premium.revision, FIXTURES['premium_ready']['body']['revision'])
 
     def test_premium_pending_carries_the_job_and_retry_after(self):

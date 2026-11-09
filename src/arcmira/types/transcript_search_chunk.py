@@ -5,6 +5,7 @@ import typing
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 from .named_entity_ref import NamedEntityRef
+from .transcript_search_chunk_match import TranscriptSearchChunkMatch
 
 
 class TranscriptSearchChunk(UniversalBaseModel):
@@ -65,22 +66,32 @@ class TranscriptSearchChunk(UniversalBaseModel):
 
     start_seconds: typing.Optional[int] = pydantic.Field(default=None)
     """
-    Offset of the slice in the video, in seconds.
+    Where the slice starts in the video, in seconds. The line that matched q can be up to a minute later; line_start_seconds says when it is said.
+    """
+
+    line_start_seconds: typing.Optional[int] = pydantic.Field(default=None)
+    """
+    When the line that best matches q starts, in whole seconds from the start of the video: the line where q starts as a phrase, otherwise the first of the fewest consecutive lines holding the most words of q. With by, the person's own line. watch_url and cite_line open here. Null when no line can be placed, for example on a passage indexed before line times were stored; watch_url and cite_line then open at start_seconds.
     """
 
     watch_url: str = pydantic.Field()
     """
-    Absolute watch URL on arcmira.com with the timestamp, e.g. https://arcmira.com/watch?v=...&t=4787.
+    Absolute watch URL on arcmira.com at line_start_seconds (start_seconds when it is null), e.g. https://arcmira.com/watch?v=...&t=4787.
     """
 
     cite_line: typing.Optional[str] = pydantic.Field(default=None)
     """
-    A ready citation line: title, clock, channel, date.
+    A ready citation line: title, clock, channel, date. The clock is the second watch_url opens at.
     """
 
     score: float = pydantic.Field()
     """
     Retrieval score. Higher is a closer match. Not comparable across calls.
+    """
+
+    match: TranscriptSearchChunkMatch = pydantic.Field()
+    """
+    How the passage holds q, ignoring case and punctuation: phrase holds every word of q in order, all_words holds each content word somewhere, partial holds only some. Passages holding the phrase or every word rank first. When no chunk is a phrase match, note says so.
     """
 
     about: typing.Optional[typing.List[NamedEntityRef]] = pydantic.Field(default=None)

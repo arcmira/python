@@ -28,7 +28,9 @@ class TranscriptResult_Ready(UniversalBaseModel):
     quality: TranscriptResponseQuality
     source: TranscriptResponseSource
     language: str
+    base_language: str
     languages: typing.List[CaptionTrack]
+    translation_languages: typing.List[str]
     lines: typing.Optional[typing.List[TranscriptResponseLinesItem]] = None
     paragraphs: typing.Optional[typing.List[TranscriptResponseParagraphsItem]] = None
     speakers: typing.Optional[typing.List[TranscriptResponseSpeakersItem]] = None
