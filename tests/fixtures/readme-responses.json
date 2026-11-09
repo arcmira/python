@@ -42,7 +42,9 @@
         "text": "TSMC on air",
         "start_seconds": 1,
         "watch_url": "https://arcmira.com/watch?v=dQw4w9WgXcQ&t=1",
-        "score": 1
+        "score": 1,
+        "match": "phrase",
+        "line_start_seconds": 1
       }
     ],
     "as_of": "x",
@@ -82,6 +84,11 @@
         "end": 4,
         "text": "Welcome back to the show."
       }
+    ],
+    "base_language": "x",
+    "translation_languages": [
+      "en",
+      "es"
     ]
   },
   "create_monitor": {

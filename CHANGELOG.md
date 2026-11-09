@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.6.3
+
+Generated from the API document of 2026-11-09.
+
+- Transcript responses expose `base_language` and `translation_languages`.
+- Search passages expose `match` (`phrase`, `all_words`, or `partial`) and nullable `line_start_seconds`. Watch links target the matching line when available.
+- Refresh reference descriptions for search filters, transcript windows, alert delivery, and temporary service errors.
+- Update package descriptions and README introductions for transcript search and monitoring.
+
 ## 0.6.2
 
 - Lead the README with tested examples for transcript reads, quotes with source links, and company monitoring.

@@ -61,7 +61,7 @@ class Alert(UniversalBaseModel):
 
     status: str = pydantic.Field()
     """
-    Delivery status. Values: pending (queued for delivery), sent (delivered), failed (delivery failed; see error_message), skipped (delivery intentionally skipped).
+    Delivery status. Values: pending (queued for delivery), sending (handed to the destination, answer not yet recorded), sent (delivered), unconfirmed (handed to the destination with no answer recorded; counted as delivered), failed (delivery failed; see error_message), skipped (delivery intentionally skipped).
     """
 
     final_status: typing.Optional[str] = pydantic.Field(default=None)

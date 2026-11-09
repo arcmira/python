@@ -30,12 +30,22 @@ class TranscriptResponse(UniversalBaseModel):
 
     language: str = pydantic.Field()
     """
-    The resolved track code, asr-en style when the track is automatic.
+    The language of the lines: the resolved track code (asr-en style when the track is automatic) or, when the transcript was translated, the code it was translated into.
+    """
+
+    base_language: str = pydantic.Field()
+    """
+    The transcript's own language, as a code (en, es): the original caption track's, or the language a Premium transcript was spoken and transcribed in. language= returns the transcript in it; a language other than base_language means the lines were translated.
     """
 
     languages: typing.List[CaptionTrack] = pydantic.Field()
     """
     Every caption track the video offers. Empty when we did not list them on this call.
+    """
+
+    translation_languages: typing.List[str] = pydantic.Field()
+    """
+    The codes language can name on this read. On captions, only the languages YouTube makes available for the video (its own tracks, and its auto-translate languages); on Premium, every language Arcmira translates into, at the Premium rate.
     """
 
     lines: typing.Optional[typing.List[TranscriptResponseLinesItem]] = pydantic.Field(default=None)
@@ -65,7 +75,7 @@ class TranscriptResponse(UniversalBaseModel):
 
     rows_billed: int = pydantic.Field()
     """
-    Credits this captions read used, in rows (a row is 4 credits): 4 credits per started 15 minutes. 0 on a repeat of the same video, quality, language, and range inside the 7 day dedupe window. Premium reads report 0, because the Premium transcript job carries their charge.
+    Credits this captions read used, in rows (a row is 4 credits): 4 credits per started 15 minutes. 0 on a repeat of the same video, quality, language, translation, and range inside the 7 day dedupe window. Premium reads report 0, because the Premium transcript job carries their charge, except the read that pays for a Premium transcript in another language, which reports its rows.
     """
 
     as_of: typing.Optional[str] = pydantic.Field(default=None)
